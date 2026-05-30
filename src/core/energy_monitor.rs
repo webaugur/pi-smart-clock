@@ -15,16 +15,21 @@ impl EnergyMonitor {
         }
     }
 
-    pub async fn update<P: Platform>(&mut self, platform: &mut P) {
-        // TODO: Fetch from MQTT topic or HTTP API
-        self.current_power_w = 42.7;
-        self.total_energy_kwh += 0.001;
+    pub async fn update_from_mqtt<P: Platform>(&mut self, platform: &mut P, topic: &str, payload: &str) {
+        if topic.contains("power") {
+            if let Ok(power) = payload.parse::<f32>() {
+                self.current_power_w = power;
+            }
+        }
+        if topic.contains("energy") {
+            if let Ok(energy) = payload.parse::<f32>() {
+                self.total_energy_kwh = energy;
+            }
+        }
     }
 
-    pub async fn draw<P: Platform>(&self, platform: &mut P, x: i32, y: i32, w: i32, h: i32) {
-        platform.draw_rect(x, y, w, h, 0x1A2A3A);
-        platform.draw_text("ENERGY", x + 20, y + 10, 14, 0x00FFAA);
-        platform.draw_text(&format!("{:.1} W", self.current_power_w), x + 20, y + 40, 22, 0xFFFFFF);
-        platform.draw_text(&format!("{:.2} kWh", self.total_energy_kwh), x + 20, y + 70, 14, 0xAAAAAA);
+    pub async fn draw<P: Platform>(&self, platform: &mut P, x: i32, y: i32) {
+        platform.draw_text(&format!("Power: {:.1} W", self.current_power_w), x, y, 16, 0x00FFAA);
+        platform.draw_text(&format!("Energy: {:.2} kWh", self.total_energy_kwh), x, y + 25, 16, 0x00FFAA);
     }
 }
