@@ -21,9 +21,15 @@ impl AlertManager {
     }
 
     pub async fn check_nws_alerts<P: Platform>(&mut self, platform: &mut P) {
-        // TODO: Real NWS CAP API call via ESP8266
+        // In real implementation this would call ESP8266 to query NWS CAP API
+        // For now it uses force_radar toggle from menu
         if self.force_radar {
             self.radar_active = true;
+            self.amber_silver_active = false; // Example
         }
+    }
+
+    pub fn has_active_alert(&self) -> bool {
+        self.radar_active || self.amber_silver_active || self.force_radar
     }
 }
