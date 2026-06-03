@@ -6,21 +6,21 @@ edition = "2021"
 [features]
 default = ["linux-full"]
 linux-full = ["sdl2/ttf", "sdl2/mixer", "tokio/full", "reqwest", "cron"]
-pico-dvi = ["embassy-executor", "embassy-time", "embassy-rp", "embedded-graphics"]
+pico-dvi = ["embassy-executor", "embassy-time", "embassy-rp", "embedded-graphics", "cortex-m-rt"]
 
 [dependencies]
-# Linux / Desktop
+# === Linux / Desktop ===
 sdl2 = { version = "0.38", features = ["ttf", "mixer"], optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
 reqwest = { version = "0.12", features = ["json"], optional = true }
 cron = { version = "0.12", optional = true }
 
-# Common
+# === Common ===
 chrono = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
-# Pico / Embassy
+# === Pico / Embassy ===
 embassy-executor = { version = "0.6", optional = true, features = ["arch-cortex-m", "executor-thread"] }
 embassy-time = { version = "0.3", optional = true }
 embassy-rp = { version = "0.4", optional = true, features = ["time-driver", "critical-section-impl"] }
