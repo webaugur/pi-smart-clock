@@ -1,82 +1,47 @@
-#![cfg_attr(feature = "pico-dvi", no_std)]
-#![cfg_attr(feature = "pico-dvi", no_main)]
-
-mod config;
-mod core;
-mod drivers;
-mod platform;
-mod web;
-mod ota;
-
+use sdl2::pixels::Color;
+use sdl2::event::Event;
+use sdl2::keyboard::Keycode;
+use std::time::Duration;
 use chrono::Local;
 
-#[cfg(feature = "linux-full")]
-#[tokio::main]
-async fn main() -> Result<(), String> {
-    println!("\n\u{1F680} Smart Clock v0.1.0 - Linux Mode");
-    let mut platform = platform::linux::LinuxPlatform::new()?;
-    run_app(&mut platform).await
-}
+mod core;
 
-#[cfg(feature = "pico-dvi")]
-#[embassy_executor::main]
-async fn main() -> ! {
-    println!("\n\u{1F680} Smart Clock v0.1.0 - Pico DVI Mode");
-    let mut platform = platform::rp2040::PicoDviPlatform::new();
-    run_app(&mut platform).await;
-    loop {}
-}
+fn main() -> Result<(), String> {
+    let sdl_context = sdl2::init()?;
+    let video_subsystem = sdl_context.video()?;
 
-async fn run_app<P: drivers::platform::Platform>(platform: &mut P) {
-    // Boot screen
-    core::boot_screen::show(platform).await;
+    let window = video_subsystem
+        .window("Smart Clock", 800, 480)
+        .position_centered()
+        .fullscreen()
+        .build()
+        .map_err(|e| e.to_string())?;
 
-    // Initialize all systems
-    platform.init().await.expect("Platform init failed");
+    let mut canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
+    let mut event_pump = sdl_context.event_pump()?;
 
-    // DS3231 time sync
-    drivers::ds3231::DS3231::synchronize(platform).await;
+    println!("\u{2705} Smart Clock started (Linux/SDL2 mode)");
 
-    // Start main systems
-    let mut scheduler = core::update_scheduler::UpdateScheduler::new();
-    let mut alert_manager = core::alerts::AlertManager::new();
-    let mut sensor = core::sensors::Aht20Sensor::new();
-    let mut alarm_manager = core::alarm::AlarmManager::new();
-    let mut mqtt = drivers::mqtt::MqttClient::new();
-    let mut ota = ota::updater::OtaUpdater::new();
-
-    // MQTT setup (LAN)
-    mqtt.connect(platform, config::MQTT_BROKER, config::MQTT_PORT, config::MQTT_USER, config::MQTT_PASS).await;
-    mqtt.subscribe(platform, "smartclock/#").await;
-
-    // Main loop
-    loop {
-        // Update scheduler (smart timing)
-        scheduler.tick(platform, &alert_manager).await;
-
-        // Read sensors
-        sensor.read(platform).await;
-
-        // Check alerts
-        alert_manager.check_nws_alerts(platform).await;
-
-        // Draw everything
-        core::clock::update(platform).await;
-        core::status_bar::draw(platform, sensor.temp_c, env!("GIT_HASH")).await;
-        core::weather::draw(platform, &sensor).await;
-
-        // Process alarms
-        alarm_manager.check(platform, Local::now()).await;
-
-        // Process MQTT commands
-        mqtt.process_incoming(platform).await;
-
-        // OTA check (if enabled)
-        if ota.enabled {
-            ota.check_web_update(platform).await;
+    'running: loop {
+        for event in event_pump.poll_iter() {
+            match event {
+                Event::Quit { .. } |
+                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+                    break 'running;
+                }
+                _ => {}
+            }
         }
 
-        platform.present();
-        platform.delay_ms(16).await;
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        canvas.clear();
+
+        let now = Local::now();
+        core::clock::draw(&mut canvas, now)?;
+
+        canvas.present();
+        std::thread::sleep(Duration::from_millis(16));
     }
+
+    Ok(())
 }
