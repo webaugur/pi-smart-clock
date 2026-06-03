@@ -9,7 +9,6 @@ mod web;
 mod ota;
 
 use chrono::Local;
-use embassy_time::Timer;
 
 #[cfg(feature = "linux-full")]
 #[tokio::main]
@@ -63,7 +62,7 @@ async fn run_app<P: drivers::platform::Platform>(platform: &mut P) {
 
         // Draw everything
         core::clock::update(platform).await;
-        core::status_bar::draw(platform, &sensor).await;
+        core::status_bar::draw(platform, sensor.temp_c, env!("GIT_HASH")).await;
         core::weather::draw(platform, &sensor).await;
 
         // Process alarms
