@@ -2,35 +2,18 @@
 name = "pi-smart-clock"
 version = "0.1.0"
 edition = "2021"
-authors = ["David L Norris"]
-description = "Advanced Roman Numeral Smart Clock for Raspberry Pi Pico 1 + DVI Sock + ESP8266 (Embassy)"
 
 [features]
 default = ["linux-full"]
-linux-full = ["sdl2", "tokio/full", "reqwest", "cron", "serde", "serde_json"]
-pico-dvi = ["embassy-executor", "embassy-rp", "embassy-time", "embedded-hal", "embedded-graphics", "cortex-m-rt"]
+linux-full = ["sdl2", "chrono"]
+pico-dvi = ["embassy-executor", "embassy-rp", "embedded-graphics"]
 
 [dependencies]
-# Common
-chrono = { version = "0.4", features = ["serde"] }
-serde = { version = "1.0", features = ["derive"], optional = true }
-serde_json = { version = "1.0", optional = true }
-
-# Linux Platform
+# Linux / Desktop
 sdl2 = { version = "0.38", features = ["ttf", "mixer"], optional = true }
-tokio = { version = "1", features = ["full"], optional = true }
-cron = { version = "0.12", optional = true }
-reqwest = { version = "0.12", features = ["json"], optional = true }
+chrono = { version = "0.4", optional = true }
 
-# Pico Bare-Metal Embassy
+# Pico / Embedded
 embassy-executor = { version = "0.6", features = ["task-arena"], optional = true }
-embassy-rp = { version = "0.4", features = ["time-driver", "critical-section-impl"], optional = true }
-embassy-time = { version = "0.3", optional = true }
-embedded-hal = { version = "1.0", optional = true }
+embassy-rp = { version = "0.4", optional = true }
 embedded-graphics = { version = "0.8", optional = true }
-cortex-m-rt = { version = "0.7", optional = true }
-
-[profile.release]
-opt-level = "s"
-lto = true
-codegen-units = 1
