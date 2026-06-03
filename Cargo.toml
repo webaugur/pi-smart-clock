@@ -20,8 +20,8 @@ chrono = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
-# === Pico / Embassy ===
-embassy-executor = { version = "0.6", optional = true, features = ["arch-cortex-m", "executor-thread"] }
+# === Pico / Embassy (Updated to 0.10) ===
+embassy-executor = { version = "0.10", optional = true, features = ["arch-cortex-m", "executor-thread"] }
 embassy-time = { version = "0.3", optional = true }
 embassy-rp = { version = "0.4", optional = true, features = ["time-driver", "critical-section-impl"] }
 embedded-graphics = { version = "0.8", optional = true }
