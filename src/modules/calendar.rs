@@ -1,3 +1,5 @@
+use crate::modules::bottom_module::{BottomModule, PanelLine};
+use crate::modules::module_id::ModuleId;
 use crate::panel::Panel;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
@@ -17,6 +19,31 @@ impl CalendarPanel {
                 "15:00 Project Review".to_string(),
             ],
         }
+    }
+}
+
+impl BottomModule for CalendarPanel {
+    fn id(&self) -> ModuleId {
+        ModuleId::Calendar
+    }
+
+    fn draw_background(&mut self, canvas: &mut Canvas<Window>, x: i32, y: i32, w: i32, h: i32) {
+        self.draw(canvas, x, y, w, h);
+    }
+
+    fn title(&self) -> (String, u32) {
+        ("Calendar".to_string(), 0x88AAFF)
+    }
+
+    fn lines(&self) -> Vec<PanelLine> {
+        self.events
+            .iter()
+            .take(3)
+            .map(|ev| PanelLine {
+                text: ev.clone(),
+                size_pt: 0,
+            })
+            .collect()
     }
 }
 

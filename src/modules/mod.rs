@@ -1,6 +1,9 @@
 pub mod bar;
+pub mod bottom_module;
 pub mod calendar;
 pub mod config;
 pub mod holidays;
-pub mod kind;
+pub mod module_id;
+pub mod registry;
+pub mod slot;
 pub mod weather;

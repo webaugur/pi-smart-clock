@@ -1,3 +1,5 @@
+use crate::modules::bottom_module::{BottomModule, PanelLine};
+use crate::modules::module_id::ModuleId;
 use crate::panel::Panel;
 use sdl2::pixels::Color;
 use sdl2::rect::Rect;
@@ -17,6 +19,31 @@ impl HolidaysPanel {
                 "Sep 1 - Labor Day".to_string(),
             ],
         }
+    }
+}
+
+impl BottomModule for HolidaysPanel {
+    fn id(&self) -> ModuleId {
+        ModuleId::Holidays
+    }
+
+    fn draw_background(&mut self, canvas: &mut Canvas<Window>, x: i32, y: i32, w: i32, h: i32) {
+        self.draw(canvas, x, y, w, h);
+    }
+
+    fn title(&self) -> (String, u32) {
+        ("Holidays".to_string(), 0xFFAA88)
+    }
+
+    fn lines(&self) -> Vec<PanelLine> {
+        self.holidays
+            .iter()
+            .take(3)
+            .map(|h| PanelLine {
+                text: h.clone(),
+                size_pt: 0,
+            })
+            .collect()
     }
 }
 

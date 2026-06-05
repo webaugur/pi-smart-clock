@@ -10,6 +10,8 @@ use sdl2::rect::Rect;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 
+use crate::modules::bottom_module::{BottomModule, PanelLine};
+use crate::modules::module_id::ModuleId;
 use crate::panel::Panel;
 
 pub use api::{fetch_weather, fetch_weather_data, format_temp, WeatherSnapshot};
@@ -195,6 +197,53 @@ impl WeatherPanel {
             .as_ref()
             .map(|s| s.temp.round() as i32)
             .unwrap_or(0)
+    }
+}
+
+impl BottomModule for WeatherPanel {
+    fn id(&self) -> ModuleId {
+        ModuleId::Weather
+    }
+
+    fn draw_background(&mut self, canvas: &mut Canvas<Window>, x: i32, y: i32, w: i32, h: i32) {
+        self.draw(canvas, x, y, w, h);
+    }
+
+    fn title(&self) -> (String, u32) {
+        (self.panel_title(), 0x00FFAA)
+    }
+
+    fn lines(&self) -> Vec<PanelLine> {
+        let mut lines = vec![
+            PanelLine {
+                text: self.temp_display(),
+                size_pt: 36,
+            },
+            PanelLine {
+                text: self.condition().to_string(),
+                size_pt: 0,
+            },
+            PanelLine {
+                text: self.humidity_line(),
+                size_pt: 0,
+            },
+            PanelLine {
+                text: self.aqi_line(),
+                size_pt: 0,
+            },
+        ];
+        let status = self.status_line();
+        if !status.is_empty() {
+            lines.push(PanelLine {
+                text: status,
+                size_pt: 0,
+            });
+        }
+        lines
+    }
+
+    fn tick(&mut self, alerts_active: bool) {
+        self.refresh_if_due(alerts_active);
     }
 }
 
