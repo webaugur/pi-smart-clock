@@ -14,6 +14,7 @@ impl HolidaysPanel {
             holidays: vec![
                 "Jun 19 - Juneteenth".to_string(),
                 "Jul 4 - Independence Day".to_string(),
+                "Sep 1 - Labor Day".to_string(),
             ],
         }
     }
