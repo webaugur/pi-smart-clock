@@ -10,7 +10,7 @@ impl WebServer {
         Self { enabled: true }
     }
 
-    pub async fn handle_request<P: Platform>(&self, platform: &mut P, path: &str) -> String {
+    pub async fn handle_request<P: Platform>(&self, _platform: &mut P, path: &str) -> String {
         match path {
             "/" => self.home_page(),
             "/alarms" => self.alarms_page(),

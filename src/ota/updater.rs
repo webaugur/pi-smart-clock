@@ -9,7 +9,7 @@ impl OtaUpdater {
         Self { enabled: false }
     }
 
-    pub async fn check_and_update<P: Platform>(&mut self, platform: &mut P) {
+    pub async fn check_and_update<P: Platform>(&mut self, _platform: &mut P) {
         if !self.enabled { return; }
         // Download + flash logic with rollback
     }

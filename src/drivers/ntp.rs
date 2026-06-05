@@ -1,5 +1,4 @@
 use crate::drivers::platform::Platform;
-use chrono::Local;
 
 pub struct NtpClient;
 

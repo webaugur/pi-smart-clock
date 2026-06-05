@@ -1,3 +1,5 @@
+#![allow(async_fn_in_trait)]
+
 use chrono::{DateTime, Local};
 
 /// Hardware abstraction for Pico (Embassy) and Linux (SDL2) builds.

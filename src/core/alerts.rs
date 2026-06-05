@@ -1,5 +1,5 @@
 use crate::drivers::platform::Platform;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 pub struct AlertManager {
     pub same_codes: [String; 9],
@@ -20,12 +20,18 @@ impl AlertManager {
         }
     }
 
-    pub async fn check_nws_alerts<P: Platform>(&mut self, platform: &mut P) {
-        // In real implementation this would call ESP8266 to query NWS CAP API
-        // For now it uses force_radar toggle from menu
+    pub async fn check_nws_alerts<P: Platform>(&mut self, _platform: &mut P) {
+        let now = Instant::now();
+        if let Some(last) = self.last_check {
+            if now.duration_since(last) < Duration::from_secs(60) {
+                return;
+            }
+        }
+        self.last_check = Some(now);
+
         if self.force_radar {
             self.radar_active = true;
-            self.amber_silver_active = false; // Example
+            self.amber_silver_active = false;
         }
     }
 

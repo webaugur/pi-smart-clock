@@ -25,8 +25,6 @@ impl TimeSetUI {
             if !self.editing {
                 self.editing = true;
             } else {
-                // Commit to DS3231
-                let _now = Local::now();
                 let _hour = self.hour;
                 let _minute = self.minute;
                 // DS3231::set_time(platform, _hour, _minute).await;
@@ -45,9 +43,29 @@ impl TimeSetUI {
         }
 
         if self.editing {
-            platform.clear_center_area();
-            platform.draw_text(&format!("{:02}:{:02}", self.hour, self.minute), 320, 200, 48, 0xFFFF00);
-            platform.draw_text(if self.selected_field == 0 { "↑ Hour" } else { "↑ Minute" }, 340, 260, 18, 0x88CCFF);
+            platform.clear_center_area().await;
+            platform
+                .draw_text(
+                    &format!("{:02}:{:02}", self.hour, self.minute),
+                    320,
+                    200,
+                    48,
+                    0xFFFF00,
+                )
+                .await;
+            platform
+                .draw_text(
+                    if self.selected_field == 0 {
+                        "↑ Hour"
+                    } else {
+                        "↑ Minute"
+                    },
+                    340,
+                    260,
+                    18,
+                    0x88CCFF,
+                )
+                .await;
         }
     }
 }

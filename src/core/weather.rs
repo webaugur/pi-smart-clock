@@ -1,5 +1,5 @@
-use crate::drivers::platform::Platform;
 use crate::core::alerts::AlertManager;
+use crate::drivers::platform::Platform;
 
 pub struct WeatherPanel {
     pub last_update: u64,
@@ -14,23 +14,28 @@ impl WeatherPanel {
         }
     }
 
-    pub async fn update<P: Platform>(&mut self, platform: &mut P, alerts: &AlertManager) {
-        // Smart scheduling: 3 hours normally, 5 minutes during alerts
+    pub async fn update<P: Platform>(&mut self, _platform: &mut P, alerts: &AlertManager) {
         let interval = if alerts.radar_active || alerts.amber_silver_active {
-            5 * 60 // 5 minutes
+            5 * 60
         } else {
-            3 * 60 * 60 // 3 hours
+            3 * 60 * 60
         };
-
-        let _ = interval;
+        self.last_update = interval;
     }
 
-    pub async fn draw_radar_overlay<P: Platform>(&self, platform: &mut P, alerts: &AlertManager) {
+    pub async fn draw_radar_overlay<P: Platform>(
+        &self,
+        platform: &mut P,
+        alerts: &AlertManager,
+    ) {
         if self.radar_enabled && (alerts.radar_active || alerts.amber_silver_active) {
-            // Draw radar in bottom center panel
-            platform.draw_rect(267, 320, 266, 160, 0x112244);
-            platform.draw_text("WEATHER RADAR", 310, 370, 18, 0x00FFAA);
-            platform.draw_text("Active Alert Overlay", 300, 400, 14, 0x88FF88);
+            platform.draw_rect(267, 320, 266, 160, 0x112244).await;
+            platform
+                .draw_text("WEATHER RADAR", 310, 370, 18, 0x00FFAA)
+                .await;
+            platform
+                .draw_text("Active Alert Overlay", 300, 400, 14, 0x88FF88)
+                .await;
         }
     }
 }

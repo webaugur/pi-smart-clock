@@ -28,7 +28,7 @@ impl MenuSystem {
         }
     }
 
-    pub async fn update<P: Platform>(&mut self, platform: &mut P, encoder: &mut RotaryEncoder) {
+    pub async fn update<P: Platform>(&mut self, _platform: &mut P, encoder: &mut RotaryEncoder) {
         self.close_requested = false;
         self.open_time_set = false;
         self.open_about = false;
