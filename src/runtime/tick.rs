@@ -134,18 +134,18 @@ pub async fn render_linux<P: Platform + SdlPlatformExt>(
         platform
             .draw_text(
                 &format!("{}°", state.weather_panel.temp()),
-                CENTER_X + 15,
-                CENTER_Y + 20,
-                20,
+                CENTER_X + 24,
+                CENTER_Y + 32,
+                32,
                 0xFFFFFF,
             )
             .await;
         platform
             .draw_text(
                 state.weather_panel.condition(),
-                CENTER_X + 15,
-                CENTER_Y + 50,
-                16,
+                CENTER_X + 24,
+                CENTER_Y + 80,
+                26,
                 0xAAAAAA,
             )
             .await;
@@ -156,18 +156,20 @@ pub async fn render_linux<P: Platform + SdlPlatformExt>(
     state.holidays_panel
         .draw(platform.canvas_mut(), HOL_X, HOL_Y, HOL_W, HOL_H);
 
-    platform.draw_text("Calendar", CAL_X + 10, CAL_Y + 5, 14, 0x88AAFF).await;
+    platform
+        .draw_text("Calendar", CAL_X + 16, CAL_Y + 8, 22, 0x88AAFF)
+        .await;
     for (i, ev) in state.calendar_panel.events.iter().take(3).enumerate() {
         platform
-            .draw_text(ev, CAL_X + 10, CAL_Y + 30 + (i as i32) * 22, 12, 0xCCCCCC)
+            .draw_text(ev, CAL_X + 16, CAL_Y + 48 + (i as i32) * 35, 19, 0xCCCCCC)
             .await;
     }
     platform
-        .draw_text("Holidays", HOL_X + 10, HOL_Y + 5, 14, 0xFFAA88)
+        .draw_text("Holidays", HOL_X + 16, HOL_Y + 8, 22, 0xFFAA88)
         .await;
     for (i, h) in state.holidays_panel.holidays.iter().take(3).enumerate() {
         platform
-            .draw_text(h, HOL_X + 10, HOL_Y + 30 + (i as i32) * 22, 12, 0xCCCCCC)
+            .draw_text(h, HOL_X + 16, HOL_Y + 48 + (i as i32) * 35, 19, 0xCCCCCC)
             .await;
     }
 

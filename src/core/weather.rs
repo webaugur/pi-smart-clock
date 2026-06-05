@@ -41,18 +41,18 @@ impl WeatherPanel {
             platform
                 .draw_text(
                     "WEATHER RADAR",
-                    crate::layout::CENTER_X + 20,
-                    crate::layout::BOTTOM_Y + 80,
-                    18,
+                    crate::layout::CENTER_X + 32,
+                    crate::layout::BOTTOM_Y + 128,
+                    28,
                     0x00FFAA,
                 )
                 .await;
             platform
                 .draw_text(
                     "Active Alert Overlay",
-                    crate::layout::CENTER_X + 10,
-                    crate::layout::BOTTOM_Y + 110,
-                    14,
+                    crate::layout::CENTER_X + 16,
+                    crate::layout::BOTTOM_Y + 176,
+                    22,
                     0x88FF88,
                 )
                 .await;

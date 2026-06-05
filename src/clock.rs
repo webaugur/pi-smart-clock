@@ -6,7 +6,8 @@ use sdl2::ttf::Font;
 use sdl2::video::Window;
 
 use crate::layout::{
-    BOTTOM_H, BOTTOM_Y, CENTER_H, CENTER_W, CENTER_X, CENTER_Y, CLOCK_CX, CLOCK_CY, SCREEN_W,
+    BOTTOM_H, BOTTOM_Y, CENTER_H, CENTER_W, CENTER_X, CENTER_Y, CLOCK_CX, CLOCK_CY, ROMAN_RADIUS,
+    SCREEN_W,
 };
 
 const ROMAN: [&str; 12] = [
@@ -53,8 +54,9 @@ pub fn draw_roman_numerals(
             .create_texture_from_surface(&surface)
             .map_err(|e| e.to_string())?;
         let q = texture.query();
-        let tx = (CLOCK_CX as f32 + ang.sin() * 155.0) as i32 - q.width as i32 / 2;
-        let ty = (CLOCK_CY as f32 - ang.cos() * 155.0) as i32 - q.height as i32 / 2;
+        let r = ROMAN_RADIUS as f32;
+        let tx = (CLOCK_CX as f32 + ang.sin() * r) as i32 - q.width as i32 / 2;
+        let ty = (CLOCK_CY as f32 - ang.cos() * r) as i32 - q.height as i32 / 2;
         canvas
             .copy(
                 &texture,

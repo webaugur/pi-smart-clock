@@ -30,22 +30,22 @@ impl AlarmUI {
         };
 
         platform
-            .draw_text(header, CENTER_X + 10, CENTER_Y - 20, 28, 0xFF4444)
+            .draw_text(header, CENTER_X + 16, CENTER_Y - 32, 44, 0xFF4444)
             .await;
         platform
             .draw_text(
                 &format!("{:02}:{:02}", alarm.hour, alarm.minute),
-                CENTER_X + 70,
-                CENTER_Y + 170,
-                36,
+                CENTER_X + 112,
+                CENTER_Y + 272,
+                58,
                 0xFFFF88,
             )
             .await;
         platform
-            .draw_text(&alarm.label, CENTER_X + 30, CENTER_Y + 210, 18, 0xCCCCCC)
+            .draw_text(&alarm.label, CENTER_X + 48, CENTER_Y + 336, 28, 0xCCCCCC)
             .await;
         platform
-            .draw_text("Button = Dismiss", CENTER_X + 40, CENTER_Y + 240, 14, 0x88FF88)
+            .draw_text("Button = Dismiss", CENTER_X + 64, CENTER_Y + 384, 22, 0x88FF88)
             .await;
     }
 

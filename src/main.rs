@@ -1,4 +1,4 @@
-use pi_smart_clock::layout::{WINDOW_H, WINDOW_W};
+use pi_smart_clock::layout::{FONT_SIZE, WINDOW_H, WINDOW_W};
 use pi_smart_clock::platform::linux::{SdlPlatform, SdlPlatformExt};
 use pi_smart_clock::runtime::SmartClockState;
 use sdl2::event::Event;
@@ -17,9 +17,9 @@ async fn main() -> Result<(), String> {
     let font = ttf
         .load_font(
             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-            20,
+            FONT_SIZE,
         )
-        .or_else(|_| ttf.load_font("/usr/share/fonts/TTF/DejaVuSans.ttf", 20))
+        .or_else(|_| ttf.load_font("/usr/share/fonts/TTF/DejaVuSans.ttf", FONT_SIZE))
         .map_err(|e| format!("need DejaVu font: {e}"))?;
     let font: &'static sdl2::ttf::Font<'static, 'static> = Box::leak(Box::new(font));
     let _ttf = ttf;

@@ -1,6 +1,6 @@
 # Pi Smart Clock
 
-Roman numeral smart clock — **Linux/SDL2 dev build** first, Pico DVI firmware later.
+Roman numeral smart clock — **Linux/SDL2 dev build** (768×1280 portrait) first, Pico DVI firmware later.
 
 ## Linux quickstart (recommended)
 

@@ -69,17 +69,17 @@ impl MenuSystem {
     pub async fn draw<P: Platform>(&self, platform: &mut P) {
         platform.clear_center_area().await;
         platform
-            .draw_text("MENU", SCREEN_W / 2 - 40, 120, 28, 0x00FFCC)
+            .draw_text("MENU", SCREEN_W / 2 - 64, 192, 44, 0x00FFCC)
             .await;
         let items = ["Set Time", "Alerts", "About", "Back"];
         for (i, item) in items.iter().enumerate() {
-            let y = 180 + (i as i32 * 40);
+            let y = 288 + (i as i32 * 64);
             let color = if i == self.selected {
                 0xFFFF00
             } else {
                 0xAAAAAA
             };
-            platform.draw_text(item, SCREEN_W / 2 - 50, y, 20, color).await;
+            platform.draw_text(item, SCREEN_W / 2 - 80, y, 32, color).await;
         }
     }
 }

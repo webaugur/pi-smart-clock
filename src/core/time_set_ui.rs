@@ -47,9 +47,9 @@ impl TimeSetUI {
             platform
                 .draw_text(
                     &format!("{:02}:{:02}", self.hour, self.minute),
-                    SCREEN_W / 2 - 50,
-                    320,
-                    48,
+                    SCREEN_W / 2 - 80,
+                    512,
+                    76,
                     0xFFFF00,
                 )
                 .await;
@@ -60,9 +60,9 @@ impl TimeSetUI {
                     } else {
                         "↑ Minute"
                     },
-                    SCREEN_W / 2 - 40,
-                    380,
-                    18,
+                    SCREEN_W / 2 - 64,
+                    608,
+                    28,
                     0x88CCFF,
                 )
                 .await;
