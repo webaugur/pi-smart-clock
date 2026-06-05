@@ -1,0 +1,15 @@
+# ESP8266 WiFi bridge over serial (TX/RX, 3.3V)
+# Copy to config/esp8266.conf and set enabled=true when hardware is connected.
+#
+# Linux: add your user to the dialout group for serial access:
+#   sudo usermod -aG dialout $USER
+# then log out/in. Works on Debian, Ubuntu, Fedora, Arch, etc.
+#
+# port=auto scans USB serial adapters (ttyUSB*, ttyACM*, by-id).
+# Or set an explicit path, e.g. port=/dev/ttyUSB0 or /dev/serial/by-id/...
+
+enabled=false
+port=auto
+baud=115200
+wifi_ssid=YourNetworkName
+wifi_password=YourNetworkPassword

@@ -1,0 +1,6 @@
+# Bottom panel slot assignments (slot=module).
+# Slots: b_left, b_mid, b_right
+# Modules: weather, calendar, holidays
+b_left=weather
+b_mid=calendar
+b_right=holidays
