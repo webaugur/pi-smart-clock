@@ -14,7 +14,7 @@ use crate::modules::bottom_module::{BottomModule, PanelLine};
 use crate::modules::module_id::ModuleId;
 use crate::panel::Panel;
 
-pub use api::{fetch_weather, fetch_weather_data, format_temp, WeatherSnapshot};
+pub use api::{fetch_weather, fetch_weather_data, fetch_weather_data_with_http, format_temp, WeatherSnapshot};
 pub use config::{
     load_weather_config, load_weather_config_loaded, ConfigMeta, TemperatureUnit, WeatherConfig,
 };

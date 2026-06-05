@@ -24,7 +24,6 @@ impl UpdateScheduler {
         alert_manager: &AlertManager,
     ) -> Option<(i32, String)> {
         let now = Instant::now();
-        let mut weather_update = None;
 
         let weather_interval = if alert_manager.radar_active || alert_manager.amber_silver_active {
             Duration::from_secs(5 * 60)
@@ -32,12 +31,12 @@ impl UpdateScheduler {
             Duration::from_secs(3 * 60 * 60)
         };
 
-        if now.duration_since(self.last_weather) > weather_interval {
-            if let Ok(data) = platform.fetch_weather().await {
-                weather_update = Some(data);
-            }
+        let weather_update = if now.duration_since(self.last_weather) > weather_interval {
             self.last_weather = now;
-        }
+            weather_fetch(platform).await
+        } else {
+            None
+        };
 
         if now.duration_since(self.last_non_weather) > Duration::from_secs(3600) {
             let _ = platform.fetch_calendar().await;
@@ -53,5 +52,17 @@ impl UpdateScheduler {
         }
 
         weather_update
+    }
+}
+
+async fn weather_fetch<P: Platform>(platform: &mut P) -> Option<(i32, String)> {
+    #[cfg(feature = "linux-full")]
+    {
+        let _ = platform;
+        None
+    }
+    #[cfg(not(feature = "linux-full"))]
+    {
+        platform.fetch_weather().await.ok()
     }
 }

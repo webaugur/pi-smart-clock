@@ -21,11 +21,7 @@ use crate::chimes::ChimeEngine;
 #[cfg(feature = "linux-full")]
 use crate::core::alarm_video::AlarmVideoPlayer;
 #[cfg(feature = "linux-full")]
-use crate::modules::calendar::CalendarPanel;
-#[cfg(feature = "linux-full")]
-use crate::modules::holidays::HolidaysPanel;
-#[cfg(feature = "linux-full")]
-use crate::modules::weather::WeatherPanel;
+use crate::modules::bar::BottomPanelBar;
 
 pub struct SmartClockState {
     pub ui_mode: UiMode,
@@ -48,11 +44,7 @@ pub struct SmartClockState {
     #[cfg(feature = "linux-full")]
     pub chimes: ChimeEngine,
     #[cfg(feature = "linux-full")]
-    pub weather_panel: WeatherPanel,
-    #[cfg(feature = "linux-full")]
-    pub calendar_panel: CalendarPanel,
-    #[cfg(feature = "linux-full")]
-    pub holidays_panel: HolidaysPanel,
+    pub bottom_panels: BottomPanelBar,
     #[cfg(feature = "linux-full")]
     pub alarm_video: AlarmVideoPlayer,
 }
@@ -80,11 +72,7 @@ impl SmartClockState {
             #[cfg(feature = "linux-full")]
             chimes: ChimeEngine::new(),
             #[cfg(feature = "linux-full")]
-            weather_panel: WeatherPanel::new(),
-            #[cfg(feature = "linux-full")]
-            calendar_panel: CalendarPanel::new(),
-            #[cfg(feature = "linux-full")]
-            holidays_panel: HolidaysPanel::new(),
+            bottom_panels: BottomPanelBar::new(),
             #[cfg(feature = "linux-full")]
             alarm_video: AlarmVideoPlayer::new(),
         }

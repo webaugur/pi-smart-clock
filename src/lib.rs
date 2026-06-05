@@ -22,3 +22,6 @@ pub mod modules;
 
 #[cfg(feature = "linux-full")]
 pub mod panel;
+
+#[cfg(feature = "linux-full")]
+pub mod icons;

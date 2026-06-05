@@ -1,4 +1,6 @@
 pub mod platform;
+#[cfg(feature = "linux-full")]
+pub mod esp8266;
 pub mod ds3231;
 pub mod aht20;
 pub mod mqtt;

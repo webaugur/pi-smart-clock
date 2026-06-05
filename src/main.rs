@@ -1,3 +1,4 @@
+use pi_smart_clock::drivers::platform::Platform;
 use pi_smart_clock::layout::Layout;
 use pi_smart_clock::platform::linux::{SdlPlatform, SdlPlatformExt};
 use pi_smart_clock::runtime::SmartClockState;
@@ -21,7 +22,7 @@ async fn main() -> Result<(), String> {
     let (win_w, win_h) = Layout::window_size(display_w, display_h);
 
     eprintln!(
-        "[display] {}x{} -> {:?} logical {}x{}, window {}x{}",
+        "[display] {}x{} -> {:?} logical {}x{} (4:3 vertical), window {}x{}",
         display_w,
         display_h,
         layout.orientation,
@@ -46,11 +47,15 @@ async fn main() -> Result<(), String> {
     let font: &'static sdl2::ttf::Font<'static, 'static> = Box::leak(Box::new(font));
     let _ttf = ttf;
 
-    let window = video
+    let mut window = video
         .window("Smart Clock", win_w, win_h)
         .position_centered()
         .resizable()
         .build()
+        .map_err(|e| e.to_string())?;
+    let (min_w, min_h) = Layout::minimum_window_size();
+    window
+        .set_minimum_size(min_w, min_h)
         .map_err(|e| e.to_string())?;
     let canvas = window
         .into_canvas()
@@ -63,6 +68,8 @@ async fn main() -> Result<(), String> {
     platform.configure_display()?;
     platform.set_font(&font);
 
+    platform.init().await?;
+
     let mut state = SmartClockState::new();
     state.init(&mut platform).await?;
 
@@ -72,8 +79,7 @@ async fn main() -> Result<(), String> {
             match event {
                 Event::Quit { .. } => return Ok(()),
                 Event::Window { win_event, .. } => {
-                    if let sdl2::event::WindowEvent::Resized(w, h) = win_event {
-                        let _ = (w, h);
+                    if let sdl2::event::WindowEvent::Resized(_, _) = win_event {
                         platform.configure_display()?;
                     }
                 }

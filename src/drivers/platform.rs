@@ -11,6 +11,16 @@ pub trait Platform {
     async fn draw_line(&mut self, x1: i32, y1: i32, x2: i32, y2: i32, color: u32, thickness: u8);
     async fn draw_circle(&mut self, cx: i32, cy: i32, radius: i32, color: u32);
     async fn draw_rect(&mut self, x: i32, y: i32, w: i32, h: i32, color: u32);
+    async fn draw_clock_face(&mut self, _cx: i32, _cy: i32, _diameter: u32) {}
+    async fn draw_clock_second_hand(
+        &mut self,
+        _cx: i32,
+        _cy: i32,
+        _length: i32,
+        _angle_deg: f32,
+        _night: bool,
+    ) {
+    }
     async fn clear(&mut self);
     async fn clear_center_area(&mut self);
     async fn present(&mut self);

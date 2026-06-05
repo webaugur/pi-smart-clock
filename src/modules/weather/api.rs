@@ -1,3 +1,5 @@
+use std::io::Read;
+
 use serde::Deserialize;
 
 use super::config::{TemperatureUnit, WeatherConfig};
@@ -56,8 +58,15 @@ pub fn fetch_weather(config: &WeatherConfig) -> Result<WeatherSnapshot, String> 
 }
 
 pub fn fetch_weather_data(config: &WeatherConfig, city: &str) -> Result<WeatherSnapshot, String> {
-    let forecast = fetch_forecast(config)?;
-    let aqi = fetch_air_quality(config).ok();
+    fetch_weather_data_with_http(config, city, http_get_ureq)
+}
+
+pub fn fetch_weather_data_with_http<F>(config: &WeatherConfig, city: &str, http_get: F) -> Result<WeatherSnapshot, String>
+where
+    F: Fn(&str) -> Result<Vec<u8>, String>,
+{
+    let forecast = fetch_forecast_with(config, &http_get)?;
+    let aqi = fetch_air_quality_with(config, &http_get).ok();
 
     let condition = wmo_condition(forecast.weather_code);
     let icon = WeatherIcon::from_code(forecast.weather_code);
@@ -113,7 +122,22 @@ pub fn fetch_city_name(latitude: f64, longitude: f64) -> Option<String> {
         .or(addr.county)
 }
 
-fn fetch_forecast(config: &WeatherConfig) -> Result<ForecastCurrent, String> {
+fn http_get_ureq(url: &str) -> Result<Vec<u8>, String> {
+    let response = ureq::get(url)
+        .call()
+        .map_err(|e| format!("request failed: {e}"))?;
+    let mut body = Vec::new();
+    response
+        .into_reader()
+        .read_to_end(&mut body)
+        .map_err(|e| format!("read body failed: {e}"))?;
+    Ok(body)
+}
+
+fn fetch_forecast_with<F>(config: &WeatherConfig, http_get: &F) -> Result<ForecastCurrent, String>
+where
+    F: Fn(&str) -> Result<Vec<u8>, String>,
+{
     let url = format!(
         "https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&current=temperature_2m,relative_humidity_2m,weather_code&temperature_unit={}&timezone={}",
         config.latitude,
@@ -122,26 +146,25 @@ fn fetch_forecast(config: &WeatherConfig) -> Result<ForecastCurrent, String> {
         &config.timezone
     );
 
-    let response: ForecastResponse = ureq::get(&url)
-        .call()
-        .map_err(|e| format!("forecast request failed: {e}"))?
-        .into_json()
-        .map_err(|e| format!("forecast parse failed: {e}"))?;
+    let body = http_get(&url).map_err(|e| format!("forecast request failed: {e}"))?;
+    let response: ForecastResponse =
+        serde_json::from_slice(&body).map_err(|e| format!("forecast parse failed: {e}"))?;
 
     Ok(response.current)
 }
 
-fn fetch_air_quality(config: &WeatherConfig) -> Result<u32, String> {
+fn fetch_air_quality_with<F>(config: &WeatherConfig, http_get: &F) -> Result<u32, String>
+where
+    F: Fn(&str) -> Result<Vec<u8>, String>,
+{
     let url = format!(
         "https://air-quality-api.open-meteo.com/v1/air-quality?latitude={}&longitude={}&current=us_aqi",
         config.latitude, config.longitude
     );
 
-    let response: AirQualityResponse = ureq::get(&url)
-        .call()
-        .map_err(|e| format!("air quality request failed: {e}"))?
-        .into_json()
-        .map_err(|e| format!("air quality parse failed: {e}"))?;
+    let body = http_get(&url).map_err(|e| format!("air quality request failed: {e}"))?;
+    let response: AirQualityResponse =
+        serde_json::from_slice(&body).map_err(|e| format!("air quality parse failed: {e}"))?;
 
     response
         .current

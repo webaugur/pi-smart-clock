@@ -18,12 +18,12 @@ impl WeatherRadarPanel {
             let radar_x = if layout.orientation == Orientation::Landscape {
                 layout.cal_w
             } else {
-                layout.center_x
+                0
             };
             let radar_w = if layout.orientation == Orientation::Landscape {
                 layout.screen_w - layout.cal_w - layout.hol_w
             } else {
-                layout.center_w as i32
+                layout.screen_w
             };
             platform
                 .draw_rect(radar_x, layout.bottom_y, radar_w, layout.bottom_h, 0x112244)
