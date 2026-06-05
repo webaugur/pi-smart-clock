@@ -1,5 +1,6 @@
 use crate::core::alerts::AlertManager;
 use crate::drivers::platform::Platform;
+use crate::layout::l;
 
 pub struct WeatherPanel {
     pub last_update: u64,
@@ -29,20 +30,25 @@ impl WeatherPanel {
         alerts: &AlertManager,
     ) {
         if self.radar_enabled && (alerts.radar_active || alerts.amber_silver_active) {
+            let layout = l();
+            let radar_x = if layout.orientation == crate::layout::Orientation::Landscape {
+                layout.cal_w
+            } else {
+                layout.center_x
+            };
+            let radar_w = if layout.orientation == crate::layout::Orientation::Landscape {
+                layout.screen_w - layout.cal_w - layout.hol_w
+            } else {
+                layout.center_w as i32
+            };
             platform
-                .draw_rect(
-                    crate::layout::CENTER_X,
-                    crate::layout::BOTTOM_Y,
-                    crate::layout::CENTER_W as i32,
-                    crate::layout::BOTTOM_H as i32,
-                    0x112244,
-                )
+                .draw_rect(radar_x, layout.bottom_y, radar_w, layout.bottom_h, 0x112244)
                 .await;
             platform
                 .draw_text(
                     "WEATHER RADAR",
-                    crate::layout::CENTER_X + 32,
-                    crate::layout::BOTTOM_Y + 128,
+                    radar_x + 32,
+                    layout.bottom_y + layout.bottom_h / 3,
                     28,
                     0x00FFAA,
                 )
@@ -50,8 +56,8 @@ impl WeatherPanel {
             platform
                 .draw_text(
                     "Active Alert Overlay",
-                    crate::layout::CENTER_X + 16,
-                    crate::layout::BOTTOM_Y + 176,
+                    radar_x + 16,
+                    layout.bottom_y + layout.bottom_h / 2,
                     22,
                     0x88FF88,
                 )

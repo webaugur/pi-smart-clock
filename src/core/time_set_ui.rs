@@ -1,13 +1,13 @@
 use crate::drivers::platform::Platform;
 use crate::drivers::rotary_encoder::RotaryEncoder;
-use crate::layout::SCREEN_W;
+use crate::layout::l;
 use chrono::{Local, Timelike};
 
 pub struct TimeSetUI {
     pub editing: bool,
     hour: u32,
     minute: u32,
-    selected_field: u8, // 0 = hour, 1 = minute
+    selected_field: u8,
 }
 
 impl TimeSetUI {
@@ -26,8 +26,6 @@ impl TimeSetUI {
             if !self.editing {
                 self.editing = true;
             } else {
-                let _hour = self.hour;
-                let _minute = self.minute;
                 self.editing = false;
             }
             encoder.button_pressed = false;
@@ -43,12 +41,14 @@ impl TimeSetUI {
         }
 
         if self.editing {
+            let layout = l();
+            let cx = layout.screen_w / 2;
             platform.clear_center_area().await;
             platform
                 .draw_text(
                     &format!("{:02}:{:02}", self.hour, self.minute),
-                    SCREEN_W / 2 - 80,
-                    512,
+                    cx - 80,
+                    layout.center_y + 32,
                     76,
                     0xFFFF00,
                 )
@@ -60,8 +60,8 @@ impl TimeSetUI {
                     } else {
                         "↑ Minute"
                     },
-                    SCREEN_W / 2 - 64,
-                    608,
+                    cx - 64,
+                    layout.center_y + 128,
                     28,
                     0x88CCFF,
                 )

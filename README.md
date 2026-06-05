@@ -1,6 +1,8 @@
 # Pi Smart Clock
 
-Roman numeral smart clock — **Linux/SDL2 dev build** (768×1280 portrait) first, Pico DVI firmware later.
+Roman numeral smart clock — **Linux/SDL2 dev build** with autoscaling first, Pico DVI firmware later.
+
+Detects your display orientation at startup: **portrait** screens use a 768×1280 logical layout; **landscape** screens use 1280×768. SDL letterboxes/scales to fit the window (95% of display size, resizable).
 
 ## Linux quickstart (recommended)
 

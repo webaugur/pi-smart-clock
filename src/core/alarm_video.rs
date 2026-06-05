@@ -5,14 +5,15 @@ use sdl2::video::Window;
 use std::io::Read;
 use std::process::{Child, ChildStdout, Command, Stdio};
 
-use crate::layout::{CENTER_H, CENTER_W, CENTER_X, CENTER_Y};
+use crate::layout::l;
 use crate::platform::linux_audio::resolve_media_path;
-const FRAME_BYTES: usize = (CENTER_W as usize) * (CENTER_H as usize) * 3;
 
 pub struct AlarmVideoPlayer {
     child: Option<Child>,
     stdout: Option<ChildStdout>,
     frame_buf: Vec<u8>,
+    frame_w: u32,
+    frame_h: u32,
     playing_path: Option<String>,
 }
 
@@ -21,7 +22,9 @@ impl AlarmVideoPlayer {
         Self {
             child: None,
             stdout: None,
-            frame_buf: vec![0; FRAME_BYTES],
+            frame_buf: Vec::new(),
+            frame_w: 0,
+            frame_h: 0,
             playing_path: None,
         }
     }
@@ -48,6 +51,11 @@ impl AlarmVideoPlayer {
             return;
         }
 
+        let layout = l();
+        self.frame_w = layout.center_w;
+        self.frame_h = layout.center_h;
+        self.frame_buf.resize((self.frame_w * self.frame_h * 3) as usize, 0);
+
         let mut child = match Command::new("ffmpeg")
             .args([
                 "-nostdin",
@@ -56,7 +64,7 @@ impl AlarmVideoPlayer {
                 resolved.to_string_lossy().as_ref(),
                 "-an",
                 "-vf",
-                &format!("scale={CENTER_W}:{CENTER_H}"),
+                &format!("scale={}:{}", self.frame_w, self.frame_h),
                 "-f",
                 "rawvideo",
                 "-pix_fmt",
@@ -101,6 +109,9 @@ impl AlarmVideoPlayer {
         let Some(stdout) = self.stdout.as_mut() else {
             return;
         };
+        if self.frame_buf.is_empty() {
+            return;
+        }
 
         match stdout.read_exact(&mut self.frame_buf) {
             Ok(()) => {}
@@ -110,19 +121,20 @@ impl AlarmVideoPlayer {
             }
         }
 
+        let layout = l();
         let creator = canvas.texture_creator();
         let mut texture = match creator.create_texture(
             PixelFormatEnum::RGB24,
             sdl2::render::TextureAccess::Streaming,
-            CENTER_W,
-            CENTER_H,
+            self.frame_w,
+            self.frame_h,
         ) {
             Ok(t) => t,
             Err(_) => return,
         };
 
         if texture
-            .update(None, &self.frame_buf, (CENTER_W * 3) as usize)
+            .update(None, &self.frame_buf, (self.frame_w * 3) as usize)
             .is_err()
         {
             return;
@@ -131,7 +143,12 @@ impl AlarmVideoPlayer {
         let _ = canvas.copy(
             &texture,
             None,
-            Rect::new(CENTER_X, CENTER_Y, CENTER_W, CENTER_H),
+            Rect::new(
+                layout.center_x,
+                layout.center_y,
+                self.frame_w,
+                self.frame_h,
+            ),
         );
     }
 }

@@ -10,9 +10,7 @@ use crate::runtime::state::SmartClockState;
 #[cfg(feature = "linux-full")]
 use crate::clock as layout;
 #[cfg(feature = "linux-full")]
-use crate::layout::{
-    CAL_H, CAL_W, CAL_X, CAL_Y, CENTER_H, CENTER_W, CENTER_X, CENTER_Y, HOL_H, HOL_W, HOL_X, HOL_Y,
-};
+use crate::layout::l;
 #[cfg(feature = "linux-full")]
 use crate::panel::Panel;
 
@@ -123,19 +121,20 @@ pub async fn render_linux<P: Platform + SdlPlatformExt>(
         state.alarm_video.poll_frame(platform.canvas_mut());
     }
 
+    let layout = l();
     if state.ui_mode != UiMode::Alarm {
         state.weather_panel.draw(
             platform.canvas_mut(),
-            CENTER_X,
-            CENTER_Y,
-            CENTER_W as i32,
-            CENTER_H as i32,
+            layout.center_x,
+            layout.center_y,
+            layout.center_w as i32,
+            layout.center_h as i32,
         );
         platform
             .draw_text(
                 &format!("{}°", state.weather_panel.temp()),
-                CENTER_X + 24,
-                CENTER_Y + 32,
+                layout.center_x + 24,
+                layout.center_y + 32,
                 32,
                 0xFFFFFF,
             )
@@ -143,33 +142,67 @@ pub async fn render_linux<P: Platform + SdlPlatformExt>(
         platform
             .draw_text(
                 state.weather_panel.condition(),
-                CENTER_X + 24,
-                CENTER_Y + 80,
+                layout.center_x + 24,
+                layout.center_y + 80,
                 26,
                 0xAAAAAA,
             )
             .await;
     }
 
-    state.calendar_panel
-        .draw(platform.canvas_mut(), CAL_X, CAL_Y, CAL_W, CAL_H);
-    state.holidays_panel
-        .draw(platform.canvas_mut(), HOL_X, HOL_Y, HOL_W, HOL_H);
+    state.calendar_panel.draw(
+        platform.canvas_mut(),
+        layout.cal_x,
+        layout.cal_y,
+        layout.cal_w,
+        layout.cal_h,
+    );
+    state.holidays_panel.draw(
+        platform.canvas_mut(),
+        layout.hol_x,
+        layout.hol_y,
+        layout.hol_w,
+        layout.hol_h,
+    );
 
     platform
-        .draw_text("Calendar", CAL_X + 16, CAL_Y + 8, 22, 0x88AAFF)
+        .draw_text(
+            "Calendar",
+            layout.cal_x + 16,
+            layout.cal_y + 8,
+            22,
+            0x88AAFF,
+        )
         .await;
     for (i, ev) in state.calendar_panel.events.iter().take(3).enumerate() {
         platform
-            .draw_text(ev, CAL_X + 16, CAL_Y + 48 + (i as i32) * 35, 19, 0xCCCCCC)
+            .draw_text(
+                ev,
+                layout.cal_x + 16,
+                layout.cal_y + 48 + (i as i32) * 35,
+                19,
+                0xCCCCCC,
+            )
             .await;
     }
     platform
-        .draw_text("Holidays", HOL_X + 16, HOL_Y + 8, 22, 0xFFAA88)
+        .draw_text(
+            "Holidays",
+            layout.hol_x + 16,
+            layout.hol_y + 8,
+            22,
+            0xFFAA88,
+        )
         .await;
     for (i, h) in state.holidays_panel.holidays.iter().take(3).enumerate() {
         platform
-            .draw_text(h, HOL_X + 16, HOL_Y + 48 + (i as i32) * 35, 19, 0xCCCCCC)
+            .draw_text(
+                h,
+                layout.hol_x + 16,
+                layout.hol_y + 48 + (i as i32) * 35,
+                19,
+                0xCCCCCC,
+            )
             .await;
     }
 

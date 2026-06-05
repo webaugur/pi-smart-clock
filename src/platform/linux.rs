@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use crate::drivers::platform::Platform;
-use crate::layout::{CENTER_H, CENTER_W, CENTER_X, CENTER_Y};
+use crate::layout::l;
 use crate::platform::linux_audio::{LinuxAudioEngine, resolve_media_path};
 
 pub trait SdlPlatformExt {
@@ -39,6 +39,15 @@ impl SdlPlatform {
             button_down: false,
             files: HashMap::new(),
         })
+    }
+
+    /// Map logical layout coordinates onto the physical window (letterboxed autoscale).
+    pub fn configure_display(&mut self) -> Result<(), String> {
+        let layout = l();
+        self.canvas
+            .set_logical_size(layout.screen_w as u32, layout.screen_h as u32)
+            .map_err(|e| e.to_string())?;
+        Ok(())
     }
 
     fn rgb(c: u32) -> Color {
@@ -135,11 +144,12 @@ impl Platform for SdlPlatform {
     }
 
     async fn clear_center_area(&mut self) {
+        let layout = l();
         self.draw_rect(
-            CENTER_X,
-            CENTER_Y,
-            CENTER_W as i32,
-            CENTER_H as i32,
+            layout.center_x,
+            layout.center_y,
+            layout.center_w as i32,
+            layout.center_h as i32,
             0x000000,
         )
         .await;

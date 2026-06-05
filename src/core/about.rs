@@ -1,14 +1,16 @@
 use crate::drivers::platform::Platform;
-use crate::layout::SCREEN_W;
+use crate::layout::l;
 
 pub async fn show<P: Platform>(platform: &mut P) {
+    let layout = l();
+    let cx = layout.screen_w / 2;
     platform.clear_center_area().await;
 
     platform
-        .draw_text("Smart Clock", SCREEN_W / 2 - 128, 192, 50, 0x00FFAA)
+        .draw_text("Smart Clock", cx - 128, layout.center_y - 80, 50, 0x00FFAA)
         .await;
     platform
-        .draw_text("Pico DVI + ESP8266", SCREEN_W / 2 - 160, 256, 26, 0x888888)
+        .draw_text("Pico DVI + ESP8266", cx - 160, layout.center_y - 16, 26, 0x888888)
         .await;
 
     let version = env!("CARGO_PKG_VERSION");
@@ -17,21 +19,21 @@ pub async fn show<P: Platform>(platform: &mut P) {
     platform
         .draw_text(
             &format!("Version: {}", version),
-            SCREEN_W / 2 - 96,
-            336,
+            cx - 96,
+            layout.center_y + 64,
             28,
             0xAAAAAA,
         )
         .await;
     platform
-        .draw_text(&format!("Commit: {}", git_hash), 32, 400, 18, 0x666666)
+        .draw_text(&format!("Commit: {}", git_hash), 32, layout.center_y + 128, 18, 0x666666)
         .await;
 
     platform
         .draw_text(
             "Built with Rust + Embassy",
-            SCREEN_W / 2 - 160,
-            480,
+            cx - 160,
+            layout.center_y + 208,
             22,
             0x555555,
         )
@@ -39,8 +41,8 @@ pub async fn show<P: Platform>(platform: &mut P) {
     platform
         .draw_text(
             "© 2026 • David L Norris",
-            SCREEN_W / 2 - 144,
-            544,
+            cx - 144,
+            layout.center_y + 272,
             19,
             0x444444,
         )
@@ -49,8 +51,8 @@ pub async fn show<P: Platform>(platform: &mut P) {
     platform
         .draw_text(
             "Press button to return",
-            SCREEN_W / 2 - 144,
-            640,
+            cx - 144,
+            layout.center_y + 368,
             22,
             0x888888,
         )

@@ -1,6 +1,6 @@
 use crate::drivers::platform::Platform;
 use crate::drivers::rotary_encoder::RotaryEncoder;
-use crate::layout::{SCREEN_W};
+use crate::layout::l;
 
 pub enum MenuState {
     Main,
@@ -67,19 +67,26 @@ impl MenuSystem {
     }
 
     pub async fn draw<P: Platform>(&self, platform: &mut P) {
+        let layout = l();
+        let cx = layout.screen_w / 2;
+        let menu_y = if layout.screen_h > layout.screen_w {
+            192
+        } else {
+            80
+        };
         platform.clear_center_area().await;
         platform
-            .draw_text("MENU", SCREEN_W / 2 - 64, 192, 44, 0x00FFCC)
+            .draw_text("MENU", cx - 64, menu_y, 44, 0x00FFCC)
             .await;
         let items = ["Set Time", "Alerts", "About", "Back"];
         for (i, item) in items.iter().enumerate() {
-            let y = 288 + (i as i32 * 64);
+            let y = menu_y + 96 + (i as i32 * 64);
             let color = if i == self.selected {
                 0xFFFF00
             } else {
                 0xAAAAAA
             };
-            platform.draw_text(item, SCREEN_W / 2 - 80, y, 32, color).await;
+            platform.draw_text(item, cx - 80, y, 32, color).await;
         }
     }
 }
