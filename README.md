@@ -6,7 +6,7 @@ Roman numeral smart clock — **Linux/SDL2 dev build** first, Pico DVI firmware 
 
 ```bash
 # Debian/Ubuntu dependencies
-sudo apt install -y libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev fonts-dejavu-core
+sudo apt install -y libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev fonts-dejavu-core ffmpeg
 
 git clone https://github.com/webaugur/pi-smart-clock.git
 cd pi-smart-clock
@@ -18,10 +18,12 @@ cargo run --features linux-full
 
 **Controls:** Esc quit · M menu · arrow keys / space = rotary encoder + button
 
-**Optional sounds** — add short WAVs under `sounds/` (see `sounds/README.txt`):
+**Chimes** — add WAVs under `sounds/` (see `sounds/README.txt`):
 `tick.wav`, `tock.wav`, `quarter.wav`, `half.wav`, `bell.wav`
 
-**Alarms** — copy `config/alarms.csv.example` to `config/alarms.csv` and edit.
+**Alarms** — copy `config/alarms.csv.example` to `config/alarms.csv`. Set `sound_file` (WAV) and `video_file` (MP4 under `videos/`). Alarm video plays in the center panel via ffmpeg; sound loops until dismissed (button/space).
+
+**Test alarm:** set hour/minute one minute ahead, `enabled,true`, valid paths to your media files.
 
 ---
 

@@ -19,6 +19,8 @@ use crate::runtime::tick;
 #[cfg(feature = "linux-full")]
 use crate::chimes::ChimeEngine;
 #[cfg(feature = "linux-full")]
+use crate::core::alarm_video::AlarmVideoPlayer;
+#[cfg(feature = "linux-full")]
 use crate::modules::calendar::CalendarPanel;
 #[cfg(feature = "linux-full")]
 use crate::modules::holidays::HolidaysPanel;
@@ -51,6 +53,8 @@ pub struct SmartClockState {
     pub calendar_panel: CalendarPanel,
     #[cfg(feature = "linux-full")]
     pub holidays_panel: HolidaysPanel,
+    #[cfg(feature = "linux-full")]
+    pub alarm_video: AlarmVideoPlayer,
 }
 
 impl SmartClockState {
@@ -81,14 +85,22 @@ impl SmartClockState {
             calendar_panel: CalendarPanel::new(),
             #[cfg(feature = "linux-full")]
             holidays_panel: HolidaysPanel::new(),
+            #[cfg(feature = "linux-full")]
+            alarm_video: AlarmVideoPlayer::new(),
         }
     }
 
-    pub async fn init<P: Platform>(&mut self, _platform: &mut P) -> Result<(), String> {
+    pub async fn init<P: Platform + crate::platform::linux::SdlPlatformExt>(
+        &mut self,
+        _platform: &mut P,
+    ) -> Result<(), String> {
         Ok(())
     }
 
-    pub async fn tick<P: Platform>(&mut self, platform: &mut P) {
+    pub async fn tick<P: Platform + crate::platform::linux::SdlPlatformExt>(
+        &mut self,
+        platform: &mut P,
+    ) {
         tick::tick(self, platform).await;
     }
 

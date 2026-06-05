@@ -16,6 +16,10 @@ pub trait Platform {
     // Audio
     async fn play_sound(&mut self, name: &str, volume: f32);
     async fn play_raw_audio(&mut self, path: &str);
+    async fn play_alarm_loop(&mut self, _path: &str) {
+        self.play_sound(_path, 0.9).await;
+    }
+    async fn stop_alarm_sound(&mut self) {}
 
     // Time
     fn get_current_time(&self) -> DateTime<Local>;

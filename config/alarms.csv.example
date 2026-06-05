@@ -1,3 +1,3 @@
-id,hour,minute,enabled,repeat,label,sound_file,snooze_minutes
-0,7,0,true,true,Morning,cuckoo.wav,9
-1,12,30,false,true,Lunch,chime.wav,9
+id,hour,minute,enabled,repeat,label,sound_file,video_file,snooze_minutes
+0,7,0,true,true,Morning,sounds/cuckoo.wav,videos/morning.mp4,9
+1,12,30,false,true,Lunch,sounds/chime.wav,videos/lunch.mp4,9

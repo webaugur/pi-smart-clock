@@ -1,4 +1,5 @@
 use crate::core::alarm::AlarmManager;
+use crate::platform::linux_audio::resolve_media_path;
 use chrono::Local;
 
 fn csv_escape(field: &str) -> String {
@@ -10,43 +11,115 @@ fn csv_escape(field: &str) -> String {
     }
 }
 
+fn normalize_media_path(field: &str, default_sounds_prefix: bool) -> String {
+    let trimmed = field.trim().trim_matches('"');
+    if trimmed.is_empty() {
+        return String::new();
+    }
+    if resolve_media_path(trimmed).is_some() {
+        return trimmed.to_string();
+    }
+    if default_sounds_prefix && !trimmed.contains('/') {
+        let with_sounds = format!("sounds/{trimmed}");
+        if resolve_media_path(&with_sounds).is_some() {
+            return with_sounds;
+        }
+    }
+    let with_videos = if trimmed.contains('/') {
+        trimmed.to_string()
+    } else {
+        format!("videos/{trimmed}")
+    };
+    if resolve_media_path(&with_videos).is_some() {
+        return with_videos;
+    }
+    trimmed.to_string()
+}
+
 pub async fn save_alarms(platform: &mut impl crate::drivers::platform::Platform, alarms: &AlarmManager) {
-    let mut csv = String::from("id,hour,minute,enabled,repeat,label,sound_file,snooze_minutes\n");
+    let mut csv = String::from("id,hour,minute,enabled,repeat,label,sound_file,video_file,snooze_minutes\n");
 
     for (i, alarm) in alarms.alarms.iter().enumerate() {
         if let Some(a) = alarm {
             let escaped_label = csv_escape(&a.label);
             csv.push_str(&format!(
-                "{},{},{},{},{},{},{},{}\n",
-                i, a.hour, a.minute, a.enabled, a.repeat, escaped_label, a.sound_file, a.snooze_minutes
+                "{},{},{},{},{},{},{},{},{}\n",
+                i,
+                a.hour,
+                a.minute,
+                a.enabled,
+                a.repeat,
+                escaped_label,
+                a.sound_file,
+                a.video_file,
+                a.snooze_minutes
             ));
         }
     }
 
-    platform.write_file("/sd/config/alarms.csv", csv.as_bytes()).await;
-    platform.copy_file("/sd/config/alarms.csv", &format!("/sd/config/alarms_{}.csv.bak", Local::now().format("%Y%m%d_%H%M%S"))).await;
+    platform
+        .write_file("/sd/config/alarms.csv", csv.as_bytes())
+        .await;
+    platform
+        .copy_file(
+            "/sd/config/alarms.csv",
+            &format!(
+                "/sd/config/alarms_{}.csv.bak",
+                Local::now().format("%Y%m%d_%H%M%S")
+            ),
+        )
+        .await;
 }
 
-pub async fn load_alarms(platform: &mut impl crate::drivers::platform::Platform, alarms: &mut AlarmManager) {
-    if let Some(data) = platform.read_file("/sd/config/alarms.csv").await {
-        let content = String::from_utf8_lossy(&data);
-        for line in content.lines().skip(1) {
-            let fields: Vec<&str> = line.split(',').collect();
-            if fields.len() >= 5 {
-                let id: usize = fields[0].parse().unwrap_or(0);
-                if id < 4 {
-                    alarms.alarms[id] = Some(crate::core::alarm::Alarm {
-                        id,
-                        hour: fields[1].parse().unwrap_or(7),
-                        minute: fields[2].parse().unwrap_or(0),
-                        enabled: fields[3].parse().unwrap_or(false),
-                        repeat: fields[4].parse().unwrap_or(true),
-                        label: fields.get(5).unwrap_or(&"Alarm").trim_matches('"').replace("\"\"", "\"").to_string(),
-                        sound_file: fields.get(6).unwrap_or(&"cuckoo.wav").to_string(),
-                        snooze_minutes: fields.get(7).unwrap_or(&"9").parse().unwrap_or(9),
-                    });
-                }
-            }
+pub async fn load_alarms(
+    platform: &mut impl crate::drivers::platform::Platform,
+    alarms: &mut AlarmManager,
+) {
+    let data = platform
+        .read_file("/sd/config/alarms.csv")
+        .await
+        .or(platform.read_file("config/alarms.csv").await);
+
+    let Some(data) = data else {
+        return;
+    };
+
+    let content = String::from_utf8_lossy(&data);
+    for line in content.lines().skip(1) {
+        if line.trim().is_empty() {
+            continue;
         }
+        let fields: Vec<&str> = line.split(',').collect();
+        if fields.len() < 5 {
+            continue;
+        }
+        let id: usize = fields[0].parse().unwrap_or(0);
+        if id >= 4 {
+            continue;
+        }
+        let sound_raw = fields.get(6).unwrap_or(&"sounds/cuckoo.wav");
+        let (video_raw, snooze_field): (&str, &str) = if fields.len() >= 9 {
+            (fields[7], fields[8])
+        } else if fields.len() == 8 && fields[7].parse::<u32>().is_ok() {
+            ("", fields[7])
+        } else {
+            (fields.get(7).unwrap_or(&""), "9")
+        };
+
+        alarms.alarms[id] = Some(crate::core::alarm::Alarm {
+            id,
+            hour: fields[1].parse().unwrap_or(7),
+            minute: fields[2].parse().unwrap_or(0),
+            enabled: fields[3].parse().unwrap_or(false),
+            repeat: fields[4].parse().unwrap_or(true),
+            label: fields
+                .get(5)
+                .unwrap_or(&"Alarm")
+                .trim_matches('"')
+                .replace("\"\"", "\""),
+            sound_file: normalize_media_path(sound_raw, true),
+            video_file: normalize_media_path(video_raw, false),
+            snooze_minutes: snooze_field.parse().unwrap_or(9),
+        });
     }
 }

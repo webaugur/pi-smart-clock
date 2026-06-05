@@ -1,12 +1,6 @@
 use chrono::{Local, Timelike};
 
-use crate::drivers::platform::Platform;
-
-const TICK: &str = "sounds/tick.wav";
-const TOCK: &str = "sounds/tock.wav";
-const QUARTER: &str = "sounds/quarter.wav";
-const HALF: &str = "sounds/half.wav";
-const HOUR: &str = "sounds/bell.wav";
+use crate::platform::linux_audio::{ChimeKind, LinuxAudioEngine};
 
 /// Quarter / half / hour chimes driven by wall-clock time.
 pub struct ChimeEngine {
@@ -22,7 +16,7 @@ impl ChimeEngine {
         }
     }
 
-    pub async fn tick<P: Platform>(&mut self, platform: &mut P) {
+    pub fn tick(&mut self, audio: &mut LinuxAudioEngine) {
         let now = Local::now();
         let sec = now.second();
         if sec == self.last_second {
@@ -30,21 +24,29 @@ impl ChimeEngine {
         }
         self.last_second = sec;
 
-        if sec % 2 == 0 {
-            platform.play_sound(TICK, 1.0).await;
-        } else {
-            platform.play_sound(TOCK, 1.0).await;
+        let quarter_chime = now.minute() % 15 == 0 && sec == 0;
+        let mut played_quarter = false;
+
+        if quarter_chime {
+            let quarter_idx = now.minute() / 15;
+            if quarter_idx != self.last_quarter {
+                self.last_quarter = quarter_idx;
+                played_quarter = true;
+                if now.minute() == 0 {
+                    audio.play_chime(ChimeKind::Hour);
+                } else if now.minute() == 30 {
+                    audio.play_chime(ChimeKind::Half);
+                } else {
+                    audio.play_chime(ChimeKind::Quarter);
+                }
+            }
         }
 
-        let quarter_idx = now.minute() / 15;
-        if quarter_idx != self.last_quarter && now.minute() % 15 == 0 && now.second() == 0 {
-            self.last_quarter = quarter_idx;
-            if now.minute() == 0 {
-                platform.play_sound(HOUR, 1.0).await;
-            } else if now.minute() == 30 {
-                platform.play_sound(HALF, 1.0).await;
+        if !played_quarter {
+            if sec % 2 == 0 {
+                audio.play_chime(ChimeKind::Tick);
             } else {
-                platform.play_sound(QUARTER, 1.0).await;
+                audio.play_chime(ChimeKind::Tock);
             }
         }
     }

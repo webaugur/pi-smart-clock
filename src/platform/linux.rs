@@ -9,31 +9,35 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use crate::drivers::platform::Platform;
+use crate::platform::linux_audio::{LinuxAudioEngine, resolve_media_path};
 
 pub trait SdlPlatformExt {
     fn canvas_mut(&mut self) -> &mut Canvas<Window>;
     fn ingest_key(&mut self, key: Keycode, pressed: bool);
     fn set_font(&mut self, font: &'static Font<'static, 'static>);
     fn font(&self) -> Option<&'static Font<'static, 'static>>;
+    fn audio_mut(&mut self) -> &mut LinuxAudioEngine;
 }
 
 pub struct SdlPlatform {
     canvas: Canvas<Window>,
     font: Option<&'static Font<'static, 'static>>,
+    audio: LinuxAudioEngine,
     rotary_delta: i32,
     button_down: bool,
     files: HashMap<String, Vec<u8>>,
 }
 
 impl SdlPlatform {
-    pub fn new(canvas: Canvas<Window>) -> Self {
-        Self {
+    pub fn new(canvas: Canvas<Window>) -> Result<Self, String> {
+        Ok(Self {
             canvas,
             font: None,
+            audio: LinuxAudioEngine::new()?,
             rotary_delta: 0,
             button_down: false,
             files: HashMap::new(),
-        }
+        })
     }
 
     fn rgb(c: u32) -> Color {
@@ -60,6 +64,10 @@ impl SdlPlatformExt for SdlPlatform {
 
     fn font(&self) -> Option<&'static Font<'static, 'static>> {
         self.font
+    }
+
+    fn audio_mut(&mut self) -> &mut LinuxAudioEngine {
+        &mut self.audio
     }
 
     fn ingest_key(&mut self, key: Keycode, pressed: bool) {
@@ -126,7 +134,7 @@ impl Platform for SdlPlatform {
     }
 
     async fn clear_center_area(&mut self) {
-        self.draw_rect(200, 120, 400, 280, 0x000000).await;
+        self.draw_rect(267, 140, 266, 160, 0x000000).await;
     }
 
     async fn present(&mut self) {
@@ -134,15 +142,19 @@ impl Platform for SdlPlatform {
     }
 
     async fn play_sound(&mut self, path: &str, _volume: f32) {
-        if Path::new(path).exists() {
-            if let Ok(m) = sdl2::mixer::Music::from_file(path) {
-                let _ = m.play(0);
-            }
-        }
+        self.audio.play_one_shot(path);
     }
 
     async fn play_raw_audio(&mut self, path: &str) {
         self.play_sound(path, 1.0).await;
+    }
+
+    async fn play_alarm_loop(&mut self, path: &str) {
+        self.audio.play_alarm_loop(path);
+    }
+
+    async fn stop_alarm_sound(&mut self) {
+        self.audio.stop_alarm();
     }
 
     fn get_current_time(&self) -> DateTime<Local> {
@@ -166,10 +178,27 @@ impl Platform for SdlPlatform {
     }
 
     async fn read_file(&mut self, path: &str) -> Option<Vec<u8>> {
-        self.files
-            .get(path)
-            .cloned()
-            .or_else(|| std::fs::read(path).ok())
+        if let Some(data) = self.files.get(path) {
+            return Some(data.clone());
+        }
+        let linux_aliases = [
+            ("/sd/config/alarms.csv", "config/alarms.csv"),
+            ("/sd/config/alarms.csv.example", "config/alarms.csv.example"),
+        ];
+        for (sd, local) in linux_aliases {
+            if path == sd {
+                if let Some(p) = resolve_media_path(local) {
+                    return std::fs::read(p).ok();
+                }
+            }
+        }
+        if let Some(p) = resolve_media_path(path) {
+            return std::fs::read(p).ok();
+        }
+        if Path::new(path).exists() {
+            return std::fs::read(path).ok();
+        }
+        None
     }
 
     async fn copy_file(&mut self, from: &str, to: &str) {

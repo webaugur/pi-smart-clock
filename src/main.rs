@@ -30,7 +30,7 @@ async fn main() -> Result<(), String> {
         .map_err(|e| e.to_string())?;
     let canvas = window.into_canvas().build().map_err(|e| e.to_string())?;
 
-    let mut platform = SdlPlatform::new(canvas);
+    let mut platform = SdlPlatform::new(canvas).map_err(|e| e.to_string())?;
     platform.set_font(&font);
 
     let mut state = SmartClockState::new();
