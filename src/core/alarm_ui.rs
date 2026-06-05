@@ -1,5 +1,6 @@
 use crate::core::alarm::Alarm;
 use crate::drivers::platform::Platform;
+use crate::layout::{CENTER_X, CENTER_Y};
 
 /// Alarm overlay text (video plays underneath in center panel).
 pub struct AlarmUI {
@@ -28,19 +29,23 @@ impl AlarmUI {
             "ALARM"
         };
 
-        platform.draw_text(header, 280, 125, 28, 0xFF4444).await;
+        platform
+            .draw_text(header, CENTER_X + 10, CENTER_Y - 20, 28, 0xFF4444)
+            .await;
         platform
             .draw_text(
                 &format!("{:02}:{:02}", alarm.hour, alarm.minute),
-                340,
-                305,
+                CENTER_X + 70,
+                CENTER_Y + 170,
                 36,
                 0xFFFF88,
             )
             .await;
-        platform.draw_text(&alarm.label, 300, 345, 18, 0xCCCCCC).await;
         platform
-            .draw_text("Button = Dismiss", 290, 375, 14, 0x88FF88)
+            .draw_text(&alarm.label, CENTER_X + 30, CENTER_Y + 210, 18, 0xCCCCCC)
+            .await;
+        platform
+            .draw_text("Button = Dismiss", CENTER_X + 40, CENTER_Y + 240, 14, 0x88FF88)
             .await;
     }
 

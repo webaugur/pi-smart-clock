@@ -15,6 +15,9 @@ pub mod chimes;
 pub mod clock;
 
 #[cfg(feature = "linux-full")]
+pub mod layout;
+
+#[cfg(feature = "linux-full")]
 pub mod modules;
 
 #[cfg(feature = "linux-full")]

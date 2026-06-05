@@ -29,12 +29,32 @@ impl WeatherPanel {
         alerts: &AlertManager,
     ) {
         if self.radar_enabled && (alerts.radar_active || alerts.amber_silver_active) {
-            platform.draw_rect(267, 320, 266, 160, 0x112244).await;
             platform
-                .draw_text("WEATHER RADAR", 310, 370, 18, 0x00FFAA)
+                .draw_rect(
+                    crate::layout::CENTER_X,
+                    crate::layout::BOTTOM_Y,
+                    crate::layout::CENTER_W as i32,
+                    crate::layout::BOTTOM_H as i32,
+                    0x112244,
+                )
                 .await;
             platform
-                .draw_text("Active Alert Overlay", 300, 400, 14, 0x88FF88)
+                .draw_text(
+                    "WEATHER RADAR",
+                    crate::layout::CENTER_X + 20,
+                    crate::layout::BOTTOM_Y + 80,
+                    18,
+                    0x00FFAA,
+                )
+                .await;
+            platform
+                .draw_text(
+                    "Active Alert Overlay",
+                    crate::layout::CENTER_X + 10,
+                    crate::layout::BOTTOM_Y + 110,
+                    14,
+                    0x88FF88,
+                )
                 .await;
         }
     }

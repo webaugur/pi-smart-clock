@@ -5,6 +5,10 @@ use sdl2::render::Canvas;
 use sdl2::ttf::Font;
 use sdl2::video::Window;
 
+use crate::layout::{
+    BOTTOM_H, BOTTOM_Y, CENTER_H, CENTER_W, CENTER_X, CENTER_Y, CLOCK_CX, CLOCK_CY, SCREEN_W,
+};
+
 const ROMAN: [&str; 12] = [
     "XII", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI",
 ];
@@ -12,11 +16,16 @@ const ROMAN: [&str; 12] = [
 pub fn draw_layout_regions(canvas: &mut Canvas<Window>) -> Result<(), String> {
     canvas.set_draw_color(Color::RGB(25, 25, 35));
     canvas
-        .fill_rect(Rect::new(0, 320, 800, 160))
+        .fill_rect(Rect::new(0, BOTTOM_Y, SCREEN_W as u32, BOTTOM_H as u32))
         .map_err(|e| e.to_string())?;
     canvas.set_draw_color(Color::RGB(15, 15, 25));
     canvas
-        .fill_rect(Rect::new(267, 140, 266, 160))
+        .fill_rect(Rect::new(
+            CENTER_X,
+            CENTER_Y,
+            CENTER_W,
+            CENTER_H,
+        ))
         .map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -44,8 +53,8 @@ pub fn draw_roman_numerals(
             .create_texture_from_surface(&surface)
             .map_err(|e| e.to_string())?;
         let q = texture.query();
-        let tx = (400.0 + ang.sin() * 155.0) as i32 - q.width as i32 / 2;
-        let ty = (200.0 - ang.cos() * 155.0) as i32 - q.height as i32 / 2;
+        let tx = (CLOCK_CX as f32 + ang.sin() * 155.0) as i32 - q.width as i32 / 2;
+        let ty = (CLOCK_CY as f32 - ang.cos() * 155.0) as i32 - q.height as i32 / 2;
         canvas
             .copy(
                 &texture,

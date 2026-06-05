@@ -10,6 +10,10 @@ use crate::runtime::state::SmartClockState;
 #[cfg(feature = "linux-full")]
 use crate::clock as layout;
 #[cfg(feature = "linux-full")]
+use crate::layout::{
+    CAL_H, CAL_W, CAL_X, CAL_Y, CENTER_H, CENTER_W, CENTER_X, CENTER_Y, HOL_H, HOL_W, HOL_X, HOL_Y,
+};
+#[cfg(feature = "linux-full")]
 use crate::panel::Panel;
 
 pub async fn tick<P: Platform + SdlPlatformExt>(
@@ -120,37 +124,50 @@ pub async fn render_linux<P: Platform + SdlPlatformExt>(
     }
 
     if state.ui_mode != UiMode::Alarm {
-        state.weather_panel
-            .draw(platform.canvas_mut(), 270, 145, 260, 150);
+        state.weather_panel.draw(
+            platform.canvas_mut(),
+            CENTER_X,
+            CENTER_Y,
+            CENTER_W as i32,
+            CENTER_H as i32,
+        );
         platform
             .draw_text(
                 &format!("{}°", state.weather_panel.temp()),
-                285,
-                165,
+                CENTER_X + 15,
+                CENTER_Y + 20,
                 20,
                 0xFFFFFF,
             )
             .await;
         platform
-            .draw_text(state.weather_panel.condition(), 285, 195, 16, 0xAAAAAA)
+            .draw_text(
+                state.weather_panel.condition(),
+                CENTER_X + 15,
+                CENTER_Y + 50,
+                16,
+                0xAAAAAA,
+            )
             .await;
     }
 
     state.calendar_panel
-        .draw(platform.canvas_mut(), 20, 330, 240, 140);
+        .draw(platform.canvas_mut(), CAL_X, CAL_Y, CAL_W, CAL_H);
     state.holidays_panel
-        .draw(platform.canvas_mut(), 540, 330, 240, 140);
+        .draw(platform.canvas_mut(), HOL_X, HOL_Y, HOL_W, HOL_H);
 
-    platform.draw_text("Calendar", 30, 335, 14, 0x88AAFF).await;
+    platform.draw_text("Calendar", CAL_X + 10, CAL_Y + 5, 14, 0x88AAFF).await;
     for (i, ev) in state.calendar_panel.events.iter().take(3).enumerate() {
         platform
-            .draw_text(ev, 30, 360 + (i as i32) * 22, 12, 0xCCCCCC)
+            .draw_text(ev, CAL_X + 10, CAL_Y + 30 + (i as i32) * 22, 12, 0xCCCCCC)
             .await;
     }
-    platform.draw_text("Holidays", 550, 335, 14, 0xFFAA88).await;
+    platform
+        .draw_text("Holidays", HOL_X + 10, HOL_Y + 5, 14, 0xFFAA88)
+        .await;
     for (i, h) in state.holidays_panel.holidays.iter().take(3).enumerate() {
         platform
-            .draw_text(h, 550, 360 + (i as i32) * 22, 12, 0xCCCCCC)
+            .draw_text(h, HOL_X + 10, HOL_Y + 30 + (i as i32) * 22, 12, 0xCCCCCC)
             .await;
     }
 

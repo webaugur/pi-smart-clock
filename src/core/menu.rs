@@ -1,5 +1,6 @@
 use crate::drivers::platform::Platform;
 use crate::drivers::rotary_encoder::RotaryEncoder;
+use crate::layout::{SCREEN_W};
 
 pub enum MenuState {
     Main,
@@ -39,7 +40,8 @@ impl MenuSystem {
                     0 => self.open_time_set = true,
                     1 => self.current = MenuState::Alerts,
                     2 => self.open_about = true,
-                    _ => self.close_requested = true,
+                    3 => self.close_requested = true,
+                    _ => {}
                 },
                 _ => self.current = MenuState::Main,
             }
@@ -47,7 +49,7 @@ impl MenuSystem {
         }
 
         if encoder.value != 0 {
-            self.selected = (self.selected as i32 + encoder.value).rem_euclid(4).max(0) as usize;
+            self.selected = (self.selected as i32 + encoder.value).rem_euclid(4) as usize;
             encoder.value = 0;
         }
     }
@@ -66,12 +68,18 @@ impl MenuSystem {
 
     pub async fn draw<P: Platform>(&self, platform: &mut P) {
         platform.clear_center_area().await;
-        platform.draw_text("MENU", 340, 60, 28, 0x00FFCC).await;
+        platform
+            .draw_text("MENU", SCREEN_W / 2 - 40, 120, 28, 0x00FFCC)
+            .await;
         let items = ["Set Time", "Alerts", "About", "Back"];
         for (i, item) in items.iter().enumerate() {
-            let y = 120 + (i as i32 * 40);
-            let color = if i == self.selected { 0xFFFF00 } else { 0xAAAAAA };
-            platform.draw_text(item, 300, y, 20, color).await;
+            let y = 180 + (i as i32 * 40);
+            let color = if i == self.selected {
+                0xFFFF00
+            } else {
+                0xAAAAAA
+            };
+            platform.draw_text(item, SCREEN_W / 2 - 50, y, 20, color).await;
         }
     }
 }

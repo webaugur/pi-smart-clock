@@ -1,5 +1,6 @@
 use crate::drivers::platform::Platform;
 use crate::drivers::rotary_encoder::RotaryEncoder;
+use crate::layout::SCREEN_W;
 use chrono::{Local, Timelike};
 
 pub struct TimeSetUI {
@@ -27,7 +28,6 @@ impl TimeSetUI {
             } else {
                 let _hour = self.hour;
                 let _minute = self.minute;
-                // DS3231::set_time(platform, _hour, _minute).await;
                 self.editing = false;
             }
             encoder.button_pressed = false;
@@ -47,8 +47,8 @@ impl TimeSetUI {
             platform
                 .draw_text(
                     &format!("{:02}:{:02}", self.hour, self.minute),
+                    SCREEN_W / 2 - 50,
                     320,
-                    200,
                     48,
                     0xFFFF00,
                 )
@@ -60,8 +60,8 @@ impl TimeSetUI {
                     } else {
                         "↑ Minute"
                     },
-                    340,
-                    260,
+                    SCREEN_W / 2 - 40,
+                    380,
                     18,
                     0x88CCFF,
                 )

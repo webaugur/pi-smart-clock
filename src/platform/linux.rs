@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use crate::drivers::platform::Platform;
+use crate::layout::{CENTER_H, CENTER_W, CENTER_X, CENTER_Y};
 use crate::platform::linux_audio::{LinuxAudioEngine, resolve_media_path};
 
 pub trait SdlPlatformExt {
@@ -134,7 +135,14 @@ impl Platform for SdlPlatform {
     }
 
     async fn clear_center_area(&mut self) {
-        self.draw_rect(267, 140, 266, 160, 0x000000).await;
+        self.draw_rect(
+            CENTER_X,
+            CENTER_Y,
+            CENTER_W as i32,
+            CENTER_H as i32,
+            0x000000,
+        )
+        .await;
     }
 
     async fn present(&mut self) {

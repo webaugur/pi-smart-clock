@@ -1,3 +1,4 @@
+use pi_smart_clock::layout::{WINDOW_H, WINDOW_W};
 use pi_smart_clock::platform::linux::{SdlPlatform, SdlPlatformExt};
 use pi_smart_clock::runtime::SmartClockState;
 use sdl2::event::Event;
@@ -24,7 +25,7 @@ async fn main() -> Result<(), String> {
     let _ttf = ttf;
 
     let window = video
-        .window("Smart Clock", 800, 480)
+        .window("Smart Clock", WINDOW_W, WINDOW_H)
         .position_centered()
         .build()
         .map_err(|e| e.to_string())?;

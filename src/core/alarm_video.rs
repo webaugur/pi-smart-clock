@@ -5,12 +5,8 @@ use sdl2::video::Window;
 use std::io::Read;
 use std::process::{Child, ChildStdout, Command, Stdio};
 
+use crate::layout::{CENTER_H, CENTER_W, CENTER_X, CENTER_Y};
 use crate::platform::linux_audio::resolve_media_path;
-
-pub const CENTER_X: i32 = 267;
-pub const CENTER_Y: i32 = 140;
-pub const CENTER_W: u32 = 266;
-pub const CENTER_H: u32 = 160;
 const FRAME_BYTES: usize = (CENTER_W as usize) * (CENTER_H as usize) * 3;
 
 pub struct AlarmVideoPlayer {
