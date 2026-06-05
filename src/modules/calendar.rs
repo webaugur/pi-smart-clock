@@ -1,3 +1,4 @@
+use crate::icons::draw_symbolic_icon;
 use crate::modules::bottom_module::{BottomModule, PanelLine};
 use crate::modules::module_id::ModuleId;
 use crate::panel::Panel;
@@ -49,10 +50,22 @@ impl BottomModule for CalendarPanel {
 
 impl Panel for CalendarPanel {
     fn draw(&mut self, canvas: &mut Canvas<Window>, x: i32, y: i32, w: i32, h: i32) {
-        canvas.set_draw_color(Color::RGB(25, 25, 45));
+        canvas.set_draw_color(Color::RGB(17, 17, 17));
         let _ = canvas.fill_rect(Rect::new(x, y, w as u32, h as u32));
         canvas.set_draw_color(Color::RGB(80, 120, 200));
         let _ = canvas.fill_rect(Rect::new(x + 4, y + 4, (w - 8) as u32, 3));
+
+        let icon_size = ((h - 20).max(80) as u32).min(112);
+        let icon_x = x + w - icon_size as i32 - 6;
+        let icon_y = y + (h - icon_size as i32) / 2;
+        draw_symbolic_icon(
+            canvas,
+            "apps/calendar-symbolic.svg",
+            icon_x,
+            icon_y,
+            icon_size,
+            Color::RGB(136, 170, 255),
+        );
     }
 
     fn update(&mut self) {}

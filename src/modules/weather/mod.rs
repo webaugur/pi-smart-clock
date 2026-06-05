@@ -249,7 +249,7 @@ impl BottomModule for WeatherPanel {
 
 impl Panel for WeatherPanel {
     fn draw(&mut self, canvas: &mut Canvas<Window>, x: i32, y: i32, w: i32, h: i32) {
-        canvas.set_draw_color(Color::RGB(20, 35, 55));
+        canvas.set_draw_color(Color::RGB(17, 17, 17));
         let _ = canvas.fill_rect(Rect::new(x, y, w as u32, h as u32));
         canvas.set_draw_color(Color::RGB(0, 255, 170));
         let _ = canvas.fill_rect(Rect::new(x + 4, y + 4, (w - 8) as u32, 4));

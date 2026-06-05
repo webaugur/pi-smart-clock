@@ -2,6 +2,7 @@ pub mod bar;
 pub mod bottom_module;
 pub mod calendar;
 pub mod config;
+pub mod faces;
 pub mod holidays;
 pub mod module_id;
 pub mod registry;
