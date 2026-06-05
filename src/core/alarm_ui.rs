@@ -19,7 +19,7 @@ impl AlarmUI {
         self.active = true;
         self.current_alarm = Some(alarm.clone());
 
-        platform.clear_center_area();
+        platform.clear_center_area().await;
 
         let header = if alarm.label.contains("Amber") || alarm.label.contains("Silver") {
             "⚠️ ALERT ACTIVE"
@@ -27,16 +27,16 @@ impl AlarmUI {
             "⏰ ALARM"
         };
 
-        platform.draw_text(header, 280, 80, 36, 0xFF4444);
-        platform.draw_text(&format!("{:02}:{:02}", alarm.hour, alarm.minute), 340, 160, 52, 0xFFFF88);
-        platform.draw_text(&alarm.label, 300, 230, 22, 0xCCCCCC);
-        platform.draw_text("Button = Snooze 9 min", 220, 300, 16, 0x88FF88);
-        platform.draw_text("Hold Button = Dismiss", 250, 330, 16, 0xFF8888);
+        platform.draw_text(header, 280, 80, 36, 0xFF4444).await;
+        platform.draw_text(&format!("{:02}:{:02}", alarm.hour, alarm.minute), 340, 160, 52, 0xFFFF88).await;
+        platform.draw_text(&alarm.label, 300, 230, 22, 0xCCCCCC).await;
+        platform.draw_text("Button = Snooze 9 min", 220, 300, 16, 0x88FF88).await;
+        platform.draw_text("Hold Button = Dismiss", 250, 330, 16, 0xFF8888).await;
     }
 
     pub async fn hide<P: Platform>(&mut self, platform: &mut P) {
         self.active = false;
         self.current_alarm = None;
-        platform.clear_center_area();
+        platform.clear_center_area().await;
     }
 }

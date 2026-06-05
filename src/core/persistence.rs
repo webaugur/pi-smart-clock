@@ -3,7 +3,7 @@ use chrono::Local;
 
 fn csv_escape(field: &str) -> String {
     if field.contains(',') || field.contains('"') || field.contains('\n') {
-        let escaped = field.replace('"', "\"""" );
+        let escaped = field.replace('"', "\"\"");
         format!("\"{}\"", escaped)
     } else {
         field.to_string()

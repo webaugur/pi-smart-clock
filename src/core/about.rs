@@ -17,4 +17,3 @@ pub async fn show<P: Platform>(platform: &mut P) {
 
     platform.draw_text("Press button to return", 240, 340, 14, 0x888888);
 }
-}

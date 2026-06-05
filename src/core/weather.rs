@@ -22,7 +22,7 @@ impl WeatherPanel {
             3 * 60 * 60 // 3 hours
         };
 
-        println!("\ud83c\udf27\ufe0f Weather panel updated (interval: {}s)", interval);
+        println!("Weather panel updated (interval: {}s)", interval);
     }
 
     pub async fn draw_radar_overlay<P: Platform>(&self, platform: &mut P, alerts: &AlertManager) {

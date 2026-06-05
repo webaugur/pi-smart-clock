@@ -1,67 +1,58 @@
+use chrono::{DateTime, Local, Timelike};
 use sdl2::pixels::Color;
-use sdl2::rect::Point;
-use sdl2::render::{Canvas, TextureCreator};
+use sdl2::rect::Rect;
+use sdl2::render::Canvas;
 use sdl2::ttf::Font;
 use sdl2::video::Window;
-use chrono::Local;
 
-const ROMAN: [&str; 12] = ["XII", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"];
+const ROMAN: [&str; 12] = [
+    "XII", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI",
+];
 
-pub struct Clock {
-    font: Font<'static>,
-    texture_creator: TextureCreator<sdl2::video::WindowContext>,
+pub fn draw_layout_regions(canvas: &mut Canvas<Window>) -> Result<(), String> {
+    canvas.set_draw_color(Color::RGB(25, 25, 35));
+    canvas
+        .fill_rect(Rect::new(0, 320, 800, 160))
+        .map_err(|e| e.to_string())?;
+    canvas.set_draw_color(Color::RGB(15, 15, 25));
+    canvas
+        .fill_rect(Rect::new(267, 140, 266, 160))
+        .map_err(|e| e.to_string())?;
+    Ok(())
 }
 
-impl Clock {
-    pub fn new(font: &mut Font, texture_creator: &TextureCreator<sdl2::video::WindowContext>) -> Result<Self, String> {
-        Ok(Self {
-            font: font.to_owned(),
-            texture_creator: texture_creator.to_owned(),
-        })
+pub fn draw_roman_numerals(
+    canvas: &mut Canvas<Window>,
+    font: &Font,
+    now: DateTime<Local>,
+) -> Result<(), String> {
+    let is_night = now.hour() >= 22 || now.hour() < 6;
+    let color = if is_night {
+        Color::RGB(255, 170, 51)
+    } else {
+        Color::RGB(255, 255, 255)
+    };
+
+    for i in 0..12 {
+        let ang = (i as f32 * 30.0).to_radians();
+        let surface = font
+            .render(ROMAN[i])
+            .blended(color)
+            .map_err(|e| e.to_string())?;
+        let creator = canvas.texture_creator();
+        let texture = creator
+            .create_texture_from_surface(&surface)
+            .map_err(|e| e.to_string())?;
+        let q = texture.query();
+        let tx = (400.0 + ang.sin() * 155.0) as i32 - q.width as i32 / 2;
+        let ty = (200.0 - ang.cos() * 155.0) as i32 - q.height as i32 / 2;
+        canvas
+            .copy(
+                &texture,
+                None,
+                Rect::new(tx, ty, q.width, q.height),
+            )
+            .map_err(|e| e.to_string())?;
     }
-
-    pub fn draw(&mut self, canvas: &mut Canvas<Window>) -> Result<(), String> {
-        let now = Local::now();
-        let seconds = now.second() as f32;
-        let bounce = (seconds.fract() * 8.0).sin().abs() * 3.0;
-        let angle = (seconds * 6.0) + bounce;
-
-        let cx = 400;
-        let cy = 240;
-        let radius = 200;
-
-        canvas.set_draw_color(Color::RGB(240, 240, 240));
-        for i in 0..12 {
-            let ang = (i as f32 * 30.0).to_radians();
-            let x1 = cx + (ang.sin() * radius as f32) as i32;
-            let y1 = cy - (ang.cos() * radius as f32) as i32;
-            let x2 = cx + (ang.sin() * (radius - 20) as f32) as i32;
-            let y2 = cy - (ang.cos() * (radius - 20) as f32) as i32;
-            let _ = canvas.draw_line(Point::new(x1, y1), Point::new(x2, y2));
-
-            let text = ROMAN[i];
-            let surface = self.font.render(text)
-                .blended(Color::RGB(255, 255, 255))
-                .map_err(|e| e.to_string())?;
-            let texture = self.texture_creator
-                .create_texture_from_surface(&surface)
-                .map_err(|e| e.to_string())?;
-            let query = texture.query();
-            let dest = sdl2::rect::Rect::new(
-                cx - (query.width as i32) / 2,
-                (cy - (query.height as i32) / 2) - 25,
-                query.width,
-                query.height
-            );
-            let _ = canvas.copy(&texture, None, dest);
-        }
-
-        let rad = angle.to_radians();
-        let hand_x = cx + (rad.sin() * 185.0) as i32;
-        let hand_y = cy - (rad.cos() * 185.0) as i32;
-        canvas.set_draw_color(Color::RGB(200, 20, 20));
-        let _ = canvas.draw_line(Point::new(cx, cy), Point::new(hand_x, hand_y));
-
-        Ok(())
-    }
+    Ok(())
 }

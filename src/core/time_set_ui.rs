@@ -1,6 +1,6 @@
-use crate::core::Platform;
+use crate::drivers::platform::Platform;
 use crate::drivers::rotary_encoder::RotaryEncoder;
-use chrono::Local;
+use chrono::{Local, Timelike};
 
 pub struct TimeSetUI {
     pub editing: bool,
@@ -26,8 +26,10 @@ impl TimeSetUI {
                 self.editing = true;
             } else {
                 // Commit to DS3231
-                let dt = Local.with_ymd_and_hms(2026, 5, 30, self.hour, self.minute, 0).unwrap();
-                // DS3231::set_time(platform, dt).await;
+                let _now = Local::now();
+                let _hour = self.hour;
+                let _minute = self.minute;
+                // DS3231::set_time(platform, _hour, _minute).await;
                 self.editing = false;
             }
             encoder.button_pressed = false;
