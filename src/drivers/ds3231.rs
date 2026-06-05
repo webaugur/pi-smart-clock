@@ -7,7 +7,7 @@ impl DS3231 {
 
     pub async fn synchronize<P: Platform>(platform: &mut P) {
         // Read time from DS3231 and set system time
-        println!("[DS3231] Time synchronized");
+        let _ = ();
     }
 
     pub async fn set_time<P: Platform>(platform: &mut P, hour: u32, minute: u32) {

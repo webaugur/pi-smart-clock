@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Smart clock for Raspberry Pi (SDL2 Linux dev) and Pico DVI (Embassy)"
 readme = "README.md"
+default-run = "pi-smart-clock"
 
 [lib]
 name = "pi_smart_clock"

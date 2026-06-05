@@ -118,6 +118,19 @@ pub async fn render_linux<P: Platform + SdlPlatformExt>(
         .draw_text(state.weather_panel.condition(), 285, 195, 16, 0xAAAAAA)
         .await;
 
+    platform.draw_text("Calendar", 30, 335, 14, 0x88AAFF).await;
+    for (i, ev) in state.calendar_panel.events.iter().take(3).enumerate() {
+        platform
+            .draw_text(ev, 30, 360 + (i as i32) * 22, 12, 0xCCCCCC)
+            .await;
+    }
+    platform.draw_text("Holidays", 550, 335, 14, 0xFFAA88).await;
+    for (i, h) in state.holidays_panel.holidays.iter().take(3).enumerate() {
+        platform
+            .draw_text(h, 550, 360 + (i as i32) * 22, 12, 0xCCCCCC)
+            .await;
+    }
+
     status_bar::draw(platform, state.sensors.temp_c, env!("GIT_HASH")).await;
 
     match state.ui_mode {

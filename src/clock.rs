@@ -33,13 +33,13 @@ pub fn draw_roman_numerals(
         Color::RGB(255, 255, 255)
     };
 
+    let creator = canvas.texture_creator();
     for i in 0..12 {
         let ang = (i as f32 * 30.0).to_radians();
         let surface = font
             .render(ROMAN[i])
             .blended(color)
             .map_err(|e| e.to_string())?;
-        let creator = canvas.texture_creator();
         let texture = creator
             .create_texture_from_surface(&surface)
             .map_err(|e| e.to_string())?;
