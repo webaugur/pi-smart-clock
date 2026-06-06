@@ -1,4 +1,5 @@
 use crate::drivers::platform::Platform;
+#[cfg(not(feature = "linux-full"))]
 use crate::prelude::*;
 use crate::timing::{Duration, Instant};
 

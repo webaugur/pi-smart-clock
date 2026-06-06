@@ -1,4 +1,5 @@
 use crate::clock_core::alarm::AlarmManager;
+#[cfg(not(feature = "linux-full"))]
 use crate::prelude::*;
 use crate::storage::logical;
 

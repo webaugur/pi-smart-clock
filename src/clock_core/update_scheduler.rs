@@ -1,4 +1,5 @@
 use crate::timing::{Duration, Instant};
+#[cfg(not(feature = "linux-full"))]
 use crate::prelude::*;
 
 use crate::clock_core::alerts::AlertManager;
