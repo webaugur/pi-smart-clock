@@ -11,7 +11,7 @@ Run `./scripts/audit-todos.sh` to check inline `// TODO(ID):` comments against t
 | Platform | Status |
 |----------|--------|
 | **Linux (`linux-full`)** | Dev-ready: SDL clock face, SVG hands, weather panel, alarms, menu, ESP8266 bridge |
-| **Pico 1 (`pico-dvi`)** | Firmware builds and ticks; display/SD/RTC/network are stubs |
+| **Pico 1 (`pico-dvi`)** | DVI clock face on 640×480; SD/RTC/network still stubs |
 | **Pico 2 (RP2350)** | Not started — see [PLAT-001](TODO.md#p3--future--platform-expansion) |
 
 ---
@@ -22,7 +22,7 @@ Run `./scripts/audit-todos.sh` to check inline `// TODO(ID):` comments against t
 
 | Checkpoint | TODO IDs | Status |
 |------------|----------|--------|
-| DVI framebuffer + clock face drawn | PICO-001 | open |
+| DVI framebuffer + clock face drawn | PICO-001 | done (2026-06-06) |
 | SD FAT mount + read/write | PICO-002 | open |
 | Alarms CSV on `/sd/config/` | PICO-003 | open |
 | DS3231 wall time | HW-003, PICO-004 | open |
@@ -69,7 +69,7 @@ Run `./scripts/audit-todos.sh` to check inline `// TODO(ID):` comments against t
 
 | Area | Linux | Pico 1 | Pico 2 |
 |------|-------|--------|--------|
-| Clock face + SVG hands | Yes | Stub (no DVI) | Planned |
+| Clock face + SVG hands | Yes | DVI (basic analog; SVG → PLAT-003) | Planned |
 | Bottom panels | Yes (weather live; cal/hol samples) | N/A | — |
 | ESP8266 WiFi | Yes | Not built | TBD |
 | SD / config | XDG paths | Stub I2C SD | Same layout |

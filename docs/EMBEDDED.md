@@ -51,7 +51,7 @@ Checked-in firmware targets **Pico 1 / RP2040** (`thumbv6m-none-eabi`, `embassy-
     COMPONENT              INTERFACE        NOTES
     ---------              -----------      -----
     Raspberry Pi Pico 1    —                Main MCU
-    Pico DVI Sock          DVI + GPIO       800×480
+    Pico DVI Sock          DVI + GPIO       640×480 VGA*
     DS3231 RTC             I2C              Wall time
     microSD module         I2C (default)    Config / alarms / cache
     ESP8266                UART 3.3 V       WiFi (esp8266.conf)
@@ -132,8 +132,23 @@ Most monitors work with only the TMDS pairs and grounds above. If a panel stays 
 
 The Sock board leaves +5 V unconnected by default; many HDMI/DVI monitors still lock without it.
 
+### Firmware video mode
+
+Current firmware uses **640×480 @ 60 Hz (VGA timing)** via vendored [`pico-dvi-rs`](../../third_party/pico-dvi-rs) (`third_party/pico-dvi-rs`, branch `cursed-library` base). The CPU overclocks to **252 MHz** for the DVI bit clock. Logical UI layout is `Layout::dvi_vga()` (640×480); the clock face is drawn with display-list scanout in `src/platform/dvi_gfx.rs`.
+
+Pico DVI Sock pinout (matches PicoDVI `pico_sock_cfg`):
+
+| Lane | GPIO + / − |
+|------|------------|
+| Data 0 (blue) | GP12 / GP13 |
+| Data 1 (green) | GP18 / GP19 |
+| Data 2 (red) | GP16 / GP17 |
+| Clock | GP14 / GP15 |
+
 ### Build notes
 
+- Firmware heap is **128 KiB** (`firmware/alloc.rs`) for display-list allocation.
+- Linker script `memory.x` provides scratch RAM sections required by the DVI renderer.
 - Keep leads **short** and twisted as differential pairs (+/− per lane) where possible.
 - Do **not** route these GPIOs through a breadboard — parasitic capacitance will corrupt the signal.
 - **HDMI** cables use a different **pin numbering** than DVI-D, but the same TMDS lanes electrically;

@@ -1,23 +1,33 @@
-use embassy_time::{Duration, Timer};
-
 use crate::drivers::platform::Platform;
 use crate::drivers::sd_storage::{SdStorage, StorageBusMode};
+use crate::platform::dvi_gfx::DviGfx;
 use crate::prelude::*;
 use crate::time_util::WallTime;
+use crate::timing::advance_ms;
 
 /// Seconds since boot, seeded to 07:00:00 for bring-up until DS3231 sets wall time.
 static mut WALL_SECONDS: u32 = 7 * 3600;
 
 pub struct PicoDviPlatform {
     sd: SdStorage,
+    gfx: DviGfx,
+    boot_frame: bool,
 }
 
 impl PicoDviPlatform {
     pub fn new() -> Self {
         Self {
             sd: SdStorage::new(StorageBusMode::I2c),
+            gfx: DviGfx::new(),
+            boot_frame: true,
         }
     }
+}
+
+fn busy_wait_ms(ms: u64) {
+    // Approximate @ 252 MHz after DVI overclock.
+    let cycles = ms.saturating_mul(252_000);
+    cortex_m::asm::delay(cycles as u32);
 }
 
 impl Platform for PicoDviPlatform {
@@ -25,13 +35,47 @@ impl Platform for PicoDviPlatform {
         self.sd.mount()
     }
 
-    async fn draw_text(&mut self, _text: &str, _x: i32, _y: i32, _size: u8, _color: u32) {}
+    async fn draw_text(&mut self, text: &str, _x: i32, _y: i32, _size: u8, _color: u32) {
+        if self.boot_frame {
+            self.gfx
+                .present_boot_frame("Smart Clock", text)
+                .await;
+        }
+        let _ = text;
+    }
+
     async fn draw_line(&mut self, _x1: i32, _y1: i32, _x2: i32, _y2: i32, _color: u32, _thickness: u8) {}
+
     async fn draw_circle(&mut self, _cx: i32, _cy: i32, _radius: i32, _color: u32) {}
-    async fn draw_rect(&mut self, _x: i32, _y: i32, _w: i32, _h: i32, _color: u32) {}
-    async fn clear(&mut self) {}
-    async fn clear_center_area(&mut self) {}
-    async fn present(&mut self) {}
+
+    async fn draw_rect(&mut self, x: i32, y: i32, w: i32, h: i32, color: u32) {
+        self.gfx.fill_rect(x, y, w, h, color).await;
+    }
+
+    async fn clear(&mut self) {
+        self.gfx.clear(0x000000).await;
+    }
+
+    async fn clear_center_area(&mut self) {
+        let layout = crate::layout::l();
+        self.draw_rect(
+            layout.center_x,
+            layout.center_y,
+            layout.center_w as i32,
+            layout.center_h as i32,
+            0x000000,
+        )
+        .await;
+    }
+
+    async fn present(&mut self) {
+        let now = self.get_current_time();
+        self.gfx
+            .present_clock_frame(now.hour, now.minute, now.second)
+            .await;
+        self.boot_frame = false;
+    }
+
     async fn play_sound(&mut self, _name: &str, _volume: f32) {}
     async fn play_raw_audio(&mut self, _path: &str) {}
 
@@ -49,10 +93,11 @@ impl Platform for PicoDviPlatform {
         unsafe {
             WALL_SECONDS = WALL_SECONDS.saturating_add(add);
         }
+        advance_ms(ms);
     }
 
     async fn delay(&self, ms: u64) {
-        Timer::after(Duration::from_millis(ms)).await;
+        busy_wait_ms(ms);
         self.delay_ms(ms);
     }
 

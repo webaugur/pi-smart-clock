@@ -39,7 +39,7 @@ Run `./scripts/audit-todos.sh` before releases to compare inline `// TODO(ID):` 
 
 | Priority | Open | Focus |
 |----------|------|-------|
-| P0 | 5 | Pico display, SD, wall time |
+| P0 | 4 | Pico SD, wall time (DVI done) |
 | P1 | 11 | Network, voice, OTA, GPIO, sensors, RTC |
 | P2 | 7 | Linux panels, alerts, web UI |
 | P3 | 4 | Pico 2, buses, embedded faces, Pico W WiFi |
@@ -52,19 +52,11 @@ Run `./scripts/audit-todos.sh` before releases to compare inline `// TODO(ID):` 
 
 | ID | Status | Platform | Title | Key files |
 |----|--------|----------|-------|-----------|
-| PICO-001 | open | pico-dvi | Wire DVI display output | `src/platform/rp2040.rs`, `firmware/main.rs` |
+
 | PICO-002 | open | pico-dvi | SD card mount + FAT read/write | `src/drivers/sd_storage.rs` |
 | PICO-003 | open | pico-dvi | Load/save alarms from `/sd/config/` | `src/clock_core/persistence.rs` (blocked by PICO-002) |
 | PICO-004 | open | pico-dvi | Real wall time (not boot counter) | `src/platform/rp2040.rs`, `src/drivers/ds3231.rs` |
 | PICO-005 | open | pico-dvi | Boot screen claims RTC sync while DS3231 is empty | `src/clock_core/boot_screen.rs` (blocked by HW-003) |
-
-### PICO-001 — DVI display
-
-`PicoDviPlatform` leaves `draw_text`, `draw_line`, `draw_circle`, `draw_rect`, `clear`, `present` empty. `clock_core::clock::update` calls `Platform::draw_clock_*` which are trait no-ops on Pico. `embedded-graphics` is in `Cargo.toml` but unused.
-
-**Blocks:** visible clock face, menu, alarms UI on device.
-
-**See also:** [EMBEDDED.md — DVI wiring](EMBEDDED.md#dvi-output--direct-pico-to-cable-wiring-no-sock)
 
 ### PICO-002 — SD storage
 
@@ -213,7 +205,7 @@ Modules implemented but **not called** from `src/runtime/tick.rs` or `src/runtim
 
 | ID | Completed | Notes |
 |----|-----------|-------|
-| — | — | *No items closed yet.* |
+| PICO-001 | 2026-06-06 | DVI via `pico-dvi-rs` (640×480 VGA), `dvi_gfx` display lists, Pico DVI Sock pinout |
 
 ---
 

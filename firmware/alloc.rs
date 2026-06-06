@@ -7,7 +7,7 @@ static mut HEAP_START: usize = 0;
 static mut HEAP_END: usize = 0;
 static mut HEAP_NEXT: usize = 0;
 
-pub const HEAP_SIZE: usize = 32 * 1024;
+pub const HEAP_SIZE: usize = 128 * 1024;
 
 pub fn init_heap(buffer: &mut [u8; HEAP_SIZE]) {
     let start = buffer.as_ptr() as usize;

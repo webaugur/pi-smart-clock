@@ -5,4 +5,7 @@ pub mod linux;
 pub mod linux_audio;
 
 #[cfg(feature = "pico-dvi")]
+pub mod dvi_gfx;
+
+#[cfg(feature = "pico-dvi")]
 pub mod rp2040;

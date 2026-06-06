@@ -7,7 +7,7 @@ use std::sync::OnceLock;
 static ACTIVE: OnceLock<Layout> = OnceLock::new();
 
 #[cfg(not(feature = "linux-full"))]
-static ACTIVE_LAYOUT: Layout = Layout::portrait();
+static ACTIVE_LAYOUT: Layout = Layout::dvi_vga();
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Orientation {
@@ -96,6 +96,50 @@ impl Layout {
             bottom_title_pt: 30,
             bottom_body_pt: 26,
             bottom_line_gap: 42,
+        }
+    }
+
+    /// 640×480 landscape — matches Pico DVI VGA timing (see `pico_dvi_rs::DISPLAY_*`).
+    pub const fn dvi_vga() -> Self {
+        let panel_w = 213;
+        let bottom_h = 120;
+        let bottom_y = 340;
+        Self {
+            orientation: Orientation::Landscape,
+            screen_w: 640,
+            screen_h: 480,
+            font_size: 16,
+            clock_cx: 320,
+            clock_cy: 200,
+            clock_outer_r: 150,
+            clock_inner_r: 138,
+            tick_outer_r: 150,
+            tick_inner_r: 132,
+            hand_length: 120,
+            roman_radius: 112,
+            center_x: 160,
+            center_y: 280,
+            center_w: 320,
+            center_h: 120,
+            bottom_y,
+            bottom_h,
+            panel_w,
+            weather_x: 0,
+            weather_y: bottom_y,
+            weather_w: panel_w,
+            weather_h: bottom_h,
+            cal_x: panel_w,
+            cal_y: bottom_y,
+            cal_w: panel_w,
+            cal_h: bottom_h,
+            hol_x: panel_w * 2,
+            hol_y: bottom_y,
+            hol_w: panel_w,
+            hol_h: bottom_h,
+            status_y: 468,
+            bottom_title_pt: 18,
+            bottom_body_pt: 16,
+            bottom_line_gap: 24,
         }
     }
 

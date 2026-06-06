@@ -6,4 +6,4 @@ pub use alloc::string::{String, ToString};
 pub use alloc::vec::Vec;
 
 #[cfg(not(feature = "linux-full"))]
-pub use embassy_time::{Duration, Instant};
+pub use crate::timing::{Duration, Instant};

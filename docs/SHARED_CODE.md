@@ -30,7 +30,7 @@ pi-smart-clock/
 │   ├── ota/                [linux-full] OTA stubs
 │   └── web/                [linux-full] Status page stubs
 ├── firmware/
-│   ├── main.rs             Pico entry (embassy executor)
+│   ├── main.rs             Pico entry (cortex-m-rt + DVI init)
 │   └── alloc.rs            Bump allocator for RP2040
 ├── src/main.rs             Linux entry (SDL event loop)
 └── config/                 Shipped defaults (*.example)
@@ -43,7 +43,7 @@ pi-smart-clock/
 | Feature | Default | Purpose |
 |---------|---------|---------|
 | `linux-full` | yes | SDL2, chrono, serde, ureq, resvg, serialport, desktop binary |
-| `pico-dvi` | no | Embassy, RP2040, embedded-graphics, firmware binary |
+| `pico-dvi` | no | `pico-dvi-rs`, RP2040 HAL, firmware binary |
 
 **Mutually exclusive.** `build.rs` and `lib.rs` emit an error if both are enabled.
 
@@ -61,7 +61,7 @@ cargo build --no-default-features --features pico-dvi --target thumbv6m-none-eab
 |------|------------|----------|
 | Time | `chrono` | `timing`, `time_util::WallTime` |
 | Strings / vec | `std` | `alloc` + `prelude` |
-| Graphics | SDL2 + resvg | `Platform` draw calls (stub on Pico) |
+| Graphics | SDL2 + resvg | DVI display lists (`dvi_gfx`, 640×480) |
 | JSON config | `serde_json` | Not loaded on embedded yet (SD TODO) |
 | HTTP | `ureq` (+ ESP8266) | ESP8266 / stubs |
 
