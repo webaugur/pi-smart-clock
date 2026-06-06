@@ -7,8 +7,8 @@ Detects your display orientation at startup: **portrait** screens use a 768×128
 ## Preview
 
 <video controls playsinline width="100%" style="max-width: 480px;">
-  <source src="docs/images/default_clock.mp4" type="video/mp4">
-  <a href="docs/images/default_clock.mp4">Download demo video</a>
+  <source src="https://github.com/webaugur/pi-smart-clock/raw/full-project/docs/images/default_clock.mp4" type="video/mp4">
+  <a href="https://github.com/webaugur/pi-smart-clock/blob/full-project/docs/images/default_clock.mp4">Open demo video on GitHub</a>
 </video>
 
 ## Documentation
