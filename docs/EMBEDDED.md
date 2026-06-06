@@ -66,6 +66,82 @@ Per-driver wiring, protocol, and implementation status: **[DRIVERS.md](DRIVERS.m
 
 ---
 
+## DVI output — direct Pico-to-cable wiring (no Sock)
+
+Firmware uses the standard **RP2040 DVI pinout** from [PicoDVI](https://github.com/Wren6991/PicoDVI) /
+[Pico DVI Sock](https://github.com/Wren6991/Pico-DVI-Sock) (same GPIO map as the Adafruit DVI Sock).
+You can wire a **DVI-D** plug or cable **directly** to the Pico instead of using a Sock or HDMI
+adapter board.
+
+### Signal map
+
+Eight GPIO pins drive the TMDS lanes. Place a **270 Ω** series resistor on **each** signal wire
+(between Pico GPIO and the DVI conductor), matching the Sock schematic.
+
+```
+    PICO GPIO    PICO PIN*   TMDS LANE     DVI-D PIN†    NOTES
+    ---------    ---------   ---------     ---------     -----
+    GP12         16          Data 0 +      8             270 Ω in series
+    GP13         17          Data 0 −      7             270 Ω in series
+    GP14         19          Clock +       10            270 Ω in series
+    GP15         20          Clock −       12            270 Ω in series
+    GP16         21          Data 2 +      2             270 Ω in series
+    GP17         22          Data 2 −      1             270 Ω in series
+    GP18         24          Data 1 +      5             270 Ω in series
+    GP19         25          Data 1 −      4             270 Ω in series
+
+    GND          18, 23, …   —             3, 6, 9, 11   TMDS shield / return pins
+    GND          —           Shell         DVI shell     Cable braid / connector shell
+```
+
+\* Physical pin numbers on the **40-pin Pico header** (USB connector at top, pins numbered down each
+long edge per the [Pico pinout](https://datasheets.raspberrypi.com/pico/Pico-R3-A4-Pinout.pdf)).
+
+† **DVI-D** connector pin numbers (single-link TMDS). Pin 1 is the square pad on a male DVI plug.
+
+### Wiring sketch
+
+```
+    Raspberry Pi Pico (USB end)                DVI-D cable / plug
+    ───────────────────────────                ────────────────────
+
+    GP12 (pin 16) ──[270Ω]──────────────────►  pin 8  (TMDS Data 0 +)
+    GP13 (pin 17) ──[270Ω]──────────────────►  pin 7  (TMDS Data 0 −)
+    GP14 (pin 19) ──[270Ω]──────────────────►  pin 10 (TMDS Clock +)
+    GP15 (pin 20) ──[270Ω]──────────────────►  pin 12 (TMDS Clock −)
+    GP16 (pin 21) ──[270Ω]──────────────────►  pin 2  (TMDS Data 2 +)
+    GP17 (pin 22) ──[270Ω]──────────────────►  pin 1  (TMDS Data 2 −)
+    GP18 (pin 24) ──[270Ω]──────────────────►  pin 5  (TMDS Data 1 +)
+    GP19 (pin 25) ──[270Ω]──────────────────►  pin 4  (TMDS Data 1 −)
+
+    GND  (pin 18) ─────────────────────────►  pin 3  (Data 2 shield)
+    GND  (pin 23) ─────────────────────────►  pin 6  (Data 1 shield)
+    GND            ─────────────────────────►  pin 9  (Data 0 shield)
+    GND            ─────────────────────────►  pin 11 (Clock shield)
+    GND            ─────────────────────────►  shell  (connector braid)
+```
+
+### Optional pins (if the display does not sync)
+
+Most monitors work with only the TMDS pairs and grounds above. If a panel stays blank, try:
+
+| DVI-D pin | Signal | Suggested hook-up |
+|-----------|--------|-------------------|
+| 14 | +5 V (EDID / sink power) | **+5 V** from a regulated supply (not 3.3 V) |
+| 15 | Hot-plug detect (HPD) | **+5 V** through a **1 kΩ** pull-up, or tie to pin 14 |
+
+The Sock board leaves +5 V unconnected by default; many HDMI/DVI monitors still lock without it.
+
+### Build notes
+
+- Keep leads **short** and twisted as differential pairs (+/− per lane) where possible.
+- Do **not** route these GPIOs through a breadboard — parasitic capacitance will corrupt the signal.
+- **HDMI** cables use a different **pin numbering** than DVI-D, but the same TMDS lanes electrically;
+  use a passive DVI→HDMI cable or plug if the monitor only has HDMI.
+- Reference schematic: [Pico DVI Sock PDF](https://github.com/Wren6991/Pico-DVI-Sock/blob/master/dvi-sock.pdf).
+
+---
+
 ## Development host toolchain
 
 Embedded builds require **rustup** — apt `cargo`/`rustc` cannot install `thumbv6m-none-eabi` sysroot.

@@ -17,6 +17,35 @@ Detects your display orientation at startup: **portrait** screens use a 768×128
 
 ## Linux quickstart
 
+### Rust toolchain (rustup)
+
+Use **rustup** for `cargo` and `rustc`. Debian/Ubuntu packages (`apt install cargo rustc`) are too old for this project and conflict with embedded cross-builds.
+
+```bash
+# Install rustup (skip if you already have ~/.cargo/bin/cargo)
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+source "$HOME/.cargo/env"
+
+# Update to the latest stable cargo + rustc
+rustup update stable
+rustup default stable
+
+# Remove OS-packaged Rust so PATH does not pick up /usr/bin/cargo or /usr/bin/rustc
+sudo apt remove -y cargo rustc
+# Optional: purge config leftovers from the distro packages
+# sudo apt purge -y cargo rustc
+
+# Prefer rustup's binaries in every shell session
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
+export PATH="$HOME/.cargo/bin:$PATH"
+
+cargo --version
+rustc --version
+which cargo   # should print $HOME/.cargo/bin/cargo, not /usr/bin/cargo
+```
+
+### Build and run
+
 ```bash
 # Debian/Ubuntu dependencies
 sudo apt install -y libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev fonts-dejavu-core ffmpeg
