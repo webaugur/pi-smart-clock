@@ -1,6 +1,7 @@
 use std::path::Path;
 
-const CONFIG_PATHS: [&str; 2] = ["config/esp8266.conf", "config/esp8266.conf.example"];
+#[cfg(feature = "linux-full")]
+use crate::storage::linux as xdg_storage;
 
 #[derive(Clone, Debug)]
 pub struct Esp8266Config {
@@ -24,13 +25,32 @@ impl Default for Esp8266Config {
 }
 
 pub fn load_esp8266_config() -> Esp8266Config {
-    for path in CONFIG_PATHS {
-        if let Ok(cfg) = parse_config(Path::new(path)) {
-            eprintln!("[esp8266] loaded {path}");
+    if let Some(path) = resolve_esp8266_config_path() {
+        if let Ok(cfg) = parse_config(&path) {
+            eprintln!("[esp8266] loaded {}", path.display());
             return cfg;
         }
     }
     Esp8266Config::default()
+}
+
+fn resolve_esp8266_config_path() -> Option<std::path::PathBuf> {
+    #[cfg(feature = "linux-full")]
+    {
+        return xdg_storage::find_config("esp8266.conf", "esp8266.conf.example");
+    }
+    #[cfg(not(feature = "linux-full"))]
+    {
+        let path = Path::new("config/esp8266.conf");
+        if path.is_file() {
+            return Some(path.to_path_buf());
+        }
+        let example = Path::new("config/esp8266.conf.example");
+        if example.is_file() {
+            return Some(example.to_path_buf());
+        }
+        None
+    }
 }
 
 fn parse_config(path: &Path) -> Result<Esp8266Config, String> {
@@ -74,7 +94,10 @@ mod tests {
 
     #[test]
     fn parses_example_config() {
-        let cfg = parse_config(Path::new("config/esp8266.conf.example")).unwrap();
+        let cfg = parse_config(
+            &resolve_esp8266_config_path().expect("esp8266 example config"),
+        )
+        .unwrap();
         assert!(!cfg.enabled);
         assert_eq!(cfg.baud, 115_200);
     }

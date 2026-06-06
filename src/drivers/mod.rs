@@ -1,4 +1,6 @@
 pub mod platform;
+#[cfg(feature = "pico-dvi")]
+pub mod sd_storage;
 #[cfg(feature = "linux-full")]
 pub mod esp8266;
 pub mod ds3231;
