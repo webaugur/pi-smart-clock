@@ -1,22 +1,24 @@
-use crate::core::{about, persistence, status_bar};
-use crate::core::clock;
+use crate::clock_core::{about, persistence};
 use crate::drivers::platform::Platform;
-use crate::platform::linux::SdlPlatformExt;
 use crate::runtime::mode::UiMode;
 use crate::runtime::state::SmartClockState;
 
 #[cfg(feature = "linux-full")]
 use crate::clock as layout;
 #[cfg(feature = "linux-full")]
+use crate::clock_core::{clock, status_bar};
+#[cfg(feature = "linux-full")]
 use crate::layout::l;
+#[cfg(feature = "linux-full")]
+use crate::platform::linux::SdlPlatformExt;
 
-
+#[cfg(feature = "linux-full")]
 pub async fn tick<P: Platform + SdlPlatformExt>(
     state: &mut SmartClockState,
     platform: &mut P,
 ) {
     if !state.boot_done {
-        crate::core::boot_screen::show(platform).await;
+        crate::clock_core::boot_screen::show(platform).await;
         persistence::load_alarms(platform, &mut state.alarms).await;
         state.boot_done = true;
         state.ui_mode = UiMode::Clock;
@@ -99,6 +101,78 @@ pub async fn tick<P: Platform + SdlPlatformExt>(
     state.core_weather.update(platform, &state.alerts).await;
 }
 
+#[cfg(not(feature = "linux-full"))]
+pub async fn tick<P: Platform>(state: &mut SmartClockState, platform: &mut P) {
+    if !state.boot_done {
+        crate::clock_core::boot_screen::show(platform).await;
+        persistence::load_alarms(platform, &mut state.alarms).await;
+        state.boot_done = true;
+        state.ui_mode = UiMode::Clock;
+        return;
+    }
+
+    state.encoder.update(platform).await;
+    let _ = state.scheduler.tick(platform, &state.alerts).await;
+    state.alerts.check_nws_alerts(platform).await;
+    state.sensors.read(platform).await;
+    state.alarms.check(platform, &mut state.ringing_alarm).await;
+
+    if state.ui_mode == UiMode::Clock && platform.read_pushbutton() {
+        state.ui_mode = UiMode::Menu;
+    }
+
+    match state.ui_mode {
+        UiMode::Menu => {
+            state.menu.update(platform, &mut state.encoder).await;
+            if state.menu.should_open_time_set() {
+                state.ui_mode = UiMode::TimeSet;
+                state.time_set.editing = true;
+            } else if state.menu.should_open_about() {
+                state.ui_mode = UiMode::About;
+            } else if state.menu.should_close() {
+                state.ui_mode = UiMode::Clock;
+            }
+        }
+        UiMode::TimeSet => {
+            state.time_set.update(platform, &mut state.encoder).await;
+            if !state.time_set.editing {
+                state.ui_mode = UiMode::Menu;
+            }
+        }
+        UiMode::Clock => {
+            if let Some(id) = state.ringing_alarm {
+                if let Some(alarm) = state.alarms.alarms[id].clone() {
+                    state.alarm_ui.show(platform, &alarm).await;
+                    state.ui_mode = UiMode::Alarm;
+                }
+            } else {
+                crate::clock_core::clock::update(platform).await;
+            }
+        }
+        UiMode::Alarm => {
+            if let Some(alarm) = state.alarm_ui.current_alarm.clone() {
+                state.alarm_ui.draw_overlay(platform, &alarm).await;
+            }
+            if platform.read_pushbutton() {
+                platform.stop_alarm_sound().await;
+                state.alarm_ui.hide(platform).await;
+                state.ringing_alarm = None;
+                state.ui_mode = UiMode::Clock;
+            }
+        }
+        UiMode::About => {
+            about::show(platform).await;
+            if platform.read_pushbutton() {
+                state.ui_mode = UiMode::Clock;
+            }
+        }
+        UiMode::Boot => state.ui_mode = UiMode::Clock,
+    }
+
+    state.core_weather.update(platform, &state.alerts).await;
+}
+
+#[cfg(feature = "linux-full")]
 pub async fn render_linux<P: Platform + SdlPlatformExt>(
     state: &mut SmartClockState,
     platform: &mut P,

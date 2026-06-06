@@ -1,4 +1,4 @@
-use crate::core::alarm::Alarm;
+use crate::clock_core::alarm::Alarm;
 use crate::drivers::platform::Platform;
 use crate::layout::l;
 

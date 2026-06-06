@@ -1,27 +1,39 @@
-use crate::core::alarm::{AlarmManager};
-use crate::core::alarm_ui::AlarmUI;
-use crate::core::alert_photos::AlertPhotoManager;
-use crate::core::alerts::AlertManager;
-use crate::core::energy_monitor::EnergyMonitor;
-use crate::core::logger::Logger;
-use crate::core::menu::MenuSystem;
-use crate::core::panels::weather::WeatherRadarPanel;
-use crate::core::sensors::EnvSensor;
-use crate::core::time_set_ui::TimeSetUI;
-use crate::core::update_scheduler::UpdateScheduler;
-use crate::core::weather::WeatherPanel as CoreWeatherPanel;
+use crate::clock_core::alarm::AlarmManager;
+use crate::prelude::*;
+use crate::clock_core::alarm_ui::AlarmUI;
+use crate::clock_core::alert_photos::AlertPhotoManager;
+use crate::clock_core::alerts::AlertManager;
+use crate::clock_core::energy_monitor::EnergyMonitor;
+use crate::clock_core::logger::Logger;
+use crate::clock_core::menu::MenuSystem;
+use crate::clock_core::panels::weather::WeatherRadarPanel;
+use crate::clock_core::sensors::EnvSensor;
+use crate::clock_core::time_set_ui::TimeSetUI;
+use crate::clock_core::update_scheduler::UpdateScheduler;
+use crate::clock_core::weather::WeatherPanel as CoreWeatherPanel;
 use crate::drivers::platform::Platform;
 use crate::drivers::rotary_encoder::RotaryEncoder;
-use crate::ota::updater::OtaUpdater;
 use crate::runtime::mode::UiMode;
 use crate::runtime::tick;
 
 #[cfg(feature = "linux-full")]
 use crate::chimes::ChimeEngine;
 #[cfg(feature = "linux-full")]
-use crate::core::alarm_video::AlarmVideoPlayer;
+use crate::clock_core::alarm_video::AlarmVideoPlayer;
 #[cfg(feature = "linux-full")]
 use crate::modules::bar::BottomPanelBar;
+#[cfg(feature = "linux-full")]
+use crate::ota::updater::OtaUpdater;
+
+#[cfg(not(feature = "linux-full"))]
+pub struct OtaUpdater;
+
+#[cfg(not(feature = "linux-full"))]
+impl OtaUpdater {
+    pub fn new() -> Self {
+        Self
+    }
+}
 
 pub struct SmartClockState {
     pub ui_mode: UiMode,
@@ -78,6 +90,7 @@ impl SmartClockState {
         }
     }
 
+    #[cfg(feature = "linux-full")]
     pub async fn init<P: Platform + crate::platform::linux::SdlPlatformExt>(
         &mut self,
         _platform: &mut P,
@@ -85,10 +98,21 @@ impl SmartClockState {
         Ok(())
     }
 
+    #[cfg(not(feature = "linux-full"))]
+    pub async fn init<P: Platform>(&mut self, _platform: &mut P) -> Result<(), String> {
+        Ok(())
+    }
+
+    #[cfg(feature = "linux-full")]
     pub async fn tick<P: Platform + crate::platform::linux::SdlPlatformExt>(
         &mut self,
         platform: &mut P,
     ) {
+        tick::tick(self, platform).await;
+    }
+
+    #[cfg(not(feature = "linux-full"))]
+    pub async fn tick<P: Platform>(&mut self, platform: &mut P) {
         tick::tick(self, platform).await;
     }
 

@@ -1,6 +1,10 @@
-use crate::core::alarm::AlarmManager;
-use crate::platform::linux_audio::resolve_media_path;
+use crate::clock_core::alarm::AlarmManager;
+use crate::prelude::*;
 use crate::storage::logical;
+
+#[cfg(feature = "linux-full")]
+use crate::platform::linux_audio::resolve_media_path;
+#[cfg(feature = "linux-full")]
 use chrono::Local;
 
 fn csv_escape(field: &str) -> String {
@@ -17,24 +21,50 @@ fn normalize_media_path(field: &str, default_sounds_prefix: bool) -> String {
     if trimmed.is_empty() {
         return String::new();
     }
-    if resolve_media_path(trimmed).is_some() {
+
+    #[cfg(not(feature = "linux-full"))]
+    {
+        let _ = default_sounds_prefix;
         return trimmed.to_string();
     }
-    if default_sounds_prefix && !trimmed.contains('/') {
-        let with_sounds = format!("sounds/{trimmed}");
-        if resolve_media_path(&with_sounds).is_some() {
-            return with_sounds;
+
+    #[cfg(feature = "linux-full")]
+    {
+        if resolve_media_path(trimmed).is_some() {
+            return trimmed.to_string();
         }
-    }
-    let with_videos = if trimmed.contains('/') {
+        if default_sounds_prefix && !trimmed.contains('/') {
+            let with_sounds = format!("sounds/{trimmed}");
+            if resolve_media_path(&with_sounds).is_some() {
+                return with_sounds;
+            }
+        }
+        let with_videos = if trimmed.contains('/') {
+            trimmed.to_string()
+        } else {
+            format!("videos/{trimmed}")
+        };
+        if resolve_media_path(&with_videos).is_some() {
+            return with_videos;
+        }
         trimmed.to_string()
-    } else {
-        format!("videos/{trimmed}")
-    };
-    if resolve_media_path(&with_videos).is_some() {
-        return with_videos;
     }
-    trimmed.to_string()
+}
+
+fn alarm_backup_stamp<P: crate::drivers::platform::Platform>(platform: &P) -> String {
+    #[cfg(feature = "linux-full")]
+    {
+        let _ = platform;
+        return Local::now().format("%Y%m%d_%H%M%S").to_string();
+    }
+    #[cfg(not(feature = "linux-full"))]
+    {
+        let t = platform.get_current_time();
+        return format!(
+            "boot{:02}{:02}{:02}",
+            t.hour, t.minute, t.second
+        );
+    }
 }
 
 pub async fn save_alarms(platform: &mut impl crate::drivers::platform::Platform, alarms: &AlarmManager) {
@@ -64,7 +94,7 @@ pub async fn save_alarms(platform: &mut impl crate::drivers::platform::Platform,
     platform
         .copy_file(
             logical::ALARMS_CSV,
-            &logical::alarms_backup(&Local::now().format("%Y%m%d_%H%M%S").to_string()),
+            &logical::alarms_backup(&alarm_backup_stamp(platform)),
         )
         .await;
 }
@@ -101,7 +131,7 @@ pub async fn load_alarms(
             (fields.get(7).unwrap_or(&""), "9")
         };
 
-        alarms.alarms[id] = Some(crate::core::alarm::Alarm {
+        alarms.alarms[id] = Some(crate::clock_core::alarm::Alarm {
             id,
             hour: fields[1].parse().unwrap_or(7),
             minute: fields[2].parse().unwrap_or(0),

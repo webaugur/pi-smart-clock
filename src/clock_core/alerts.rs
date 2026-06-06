@@ -1,5 +1,6 @@
 use crate::drivers::platform::Platform;
-use std::time::{Duration, Instant};
+use crate::prelude::*;
+use crate::timing::{Duration, Instant};
 
 pub struct AlertManager {
     pub same_codes: [String; 9],

@@ -1,14 +1,12 @@
 use crate::drivers::platform::Platform;
 use crate::layout::l;
-use chrono::{Local, Timelike};
 
 pub async fn update<P: Platform>(platform: &mut P) {
     let layout = l();
-    let now = Local::now();
-    let seconds = now.second() as f32;
-    let bounce = (seconds.fract() * 8.0).sin().abs() * 3.0;
-    let angle = (seconds * 6.0) + bounce;
-    let is_night = now.hour() >= 22 || now.hour() < 6;
+    let (hour, second) = current_hour_second(platform);
+    let bounce = ((second as u32) % 8) as f32 * 0.35;
+    let angle = (second * 6.0) + bounce;
+    let is_night = hour >= 22 || hour < 6;
 
     platform
         .draw_rect(0, 0, layout.screen_w, layout.screen_h, 0x000000)
@@ -27,4 +25,18 @@ pub async fn update<P: Platform>(platform: &mut P) {
             is_night,
         )
         .await;
+}
+
+fn current_hour_second<P: Platform>(platform: &P) -> (u32, f32) {
+    #[cfg(feature = "linux-full")]
+    {
+        use chrono::Timelike;
+        let now = platform.get_current_time();
+        return (now.hour(), now.second() as f32);
+    }
+    #[cfg(not(feature = "linux-full"))]
+    {
+        let now = platform.get_current_time();
+        (now.hour, now.second as f32)
+    }
 }

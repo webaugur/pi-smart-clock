@@ -1,6 +1,13 @@
 #![allow(async_fn_in_trait)]
 
+#[cfg(not(feature = "linux-full"))]
+use crate::prelude::*;
+
+#[cfg(feature = "linux-full")]
 use chrono::{DateTime, Local};
+
+#[cfg(not(feature = "linux-full"))]
+use crate::time_util::WallTime;
 
 /// Hardware abstraction for Pico (Embassy) and Linux (SDL2) builds.
 pub trait Platform {
@@ -34,7 +41,10 @@ pub trait Platform {
     async fn stop_alarm_sound(&mut self) {}
 
     // Time
+    #[cfg(feature = "linux-full")]
     fn get_current_time(&self) -> DateTime<Local>;
+    #[cfg(not(feature = "linux-full"))]
+    fn get_current_time(&self) -> WallTime;
     fn delay_ms(&self, ms: u64);
     async fn delay(&self, ms: u64);
 

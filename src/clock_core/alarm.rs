@@ -1,6 +1,5 @@
-use chrono::{Local, Timelike};
-
 use crate::drivers::platform::Platform;
+use crate::prelude::*;
 
 #[derive(Clone)]
 pub struct Alarm {
@@ -29,10 +28,7 @@ impl AlarmManager {
     }
 
     pub async fn check<P: Platform>(&mut self, platform: &mut P, ringing: &mut Option<usize>) {
-        let now = Local::now();
-        let h = now.hour();
-        let m = now.minute();
-        let sec = now.second();
+        let (h, m, sec) = current_hms(platform);
         if sec > 2 {
             return;
         }
@@ -57,5 +53,19 @@ impl AlarmManager {
         if self.last_rung.map(|(h, m, _)| (h, m)) == Some((hour, minute)) {
             self.last_rung = None;
         }
+    }
+}
+
+fn current_hms<P: Platform>(platform: &P) -> (u32, u32, u32) {
+    #[cfg(feature = "linux-full")]
+    {
+        use chrono::Timelike;
+        let now = platform.get_current_time();
+        return (now.hour(), now.minute(), now.second());
+    }
+    #[cfg(not(feature = "linux-full"))]
+    {
+        let now = platform.get_current_time();
+        (now.hour, now.minute, now.second)
     }
 }

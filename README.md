@@ -29,13 +29,18 @@ cargo run --features linux-full
 
 ---
 
-## Embedded hardware (Pico — later)
+## Embedded hardware (Pico)
 
-- Raspberry Pi Pico 1 (RP2040) + Pico DVI Sock (800×480)
-- ESP8266 WiFi, DS3231 + SD, rotary encoder, I2S mic
+- **Pico 1 (RP2040)** — supported now: Pico DVI Sock (800×480), ESP8266 WiFi, DS3231 + SD, rotary encoder
+- **Pico 2 (RP2350)** — planned (different Rust target / chip; see manual)
+
+Full wiring, SD card config, flashing, and Pico 1 vs Pico 2 differences:
+**[docs/CONFIGURATION_MANUAL.md — Chapter 10](docs/CONFIGURATION_MANUAL.md#chapter-10--pi-pico-1-and-pi-pico-2--installation-and-configuration)**
 
 ```bash
-cargo build --features pico-dvi --target thumbv6m-none-eabi --release
+# One-time: ./scripts/setup-embedded.sh
+./scripts/pico-build.sh              # debug
+./scripts/pico-build.sh --release    # release
 ```
 
 ## Features

@@ -298,7 +298,7 @@ impl Platform for SdlPlatform {
     }
 
     async fn speak(&mut self, message: &str) {
-        crate::core::voice_feedback::VoiceFeedback::speak(self, message).await;
+        crate::clock_core::voice_feedback::VoiceFeedback::speak(self, message).await;
     }
 
     async fn show_weather(&mut self) {}

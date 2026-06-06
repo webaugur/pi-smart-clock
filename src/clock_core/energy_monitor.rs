@@ -1,4 +1,5 @@
 use crate::drivers::platform::Platform;
+use crate::prelude::*;
 
 pub struct EnergyMonitor {
     pub current_power_w: f32,

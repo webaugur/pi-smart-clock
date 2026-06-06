@@ -1,8 +1,6 @@
 use crate::drivers::platform::Platform;
 use crate::drivers::rotary_encoder::RotaryEncoder;
 use crate::layout::l;
-use chrono::{Local, Timelike};
-
 pub struct TimeSetUI {
     pub editing: bool,
     hour: u32,
@@ -12,11 +10,10 @@ pub struct TimeSetUI {
 
 impl TimeSetUI {
     pub fn new() -> Self {
-        let now = Local::now();
         Self {
             editing: false,
-            hour: now.hour(),
-            minute: now.minute(),
+            hour: 12,
+            minute: 0,
             selected_field: 0,
         }
     }

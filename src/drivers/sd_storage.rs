@@ -3,6 +3,8 @@
 //! Default bus: **I2C** (slower, works with shared sensor bus wiring).
 //! Planned faster modes: SPI, SDIO (see [`StorageBusMode`]).
 
+use crate::prelude::*;
+
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum StorageBusMode {
     /// Current default — SD module on I2C GPIO expander / shared bus.
@@ -55,7 +57,7 @@ impl SdStorage {
 
     pub fn read_file(&self, path: &str) -> Result<Vec<u8>, String> {
         if !self.mounted {
-            return Err("SD card not mounted".to_string());
+            return Err(String::from("SD card not mounted"));
         }
         if !path.starts_with("/sd/") {
             return Err(format!("embedded paths must start with /sd/: {path}"));
@@ -70,7 +72,7 @@ impl SdStorage {
 
     pub fn write_file(&mut self, path: &str, data: &[u8]) -> Result<(), String> {
         if !self.mounted {
-            return Err("SD card not mounted".to_string());
+            return Err(String::from("SD card not mounted"));
         }
         if !path.starts_with("/sd/") {
             return Err(format!("embedded paths must start with /sd/: {path}"));

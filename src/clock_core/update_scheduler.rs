@@ -1,6 +1,7 @@
-use std::time::{Duration, Instant};
+use crate::timing::{Duration, Instant};
+use crate::prelude::*;
 
-use crate::core::alerts::AlertManager;
+use crate::clock_core::alerts::AlertManager;
 use crate::drivers::platform::Platform;
 
 pub struct UpdateScheduler {

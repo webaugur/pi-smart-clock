@@ -26,6 +26,7 @@ CHAPTER  6  -  WEATHER DATA SOURCE    (config/weather.conf)
 CHAPTER  7  -  ALARM SCHEDULE         (config/alarms.csv)
 CHAPTER  8  -  MEDIA AND ASSET PATHS
 CHAPTER  9  -  RUNTIME CACHE FILES
+CHAPTER 10  -  PI PICO 1 AND PI PICO 2 — INSTALLATION AND CONFIGURATION
 APPENDIX A  -  QUICK REFERENCE TABLES
 APPENDIX B  -  ESP8266 SERIAL COMMAND SET
 APPENDIX C  -  ERROR MESSAGES AND REMEDIES
@@ -521,6 +522,285 @@ Delete cache files to force a fresh network fetch.
 
 ---
 
+## CHAPTER 10 — PI PICO 1 AND PI PICO 2 — INSTALLATION AND CONFIGURATION
+
+This chapter covers building, flashing, and configuring the smart clock on
+**Raspberry Pi Pico 1** (RP2040) and **Raspberry Pi Pico 2** (RP2350).
+Linux desktop setup is in Chapters 1–9; this chapter is for the embedded
+firmware path only.
+
+### 10.1  SUPPORTED BOARDS (CURRENT TREE)
+
+```
+    BOARD                    MCU       FIRMWARE IN THIS REPO
+    -----                    ---       ---------------------
+    Raspberry Pi Pico 1      RP2040    YES  (default embedded target)
+    Raspberry Pi Pico 1 W    RP2040    YES  (same firmware; WiFi optional)
+    Raspberry Pi Pico 2      RP2350    PLANNED  (toolchain notes below)
+    Raspberry Pi Pico 2 W    RP2350    PLANNED  (on-board WiFi; see §10.3)
+```
+
+The checked-in firmware (`pico-dvi` feature) is built and tested for
+**Pico 1 / RP2040**.  Pico 2 support requires a different Rust compilation
+target and an `embassy-rp` chip feature (`rp235xa` or `rp235xb`) — the HAL
+already knows about RP2350, but this repository has not yet split the
+`pico-dvi` profile for it.  Until that lands, use a **Pico 1** module on
+the Pico DVI Sock.
+
+### 10.2  PICO 1 vs PICO 2 — WHAT DIFFERS
+
+```
+┌────────────────────────┬──────────────────────────┬──────────────────────────┐
+│                        │ PICO 1 (RP2040)          │ PICO 2 (RP2350)          │
+├────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ CPU                    │ Dual Cortex-M0+ @ 133 MHz │ Dual Cortex-M33 @ 150 MHz│
+│                        │ (overclockable in SW)    │ (+ optional RISC-V cores)│
+├────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ Rust target            │ thumbv6m-none-eabi       │ thumbv8m.main-none-eabihf│
+├────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ embassy-rp feature     │ rp2040                   │ rp235xa or rp235xb       │
+├────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ probe-rs chip name     │ RP2040                   │ RP2350                   │
+├────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ Flash / BOOTSEL        │ Hold BOOTSEL + USB        │ Same user procedure      │
+├────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ Pico DVI Sock          │ Supported (800×480 DVI)  │ Header-compatible*       │
+├────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ WiFi in this project   │ ESP8266 UART coprocessor │ Pico 2 W: on-chip WiFi   │
+│                        │ (config/esp8266.conf)    │ (future; may replace ESP)│
+├────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ Config storage         │ SD card at /sd/…         │ Same layout              │
+├────────────────────────┼──────────────────────────┼──────────────────────────┤
+│ Build command (today)  │ ./scripts/pico-build.sh  │ Not yet — see §10.8       │
+└────────────────────────┴──────────────────────────┴──────────────────────────┘
+
+* The Pico DVI Sock mates with the 40-pin Pico header on both generations.
+  You must still flash firmware built for the correct MCU (RP2040 vs RP2350).
+```
+
+**Practical rule:** treat Pico 1 and Pico 2 as **different firmware images**.
+A binary built for RP2040 will not run on RP2350, and vice versa.
+
+### 10.3  REFERENCE HARDWARE STACK
+
+Typical clock assembly (Pico 1, as implemented in this branch):
+
+```
+    COMPONENT              INTERFACE        NOTES
+    ---------              -----------      -----
+    Raspberry Pi Pico 1    —                Main MCU
+    Pico DVI Sock          DVI + GPIO       800×480 display output
+    DS3231 RTC module      I2C              Wall time (battery backed)
+    microSD module         I2C (default)    Config, alarms, cache
+    ESP8266 module         UART 3.3 V       WiFi / HTTP / NTP / MQTT
+    Rotary encoder + btn   GPIO             Menu navigation
+    AHT20 (optional)       I2C              Temperature / humidity
+    I2S microphone (opt.)  I2S              Voice commands (future)
+```
+
+**Pico 1 W / Pico 2 W:** the wireless variants include a CYW43439 WiFi chip.
+This project still uses the **ESP8266 serial bridge** on the Pico 1 path
+(`config/esp8266.conf`).  On Pico 2 W, on-board WiFi will eventually remove
+the external ESP8266 for network I/O, but that integration is not complete
+in the current tree — plan wiring for ESP8266 unless you are on pure Pico 2
+bring-up with WiFi disabled.
+
+### 10.4  DEVELOPMENT HOST — TOOLCHAIN (BOTH BOARDS)
+
+Embedded builds require **rustup** (not the Debian/Ubuntu `apt` `cargo` /
+`rustc` packages).  Apt Rust cannot install the `thumbv6m-none-eabi` or
+`thumbv8m.main-none-eabihf` cross-compilation sysroots.
+
+```
+    STEP 1 — Install rustup (once per machine)
+    ------------------------------------------
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    source "$HOME/.cargo/env"
+
+    STEP 2 — Ensure rustup wins over apt in PATH
+    --------------------------------------------
+    which cargo rustc
+    # Expected: /home/<user>/.cargo/bin/cargo
+    #           /home/<user>/.cargo/bin/rustc
+
+    If you see /usr/bin/cargo, either:
+        export PATH="$HOME/.cargo/bin:$PATH"
+    or remove the conflict:
+        sudo apt remove rustc cargo
+
+    STEP 3 — One-time embedded target setup (Pico 1)
+    ------------------------------------------------
+    cd pi-smart-clock
+    ./scripts/setup-embedded.sh
+    # Installs: rustup target add thumbv6m-none-eabi
+```
+
+For **Pico 2** (when firmware support is added), the host will also need:
+
+```
+    rustup target add thumbv8m.main-none-eabihf
+```
+
+### 10.5  BUILD FIRMWARE (PICO 1)
+
+```
+    IMPORTANT:  linux-full is the default Cargo feature.
+                 Pico builds must disable it.
+
+    COMMAND (recommended)              RESULT
+    ---------------------              ------
+    ./scripts/pico-build.sh            Debug firmware ELF
+    ./scripts/pico-build.sh --release  Optimised release ELF
+
+    Equivalent manual command:
+    cargo build --no-default-features --features pico-dvi \
+        --target thumbv6m-none-eabi
+
+    Output binary:
+    target/thumbv6m-none-eabi/debug/pi-smart-clock-firmware
+    target/thumbv6m-none-eabi/release/pi-smart-clock-firmware   (--release)
+```
+
+Do **not** run `cargo build --features pico-dvi` without
+`--no-default-features` — that enables both `linux-full` and `pico-dvi`
+and produces misleading `byteorder` / `nb` / `core` errors.
+
+### 10.6  FLASH FIRMWARE ONTO THE MCU
+
+#### 10.6.1  Pico 1 (RP2040)
+
+**Option A — USB BOOTSEL (no debugger)**
+
+```
+    1. Hold BOOTSEL on the Pico.
+    2. Plug in USB (or reset while holding BOOTSEL).
+    3. The board appears as a USB mass-storage device (RPI-RP2).
+    4. Copy a .uf2 file to that volume (when UF2 packaging is enabled),
+       or use probe-rs / elf2uf2-rs from the release ELF (see Option B).
+```
+
+**Option B — probe-rs (SWD debugger, recommended for dev)**
+
+```
+    cargo install probe-rs-tools --locked
+
+    probe-rs download --chip RP2040 \
+        target/thumbv6m-none-eabi/release/pi-smart-clock-firmware
+
+    probe-rs run --chip RP2040 \
+        target/thumbv6m-none-eabi/release/pi-smart-clock-firmware
+```
+
+The project `.cargo/config.toml` sets `runner = "probe-run --chip RP2040"`
+for the `thumbv6m-none-eabi` target (legacy alias; `probe-rs run` is the
+modern equivalent).
+
+#### 10.6.2  Pico 2 (RP2350) — when supported
+
+Use the **same BOOTSEL workflow**, but flash an RP2350-built artifact only:
+
+```
+    probe-rs download --chip RP2350 \
+        target/thumbv8m.main-none-eabihf/release/pi-smart-clock-firmware
+
+    # UF2 volume label differs; always match chip to binary.
+```
+
+Flashing an RP2040 binary on a Pico 2 (or the reverse) will not boot.
+
+### 10.7  SD CARD — CONFIGURATION ON DEVICE
+
+On embedded, settings live on the removable SD card.  Virtual paths in code
+map to files under the `/sd/` root (FAT volume).  Prepare the card on a PC,
+then insert before power-on.
+
+```
+    SD CARD LAYOUT (FAT32)
+    ----------------------
+
+    /sd/config/esp8266.conf      WiFi bridge (UART) — copy from example
+    /sd/config/faces.conf        Clock face selection
+    /sd/config/panels.conf       Bottom panel module slots
+    /sd/config/weather.conf      Latitude, longitude, units, update interval
+    /sd/config/alarms.csv        Alarm schedule (see Chapter 7)
+    /sd/cache/                   Written at runtime (weather JSON)
+    /sd/alerts/                  Alert photo cache (BMP)
+    /sd/sounds/                  Alarm / chime WAV files
+    /sd/videos/                  Alarm MP4 files (device playback)
+```
+
+**Populate from examples on your PC:**
+
+```
+    # Mount SD card at /media/$USER/CLOCK (example)
+    mkdir -p /media/$USER/CLOCK/config
+    cp config/esp8266.conf.example  /media/$USER/CLOCK/config/esp8266.conf
+    cp config/faces.conf.example  /media/$USER/CLOCK/config/faces.conf
+    cp config/panels.conf.example /media/$USER/CLOCK/config/panels.conf
+    cp config/weather.conf.example /media/$USER/CLOCK/config/weather.conf
+    cp config/alarms.csv.example  /media/$USER/CLOCK/config/alarms.csv
+```
+
+Syntax for each file is identical to the Linux chapters (2–7).  There is
+no `~/.config` on device — `/sd/config/` is authoritative.
+
+**ESP8266 on device:** edit `/sd/config/esp8266.conf`.  Set `enabled=true`,
+`wifi_ssid`, and `wifi_password`.  Use `port=` only if the bridge is not on
+the default UART pins wired at build time (`auto` is Linux-oriented).
+
+**Recovery:** if settings are corrupt, delete the affected files or reformat
+the `config/` subtree from the `.example` sources.  Alarm backups are written
+as `/sd/config/alarms_YYYYMMDD_HHMMSS.csv.bak` (Chapter 7).
+
+### 10.8  PICO 2 — BUILD PROFILE (UPSTREAM / NOT YET IN REPO)
+
+When Pico 2 support is merged, expect a separate Cargo feature (e.g.
+`pico2-dvi`) or a `PICO_BOARD=pico2` build flag.  The differences from
+today's `pico-dvi` profile will be:
+
+```
+    Cargo.toml embassy-rp feature:   rp2040  →  rp235xa  (or rp235xb)
+    Rust target:                     thumbv6m-none-eabi  →  thumbv8m.main-none-eabihf
+    probe-rs --chip:                 RP2040  →  RP2350
+    Platform module:                 rp2040.rs  →  rp2350.rs (planned)
+```
+
+Until that profile exists, developers experimenting with Pico 2 should
+track the `embassy-rp` RP2350 examples and avoid assuming Pico 1 binaries
+will run.
+
+### 10.9  RUNTIME CONSTANTS (BOTH BOARDS)
+
+Clock overclock and network defaults for embedded are compiled into
+`src/config.rs` (not read from SD):
+
+| Constant | Default | Description |
+|----------|---------|-------------|
+| `CLOCK_SPEED_HZ` | `270_000_000` | System clock (270 MHz; heatsink recommended on Pico 1) |
+| `VREG_VOLTAGE` | `1.20` | Core voltage for overclock |
+| `FLASH_DIVIDER` | `2` | Flash clock divider |
+| `MQTT_BROKER` | `192.168.1.100` | LAN broker address |
+| `MQTT_PORT` | `1883` | MQTT port |
+
+Pico 2 may use different safe overclock limits; revisit these constants when
+the RP2350 platform module lands.
+
+### 10.10  VERIFICATION CHECKLIST
+
+```
+    [ ]  which cargo → ~/.cargo/bin/cargo
+    [ ]  rustup target list --installed | grep thumbv6m   (Pico 1)
+    [ ]  ./scripts/pico-build.sh completes without errors
+    [ ]  probe-rs lists chip (RP2040 or RP2350) when debugger attached
+    [ ]  SD card mounted: /sd/config/*.conf present
+    [ ]  esp8266.conf: enabled + WiFi credentials (if using UART bridge)
+    [ ]  alarms.csv: at least one row with valid sound path under /sd/sounds/
+    [ ]  Boot screen shows "Pico DVI + ESP8266" then clock face
+```
+
+
+---
+
 ## APPENDIX A — QUICK REFERENCE TABLES
 
 ### A.1  ALL CONFIGURATION FILES
@@ -639,6 +919,24 @@ Maximum HTTP body size on bridge: **8192 bytes**.
 │                                            │ face= to faces.conf.             │
 ├────────────────────────────────────────────┼──────────────────────────────────┤
 │ [weather] no config found, using defaults  │ Copy weather.conf.example.       │
+├────────────────────────────────────────────┼──────────────────────────────────┤
+│ can't find crate for `core` (embedded)     │ Install cross target:            │
+│   thumbv6m-none-eabi                       │ rustup target add thumbv6m-none-eabi│
+│                                            │ Use rustup cargo, not apt (Ch.10).│
+├────────────────────────────────────────────┼──────────────────────────────────┤
+│ byteorder / nb / critical-section errors   │ Wrong features: use              │
+│   on thumbv6m-none-eabi                    │ --no-default-features --features │
+│                                            │ pico-dvi, or ./scripts/pico-build.sh│
+├────────────────────────────────────────────┼──────────────────────────────────┤
+│ features linux-full and pico-dvi are       │ Build Pico with:                 │
+│   mutually exclusive                       │ ./scripts/pico-build.sh          │
+├────────────────────────────────────────────┼──────────────────────────────────┤
+│ /usr/bin/cargo still used                  │ source ~/.cargo/env  or          │
+│                                            │ export PATH="$HOME/.cargo/bin:$PATH"│
+├────────────────────────────────────────────┼──────────────────────────────────┤
+│ Pico 2 boots but no display / hang         │ Wrong firmware generation: flash │
+│                                            │ RP2350 binary on Pico 2 only     │
+│                                            │ (Ch.10 §10.2).                   │
 └────────────────────────────────────────────┴──────────────────────────────────┘
 ```
 

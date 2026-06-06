@@ -1,7 +1,12 @@
-use chrono::{DateTime, Local};
+use embassy_time::{Duration, Timer};
 
 use crate::drivers::platform::Platform;
 use crate::drivers::sd_storage::{SdStorage, StorageBusMode};
+use crate::prelude::*;
+use crate::time_util::WallTime;
+
+/// Seconds since boot, seeded to 07:00:00 for bring-up until DS3231 sets wall time.
+static mut WALL_SECONDS: u32 = 7 * 3600;
 
 pub struct PicoDviPlatform {
     sd: SdStorage,
@@ -31,15 +36,25 @@ impl Platform for PicoDviPlatform {
     async fn play_raw_audio(&mut self, _path: &str) {}
 
     async fn fetch_weather(&self) -> Result<(i32, String), String> {
-        Ok((68, "Sunny".to_string()))
+        Ok((68, String::from("Sunny")))
     }
 
-    fn get_current_time(&self) -> DateTime<Local> {
-        Local::now()
+    fn get_current_time(&self) -> WallTime {
+        let total = unsafe { WALL_SECONDS };
+        WallTime::new((total / 3600) % 24, (total / 60) % 60, total % 60)
     }
 
-    fn delay_ms(&self, _ms: u64) {}
-    async fn delay(&self, _ms: u64) {}
+    fn delay_ms(&self, ms: u64) {
+        let add = (ms / 1000).max(1) as u32;
+        unsafe {
+            WALL_SECONDS = WALL_SECONDS.saturating_add(add);
+        }
+    }
+
+    async fn delay(&self, ms: u64) {
+        Timer::after(Duration::from_millis(ms)).await;
+        self.delay_ms(ms);
+    }
 
     async fn write_file(&mut self, path: &str, data: &[u8]) {
         let resolved = crate::storage::embedded::resolve_logical_path(path);
