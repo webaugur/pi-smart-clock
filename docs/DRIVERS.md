@@ -18,6 +18,8 @@ trait unless noted.
 
 Config for ESP8266: [CUSTOMIZATION.md — esp8266.conf](CUSTOMIZATION.md#configesp8266conf--wifi-serial-bridge).
 
+**Full open-work tracker:** [TODO.md](TODO.md) (IDs, files, status) · [ROADMAP.md](ROADMAP.md) (milestones). Run `./scripts/audit-todos.sh` to check drift.
+
 ---
 
 ## ESP8266 WiFi bridge

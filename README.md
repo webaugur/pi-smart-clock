@@ -18,6 +18,8 @@ Detects your display orientation at startup: **portrait** screens use a 768×128
 | [docs/LINUX.md](docs/LINUX.md) | Linux / Unix install and persistence |
 | [docs/EMBEDDED.md](docs/EMBEDDED.md) | Pico 1 & 2 firmware, hardware, SD card |
 | [docs/SHARED_CODE.md](docs/SHARED_CODE.md) | Shared Rust architecture |
+| [docs/TODO.md](docs/TODO.md) | Open work tracker |
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Milestones and platform status |
 
 ## Linux quickstart
 

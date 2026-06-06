@@ -11,7 +11,7 @@ impl EnvSensor {
     }
 
     pub async fn read<P: Platform>(&mut self, _platform: &mut P) {
-        // TODO: Read from AHT20 or DS3231
+        // TODO(HW-002): Read from AHT20 or DS3231
         self.temp_c = 23.4;
         self.humidity = 47.0;
     }

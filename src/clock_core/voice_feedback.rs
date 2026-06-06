@@ -7,7 +7,7 @@ impl VoiceFeedback {
         #[cfg(feature = "linux-full")]
         println!("🔊 Speaking: {}", message);
         
-        // TODO: Map message to WAV file on SD card
+        // TODO(VOICE-001): Map message to WAV file on SD card
         // Example: "alarm set" -> "voice/alarm_set.wav"
         let wav_file = match message.to_lowercase().as_str() {
             m if m.contains("alarm") => "voice/alarm_set.wav",

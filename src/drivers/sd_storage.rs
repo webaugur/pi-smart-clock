@@ -50,7 +50,7 @@ impl SdStorage {
 
     /// Mount the volume at `/sd` over the configured bus.
     pub fn mount(&mut self) -> Result<(), String> {
-        // TODO: probe card over I2C, FAT mount, publish /sd root.
+        // TODO(PICO-002): probe card over I2C, FAT mount, publish /sd root.
         self.mounted = true;
         Ok(())
     }
@@ -62,7 +62,7 @@ impl SdStorage {
         if !path.starts_with("/sd/") {
             return Err(format!("embedded paths must start with /sd/: {path}"));
         }
-        // TODO: I2C block read → FAT file open → read_all.
+        // TODO(PICO-002): I2C block read → FAT file open → read_all.
         Err(format!(
             "SD read not yet implemented ({}, {} mode)",
             path,
@@ -78,7 +78,7 @@ impl SdStorage {
             return Err(format!("embedded paths must start with /sd/: {path}"));
         }
         let _ = data;
-        // TODO: I2C block write → FAT create/truncate → write_all.
+        // TODO(PICO-002): I2C block write → FAT create/truncate → write_all.
         Err(format!(
             "SD write not yet implemented ({}, {} mode)",
             path,

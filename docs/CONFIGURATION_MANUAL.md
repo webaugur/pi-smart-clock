@@ -10,5 +10,7 @@ This manual has been split into focused documents:
 | **[LINUX.md](LINUX.md)** | Linux / Unix install, XDG persistence, SDL, ESP8266 serial |
 | **[EMBEDDED.md](EMBEDDED.md)** | Pico 1 & 2 build, flash, SD card, hardware |
 | **[SHARED_CODE.md](SHARED_CODE.md)** | Rust architecture, features, `clock_core`, `Platform` trait |
+| **[TODO.md](TODO.md)** | Open work tracker (IDs, files, status) |
+| **[ROADMAP.md](ROADMAP.md)** | Milestone phases and platform summary |
 
 Start at **[docs/README.md](README.md)**.
