@@ -1,10 +1,21 @@
 # Pi Smart Clock
 
-Roman numeral smart clock — **Linux/SDL2 dev build** with autoscaling first, Pico DVI firmware later.
+Roman numeral smart clock — **Linux/SDL2 dev build** with autoscaling first, Pico DVI firmware on RP2040.
 
 Detects your display orientation at startup: **portrait** screens use a 768×1280 logical layout; **landscape** screens use 1280×768. SDL letterboxes/scales to fit the window (95% of display size, resizable).
 
-## Linux quickstart (recommended)
+## Documentation
+
+| Guide | Description |
+|-------|-------------|
+| [docs/README.md](docs/README.md) | Index |
+| [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md) | Config files, SVG faces, fonts, modules, sounds |
+| [docs/DRIVERS.md](docs/DRIVERS.md) | Hardware drivers (ESP8266, RTC, SD, sensors) |
+| [docs/LINUX.md](docs/LINUX.md) | Linux / Unix install and persistence |
+| [docs/EMBEDDED.md](docs/EMBEDDED.md) | Pico 1 & 2 firmware, hardware, SD card |
+| [docs/SHARED_CODE.md](docs/SHARED_CODE.md) | Shared Rust architecture |
+
+## Linux quickstart
 
 ```bash
 # Debian/Ubuntu dependencies
@@ -20,35 +31,32 @@ cargo run --features linux-full
 
 **Controls:** Esc quit · M menu · arrow keys / space = rotary encoder + button
 
-**Chimes** — add WAVs under `sounds/` (see `sounds/README.txt`):
-`tick.wav`, `tock.wav`, `quarter.wav`, `half.wav`, `bell.wav`
+**Customize:** copy `config/*.example` files — see [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md).
 
-**Alarms** — copy `config/alarms.csv.example` to `config/alarms.csv`. Set `sound_file` (WAV) and `video_file` (MP4 under `videos/`). Alarm video plays in the center panel via ffmpeg; sound loops until dismissed (button/space).
+**Chimes** — add WAVs under `sounds/` (see `sounds/README.txt`).
 
-**Test alarm:** set hour/minute one minute ahead, `enabled,true`, valid paths to your media files.
+**Alarms** — `config/alarms.csv`; sound (WAV) + video (MP4 via ffmpeg on Linux).
 
 ---
 
-## Embedded hardware (Pico)
+## Embedded (Pico 1)
 
-- **Pico 1 (RP2040)** — supported now: Pico DVI Sock (800×480), ESP8266 WiFi, DS3231 + SD, rotary encoder
-- **Pico 2 (RP2350)** — planned (different Rust target / chip; see manual)
-
-Full wiring, SD card config, flashing, and Pico 1 vs Pico 2 differences:
-**[docs/CONFIGURATION_MANUAL.md — Chapter 10](docs/CONFIGURATION_MANUAL.md#chapter-10--pi-pico-1-and-pi-pico-2--installation-and-configuration)**
+- **Pico 1 (RP2040)** + Pico DVI Sock (800×480), ESP8266, DS3231, SD, rotary encoder
+- **Pico 2 (RP2350)** — planned; see [docs/EMBEDDED.md](docs/EMBEDDED.md)
 
 ```bash
-# One-time: ./scripts/setup-embedded.sh
-./scripts/pico-build.sh              # debug
-./scripts/pico-build.sh --release    # release
+./scripts/setup-embedded.sh          # once
+./scripts/pico-build.sh --release
 ```
 
 ## Features
+
 - Roman numeral clock with bounce second hand + night mode (amber)
-- Weather / calendar / holiday panels (Linux stubs; live data on device)
+- Weather / calendar / holiday panels
 - Alarms, menu, time set, about screen
 - NWS radar overlay during alerts (device)
-- MQTT, OTA, voice (Pico build)
+- MQTT, OTA, voice (Pico build — in progress)
 
 ## License
+
 See repository for license terms.

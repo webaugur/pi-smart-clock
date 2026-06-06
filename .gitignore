@@ -15,6 +15,9 @@ cache/
 *.swp
 *~
 
+# config files
+config/*.csv
+
 # OS
 .DS_Store
 Thumbs.db
