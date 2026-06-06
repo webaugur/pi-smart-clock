@@ -38,6 +38,7 @@ impl Platform for PicoDviPlatform {
     async fn draw_text(&mut self, _text: &str, _x: i32, _y: i32, _size: u8, _color: u32) {}
 
     async fn show_boot_splash(&mut self, status: &str) {
+        self.boot_frame = true;
         self.gfx.present_splash_frame(status).await;
     }
 

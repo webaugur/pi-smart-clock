@@ -27,7 +27,9 @@
 ## Build commands (cheat sheet)
 
 ```bash
-# Linux (default)
+# Linux / Debian Trixie (default)
+./scripts/linux-deps.sh    # once on Trixie / Pi OS
+./scripts/linux-build.sh
 cargo run --features linux-full
 
 # Pico 1 firmware

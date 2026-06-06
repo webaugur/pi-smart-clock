@@ -52,6 +52,14 @@ pub trait Platform {
     async fn present(&mut self);
     /// Static boot splash (PNG/JPEG on embedded; no-op on Linux — see `boot_splash`).
     async fn show_boot_splash(&mut self, _status: &str) {}
+    #[cfg(feature = "linux-full")]
+    async fn show_boot_reveal(
+        &mut self,
+        _status: &str,
+        _loader: crate::clock_core::boot::BootLoaderProgress,
+        _progress: f32,
+    ) {
+    }
     async fn finish_boot(&mut self) {}
 
     // Audio

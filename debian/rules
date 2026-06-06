@@ -1,0 +1,42 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE := 1
+export DEB_BUILD_MAINT_OPTIONS := hardening=+all
+export CARGO_HOME := $(CURDIR)/debian/cargo-home
+export CARGO_TARGET_DIR := $(CURDIR)/target
+export PI_DATA_DIR := /usr/share/pi-smart-clock
+export RUSTFLAGS := -C link-arg=-Wl,-z,relro -C link-arg=-Wl,-z,now
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	cargo build --release --features linux-full --verbose
+
+override_dh_auto_install:
+	install -d debian/pi-smart-clock/usr/bin
+	install -m755 target/release/pi-smart-clock debian/pi-smart-clock/usr/bin/
+	install -d debian/pi-smart-clock/usr/share/pi-smart-clock/config
+	install -m644 config/*.example debian/pi-smart-clock/usr/share/pi-smart-clock/config/
+	cp -a assets debian/pi-smart-clock/usr/share/pi-smart-clock/
+	rm -rf debian/pi-smart-clock/usr/share/pi-smart-clock/assets/fonts
+	rm -f debian/pi-smart-clock/usr/share/pi-smart-clock/assets/splash/README.txt
+	install -d debian/pi-smart-clock/usr/share/doc/pi-smart-clock
+	install -m644 sounds/README.txt debian/pi-smart-clock/usr/share/doc/pi-smart-clock/sounds.txt
+	install -m644 videos/README.txt debian/pi-smart-clock/usr/share/doc/pi-smart-clock/videos.txt
+	install -m644 assets/splash/README.txt debian/pi-smart-clock/usr/share/doc/pi-smart-clock/splash.txt
+
+override_dh_installdocs:
+	dh_installdocs --exclude=LICENSE
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -rf debian/cargo-home
+
+override_dh_dwz:
+
+override_dh_strip:
+	dh_strip --no-automatic-dbgsym
+
+override_dh_missing:
+	dh_missing --fail-missing

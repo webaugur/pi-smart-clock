@@ -100,6 +100,9 @@ async fn main() -> Result<(), String> {
 
         state.tick(&mut platform).await;
         state.render_linux(&mut platform).await;
-        tokio::time::sleep(std::time::Duration::from_millis(16)).await;
+        // Boot tick already sleeps per frame; an extra 16 ms here doubled splash pacing.
+        if state.boot_done {
+            tokio::time::sleep(std::time::Duration::from_millis(16)).await;
+        }
     }
 }

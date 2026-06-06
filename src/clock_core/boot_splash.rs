@@ -78,10 +78,13 @@ mod linux {
                 self.frame_w, self.frame_h, self.frame_w, self.frame_h
             );
 
+            // Decode on demand; the boot loop paces frames. `-re` would throttle ffmpeg to
+            // wall-clock time while tick/render also sleep, so playback falls behind (~0.5×).
             let mut child = match Command::new("ffmpeg")
                 .args([
                     "-nostdin",
-                    "-re",
+                    "-threads",
+                    "0",
                     "-i",
                     resolved.to_string_lossy().as_ref(),
                     "-an",
@@ -180,6 +183,12 @@ mod linux {
         }
 
         /// Keep the last decoded frame visible after the clip ends.
+        pub fn freeze_if_video(&mut self) {
+            if matches!(self.mode, Mode::Video) {
+                self.freeze_video();
+            }
+        }
+
         fn freeze_video(&mut self) {
             if let Some(mut child) = self.child.take() {
                 let _ = child.kill();
@@ -224,6 +233,55 @@ mod linux {
             }
             self.stdout = None;
             self.mode = Mode::None;
+        }
+
+        /// Checkerboard dissolve — opaque tiles over the clock scene (`progress` 0 = full, 1 = gone).
+        pub fn blit_reveal_checkerboard(&self, canvas: &mut Canvas<Window>, progress: f32) {
+            use crate::clock_core::boot::reveal::{cell_shows_splash, CHECKER_BLOCK};
+
+            let progress = progress.clamp(0.0, 1.0);
+            if progress >= 1.0 || !self.has_frame() {
+                return;
+            }
+
+            let creator = canvas.texture_creator();
+            let mut texture = match creator.create_texture(
+                PixelFormatEnum::RGB24,
+                sdl2::render::TextureAccess::Streaming,
+                self.frame_w,
+                self.frame_h,
+            ) {
+                Ok(t) => t,
+                Err(_) => return,
+            };
+            if texture
+                .update(None, &self.frame_buf, (self.frame_w * 3) as usize)
+                .is_err()
+            {
+                return;
+            }
+
+            let fw = self.frame_w as i32;
+            let fh = self.frame_h as i32;
+            let cols = (fw + CHECKER_BLOCK - 1) / CHECKER_BLOCK;
+            let rows = (fh + CHECKER_BLOCK - 1) / CHECKER_BLOCK;
+
+            for cy in 0..rows {
+                for cx in 0..cols {
+                    if !cell_shows_splash(cx, cy, progress) {
+                        continue;
+                    }
+                    let x = cx * CHECKER_BLOCK;
+                    let y = cy * CHECKER_BLOCK;
+                    let w = CHECKER_BLOCK.min(fw - x) as u32;
+                    let h = CHECKER_BLOCK.min(fh - y) as u32;
+                    let _ = canvas.copy(
+                        &texture,
+                        Some(Rect::new(x, y, w, h)),
+                        Rect::new(x, y, w, h),
+                    );
+                }
+            }
         }
     }
 

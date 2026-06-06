@@ -1,0 +1,7 @@
+pi-smart-clock (0.1.0-1) trixie; urgency=medium
+
+  * Initial Debian package (Linux desktop / SDL2 build).
+  * Install application data under /usr/share/pi-smart-clock/.
+  * Ship desktop entry and manual page.
+
+ -- Pi Smart Clock Maintainers <pi-smart-clock@example.invalid>  Sat, 06 Jun 2026 12:00:00 +0000

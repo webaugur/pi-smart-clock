@@ -24,6 +24,8 @@ Detects your display orientation at startup: **portrait** screens use a 768×128
 
 ## Linux quickstart
 
+**Target OS:** [Debian 13 (Trixie)](https://www.debian.org/releases/trixie/) / **Raspberry Pi OS Trixie** for native and kiosk builds. Dev hosts on other distros may work; Trixie is what we build and test against.
+
 ### Rust toolchain (rustup)
 
 Use **rustup** for `cargo` and `rustc`. Debian/Ubuntu packages (`apt install cargo rustc`) are too old for this project and conflict with embedded cross-builds.
@@ -54,16 +56,17 @@ which cargo   # should print $HOME/.cargo/bin/cargo, not /usr/bin/cargo
 ### Build and run
 
 ```bash
-# Debian/Ubuntu dependencies
-sudo apt install -y libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev fonts-dejavu-core ffmpeg
-
 git clone https://github.com/webaugur/pi-smart-clock.git
 cd pi-smart-clock
 git checkout full-project
 
+./scripts/linux-deps.sh          # Debian 13 Trixie / Pi OS Trixie
+./scripts/linux-build.sh
 cargo run --features linux-full
 # or: cargo run   (linux-full is default)
 ```
+
+**Docker (Trixie):** `docker build -t pi-smart-clock .` — binary at `target/release/pi-smart-clock` inside the image layer.
 
 **Controls:** Esc quit · M menu · arrow keys / space = rotary encoder + button
 

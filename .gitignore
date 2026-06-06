@@ -18,6 +18,19 @@ cache/
 # config files
 config/*.csv
 
+# Debian packaging: track debian/ source; ignore build outputs
+debian/.debhelper/
+debian/cargo-home/
+debian/pi-smart-clock/
+debian/tmp/
+debian/files
+debian/debhelper-build-stamp
+debian/*.debhelper.log
+debian/*.substvars
+
+.dockerignore
+.github
+
 # OS
 .DS_Store
 Thumbs.db

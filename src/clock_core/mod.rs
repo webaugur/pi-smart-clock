@@ -8,7 +8,7 @@ pub mod voice_feedback;
 pub mod menu;
 pub mod persistence;
 pub mod update_scheduler;
-pub mod boot_screen;
+pub mod boot;
 pub mod boot_splash;
 pub mod status_bar;
 pub mod time_set_ui;

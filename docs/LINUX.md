@@ -1,6 +1,8 @@
 # Linux / Unix Guide
 
-SDL2 desktop build for development, kiosk images, and Raspberry Pi OS. Default Cargo feature: `linux-full`.
+SDL2 desktop build for development, kiosk images, and **Raspberry Pi OS Trixie** (Debian 13). Default Cargo feature: `linux-full`.
+
+We target **Debian Trixie** for native Linux builds — same base as current Pi OS. Older releases (Bookworm, Ubuntu LTS, etc.) may work but are not the reference environment.
 
 For config files and assets see [CUSTOMIZATION.md](CUSTOMIZATION.md).  
 For shared Rust layout see [SHARED_CODE.md](SHARED_CODE.md).
@@ -9,18 +11,28 @@ For shared Rust layout see [SHARED_CODE.md](SHARED_CODE.md).
 
 ## Quick start
 
-```bash
-# Debian / Ubuntu dependencies
-sudo apt install -y libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev \
-    fonts-dejavu-core ffmpeg
+On **Debian 13 Trixie** or **Raspberry Pi OS Trixie**:
 
+```bash
 git clone https://github.com/webaugur/pi-smart-clock.git
 cd pi-smart-clock
 git checkout full-project
 
+./scripts/linux-deps.sh
+./scripts/linux-build.sh
 cargo run --features linux-full
 # or: cargo run   (linux-full is default)
 ```
+
+### Docker / CI
+
+Reproducible Trixie build (no local SDL packages needed):
+
+```bash
+docker build -t pi-smart-clock .
+```
+
+GitHub Actions uses `debian:trixie-slim` — see `.github/workflows/linux-trixie.yml`.
 
 **Controls**
 
@@ -120,11 +132,11 @@ Console: `[esp8266] opened …`, `[esp8266] bridge online`, or
 ## Build and run
 
 ```bash
-cargo build --features linux-full
+./scripts/linux-build.sh
 cargo run --features linux-full
 
 # Release
-cargo build --release --features linux-full
+./scripts/linux-build.sh --release
 ```
 
 Binary: `target/debug/pi-smart-clock` (or `release/`).

@@ -244,7 +244,7 @@ On embedded, copy media to `/sd/sounds/` and `/sd/videos/` and use matching path
 |------|-----|
 | `assets/fonts/DejaVuSerif-Bold.ttf` | Roman numerals on SVG clock face (Linux) |
 
-System UI on Linux also uses SDL2_ttf with DejaVu (install `fonts-dejavu-core` on Debian/Ubuntu).
+System UI on Linux also uses SDL2_ttf with DejaVu (install `fonts-dejavu-core` on Debian Trixie / Pi OS — included in `./scripts/linux-deps.sh`).
 
 ---
 

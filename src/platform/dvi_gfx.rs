@@ -123,22 +123,31 @@ impl DviGfx {
         end_display_list(rb, sb);
     }
 
-    /// Full-screen PNG splash (compile-time raster) with optional status line.
+    /// Full-screen PNG splash (compile-time raster) with status line.
     pub async fn present_splash_frame(&mut self, status: &str) {
         use boot_splash_embedded::{SPLASH_H, SPLASH_RGB, SPLASH_W};
+
+        const BOOT_TEXT_SCALE: u32 = 5;
+        let status_stripe_h = FONT_HEIGHT * BOOT_TEXT_SCALE;
+        let canvas_h = DISPLAY_HEIGHT / VERTICAL_REPEAT as u32 - status_stripe_h;
 
         let (mut rb, mut sb) = start_display_list();
         let bg = color24(self.bg);
 
         if SPLASH_W > 0 && SPLASH_H > 0 && SPLASH_RGB.len() == (SPLASH_W * SPLASH_H * 3) as usize {
-            for y in 0..SPLASH_H {
+            let rows = SPLASH_H.min(canvas_h);
+            for y in 0..rows {
                 let row = &SPLASH_RGB[(y * SPLASH_W * 3) as usize..][..(SPLASH_W * 3) as usize];
                 stripe_row((&mut rb, &mut sb), y as i32, |sb| {
                     emit_scanline_rgb(sb, row, SPLASH_W, bg);
                 });
             }
+            for y in rows..canvas_h {
+                stripe_row((&mut rb, &mut sb), y as i32, |sb| {
+                    sb.solid(DISPLAY_WIDTH, bg);
+                });
+            }
         } else {
-            let canvas_h = DISPLAY_HEIGHT / VERTICAL_REPEAT as u32 - FONT_HEIGHT;
             rb.begin_stripe(canvas_h);
             rb.end_stripe();
             sb.begin_stripe(canvas_h);
@@ -146,14 +155,16 @@ impl DviGfx {
             sb.end_stripe();
         }
 
-        rb.begin_stripe(FONT_HEIGHT);
-        let s_w = rb.text(status);
-        let s_w = s_w + s_w % 2;
-        rb.end_stripe();
-        sb.begin_stripe(FONT_HEIGHT);
-        sb.pal_1bpp(s_w, &BW_PALETTE);
-        sb.solid(DISPLAY_WIDTH - s_w, bg);
-        sb.end_stripe();
+        for _ in 0..BOOT_TEXT_SCALE {
+            rb.begin_stripe(FONT_HEIGHT);
+            let s_w = rb.text(status);
+            let s_w = s_w + s_w % 2;
+            rb.end_stripe();
+            sb.begin_stripe(FONT_HEIGHT);
+            sb.pal_1bpp(s_w, &BW_PALETTE);
+            sb.solid(DISPLAY_WIDTH - s_w, bg);
+            sb.end_stripe();
+        }
 
         end_display_list(rb, sb);
     }

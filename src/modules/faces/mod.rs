@@ -138,6 +138,13 @@ where
     }
 }
 
+/// Warm the SVG raster cache during boot (Linux only).
+pub fn preload_active_face() {
+    let mut cache = cache().lock().expect("face cache");
+    let id = cache.active;
+    ensure_loaded(&mut cache, id);
+}
+
 pub fn draw_face(
     canvas: &mut Canvas<Window>,
     cx: i32,

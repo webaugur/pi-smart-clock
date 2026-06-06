@@ -48,7 +48,7 @@ pub fn resolve_media_path(name: &str) -> Option<PathBuf> {
         candidates.insert(2, PathBuf::from("videos").join(name));
     }
 
-    let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let manifest = crate::storage::linux::data_root();
     for c in candidates {
         if c.exists() {
             return Some(c);

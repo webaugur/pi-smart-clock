@@ -11,6 +11,11 @@ const RASTER_SIZE: u32 = 128;
 
 static ATLAS: OnceLock<IconAtlas> = OnceLock::new();
 
+/// Warm the Yaru icon atlas during boot.
+pub fn preload() {
+    let _ = ATLAS.get_or_init(IconAtlas::load);
+}
+
 pub fn draw_symbolic_icon(
     canvas: &mut Canvas<Window>,
     rel_path: &str,
@@ -90,7 +95,9 @@ const ICON_PATHS: &[&str] = &[
 ];
 
 fn resolve_icon_path(rel: &str) -> PathBuf {
-    let bundled = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("assets/icons/yaru").join(rel);
+    let bundled = crate::storage::linux::data_root()
+        .join("assets/icons/yaru")
+        .join(rel);
     if bundled.is_file() {
         return bundled;
     }

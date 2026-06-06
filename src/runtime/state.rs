@@ -1,4 +1,5 @@
 use crate::clock_core::alarm::AlarmManager;
+use crate::clock_core::boot::BootController;
 #[cfg(not(feature = "linux-full"))]
 use crate::prelude::*;
 use crate::clock_core::alarm_ui::AlarmUI;
@@ -39,6 +40,7 @@ impl OtaUpdater {
 pub struct SmartClockState {
     pub ui_mode: UiMode,
     pub boot_done: bool,
+    pub boot: BootController,
     pub alerts: AlertManager,
     pub alarms: AlarmManager,
     pub alarm_ui: AlarmUI,
@@ -67,6 +69,7 @@ impl SmartClockState {
         Self {
             ui_mode: UiMode::Boot,
             boot_done: false,
+            boot: BootController::new(),
             alerts: AlertManager::new(),
             alarms: AlarmManager::new(),
             alarm_ui: AlarmUI::new(),

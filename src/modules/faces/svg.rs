@@ -18,7 +18,7 @@ pub struct RasterGlyph {
 }
 
 pub fn resolve_face_path(rel: &str) -> PathBuf {
-    let bundled = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    let bundled = crate::storage::linux::data_root()
         .join("assets/faces")
         .join(rel);
     if bundled.is_file() {
@@ -35,7 +35,7 @@ pub fn parse_face_svg(path: &Path) -> Option<usvg::Tree> {
 pub fn parse_face_svg_data(data: &str) -> Option<usvg::Tree> {
     let mut opt = usvg::Options::default();
     opt.font_family = "DejaVu Serif".to_string();
-    let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    let manifest = crate::storage::linux::data_root();
     for rel in FONT_PATHS {
         let path = if rel.starts_with('/') {
             PathBuf::from(rel)

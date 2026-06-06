@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Pi Smart Clock
+GenericName=Clock
+Comment=Roman numeral smart clock with weather and alarms
+Exec=pi-smart-clock
+Icon=preferences-desktop-display
+Terminal=false
+Categories=Utility;Clock;
+Keywords=clock;weather;alarm;raspberry;
+StartupNotify=true

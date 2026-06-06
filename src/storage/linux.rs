@@ -38,8 +38,13 @@ pub fn xdg_cache_dir() -> PathBuf {
         .join(APP_SLUG)
 }
 
+/// FHS data root (`/usr/share/pi-smart-clock` when packaged; source tree in dev builds).
+pub fn data_root() -> PathBuf {
+    PathBuf::from(env!("PI_DATA_DIR"))
+}
+
 pub fn repo_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+    data_root()
 }
 
 pub fn resolve_repo_path(name: &str) -> Option<PathBuf> {

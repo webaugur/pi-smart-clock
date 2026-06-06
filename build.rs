@@ -36,6 +36,12 @@ fn main() {
     println!("cargo:rustc-env=GIT_HASH={}", short);
     println!("cargo:rustc-env=GIT_FULL_HASH={}", full);
 
+    let data_dir = env::var("PI_DATA_DIR")
+        .or_else(|_| env::var("CARGO_MANIFEST_DIR"))
+        .expect("PI_DATA_DIR or CARGO_MANIFEST_DIR");
+    println!("cargo:rerun-if-env-changed=PI_DATA_DIR");
+    println!("cargo:rustc-env=PI_DATA_DIR={data_dir}");
+
     println!("cargo:rerun-if-changed=.git/HEAD");
     println!("cargo:rerun-if-changed=.git/index");
     for name in ["boot.png", "boot.jpg", "boot.jpeg"] {

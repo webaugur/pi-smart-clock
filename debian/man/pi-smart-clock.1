@@ -1,0 +1,39 @@
+.TH PI-SMART-CLOCK 1 "June 2026" "pi-smart-clock 0.1.0" "User Commands"
+.SH NAME
+pi-smart-clock \- Roman numeral smart clock for Linux desktops
+.SH SYNOPSIS
+.B pi-smart-clock
+.SH DESCRIPTION
+.B pi-smart-clock
+runs a full-screen SDL2 clock with weather panels, alarms, and optional
+NWS-style alert overlays. The application reads configuration from the XDG
+Base Directory (usually \fI~/.config/pi-smart-clock/\fR). Example
+configuration files are installed under
+\fI/usr/share/pi-smart-clock/config/\fR.
+.SH CONTROLS
+.TP
+.B Esc
+Quit the application.
+.TP
+.B M
+Open the menu.
+.TP
+.B Arrow keys
+Emulate the rotary encoder.
+.TP
+.B Space
+Emulate the push button.
+.SH FILES
+.TP
+.I ~/.config/pi-smart-clock/
+User configuration files.
+.TP
+.I ~/.local/share/pi-smart-clock/
+Persistent data (alarms, alert photos).
+.TP
+.I /usr/share/pi-smart-clock/
+Installed application data and configuration examples.
+.SH DEPENDS
+Requires \fBffmpeg\fR for alarm video playback and DejaVu fonts for the UI.
+.SH AUTHOR
+Pi Smart Clock contributors.

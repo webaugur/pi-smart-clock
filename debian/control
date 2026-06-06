@@ -1,0 +1,34 @@
+Source: pi-smart-clock
+Section: utils
+Priority: optional
+Rules-Requires-Root: no
+Maintainer: Pi Smart Clock Maintainers <pi-smart-clock@example.invalid>
+Build-Depends: debhelper-compat (= 13),
+               cargo:native,
+               rustc:native (>= 1.80),
+               libssl-dev,
+               pkg-config,
+               git,
+               libsdl2-dev,
+               libsdl2-ttf-dev,
+               libsdl2-mixer-dev,
+Standards-Version: 4.7.0
+Homepage: https://github.com/webaugur/pi-smart-clock
+Vcs-Browser: https://github.com/webaugur/pi-smart-clock
+Vcs-Git: https://github.com/webaugur/pi-smart-clock.git
+XS-Rust-Cargo-Built-Using: cargo (= 1.80)
+
+Package: pi-smart-clock
+Architecture: any
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         fonts-dejavu-core,
+         ffmpeg,
+Recommends: yaru-icon-theme
+Description: Roman numeral smart clock for Raspberry Pi and Linux desktops
+ Pi Smart Clock is a full-screen SDL2 clock with weather panels, alarms,
+ NWS-style alerts, and configurable clock faces. The Linux build targets
+ Debian 13 (Trixie) and Raspberry Pi OS Trixie.
+ .
+ User settings live under the XDG Base Directory (~/.config/pi-smart-clock).
+ Shipped examples are installed under /usr/share/pi-smart-clock/.
