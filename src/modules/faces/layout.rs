@@ -1,11 +1,26 @@
 use super::FaceId;
 
+/// One SVG clock hand asset (separate file per hand under `assets/faces/<face>/`).
+#[derive(Clone, Copy, Debug)]
+pub struct HandAsset {
+    /// Path relative to `assets/faces/` (e.g. `retro-roman/hour-hand.svg`).
+    pub file: &'static str,
+    /// Distance in SVG units from pivot (viewBox centre) to tip at 12 o'clock.
+    pub design_length: f32,
+}
+
 /// SVG-space layout constants for mapping dial artwork to screen coordinates.
 #[derive(Clone, Copy, Debug)]
 pub struct FaceLayout {
     pub view_size: f32,
     pub center: f32,
     pub numeral_radius: f32,
+    pub hour_hand: HandAsset,
+    pub minute_hand: HandAsset,
+    pub second_hand: HandAsset,
+    pub hub: Option<HandAsset>,
+    /// On-screen diameter for the centre hub sprite (pixels).
+    pub hub_screen_diameter: i32,
 }
 
 impl FaceId {
@@ -15,6 +30,23 @@ impl FaceId {
                 view_size: 512.0,
                 center: 256.0,
                 numeral_radius: 188.0,
+                hour_hand: HandAsset {
+                    file: "retro-roman/hour-hand.svg",
+                    design_length: 125.0,
+                },
+                minute_hand: HandAsset {
+                    file: "retro-roman/minute-hand.svg",
+                    design_length: 177.0,
+                },
+                second_hand: HandAsset {
+                    file: "retro-roman/second-hand.svg",
+                    design_length: 216.0,
+                },
+                hub: Some(HandAsset {
+                    file: "retro-roman/hub.svg",
+                    design_length: 20.0,
+                }),
+                hub_screen_diameter: 22,
             },
         }
     }

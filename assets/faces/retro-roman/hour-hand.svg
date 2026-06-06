@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Pivot at viewBox centre (256,256). Hand points to 12 o'clock; tip at y≈131 → length 125. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <g id="hand">
+    <line x1="256" y1="256" x2="256" y2="131" stroke="#E8E4D8" stroke-width="12" stroke-linecap="round"/>
+    <line x1="256" y1="256" x2="256" y2="274" stroke="#E8E4D8" stroke-width="8" stroke-linecap="round"/>
+    <circle cx="256" cy="131" r="6" fill="#E8E4D8"/>
+  </g>
+</svg>

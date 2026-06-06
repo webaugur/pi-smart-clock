@@ -4,6 +4,7 @@ mod layout;
 mod numerals;
 mod svg;
 
+use hand::HandSprite;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 use std::collections::HashMap;
@@ -47,6 +48,10 @@ impl FaceId {
 struct LoadedFace {
     dial: Vec<u8>,
     numerals: [svg::RasterGlyph; NUMERAL_COUNT],
+    hour_hand: HandSprite,
+    minute_hand: HandSprite,
+    second_hand: HandSprite,
+    hub: Option<HandSprite>,
 }
 
 struct FaceCache {
@@ -63,6 +68,13 @@ fn cache() -> &'static Mutex<FaceCache> {
             active,
             faces: HashMap::new(),
         })
+    })
+}
+
+fn load_hand(asset: layout::HandAsset, label: &str) -> Option<HandSprite> {
+    HandSprite::load(asset).or_else(|| {
+        eprintln!("[faces] missing or invalid hand SVG: {} ({label})", asset.file);
+        None
     })
 }
 
@@ -83,7 +95,21 @@ fn load_face(id: FaceId) -> Option<LoadedFace> {
             eprintln!("[faces] missing glyph {node_id} in {}", path.display());
         }
     }
-    Some(LoadedFace { dial, numerals })
+
+    let layout = id.layout();
+    let hour_hand = load_hand(layout.hour_hand, "hour")?;
+    let minute_hand = load_hand(layout.minute_hand, "minute")?;
+    let second_hand = load_hand(layout.second_hand, "second")?;
+    let hub = layout.hub.and_then(|h| load_hand(h, "hub"));
+
+    Some(LoadedFace {
+        dial,
+        numerals,
+        hour_hand,
+        minute_hand,
+        second_hand,
+        hub,
+    })
 }
 
 fn ensure_loaded(cache: &mut FaceCache, id: FaceId) {
@@ -97,6 +123,18 @@ fn ensure_loaded(cache: &mut FaceCache, id: FaceId) {
         None => {
             eprintln!("[faces] failed to load {}", id.asset_path());
         }
+    }
+}
+
+fn with_face<F>(f: F)
+where
+    F: FnOnce(&LoadedFace),
+{
+    let mut cache = cache().lock().expect("face cache");
+    let id = cache.active;
+    ensure_loaded(&mut cache, id);
+    if let Some(face) = cache.faces.get(&id) {
+        f(face);
     }
 }
 
@@ -127,6 +165,69 @@ pub fn draw_face(
     numerals::draw_positioned(canvas, &face.numerals, id.layout(), cx, cy, diameter);
 }
 
+pub fn draw_hour_hand(
+    canvas: &mut Canvas<Window>,
+    cx: i32,
+    cy: i32,
+    length: i32,
+    angle_deg: f32,
+    night: bool,
+) {
+    with_face(|face| {
+        hand::draw_hand_sprite(
+            canvas,
+            &face.hour_hand,
+            cx,
+            cy,
+            length,
+            angle_deg,
+            hand::ivory_tint(night),
+        );
+    });
+}
+
+pub fn draw_minute_hand(
+    canvas: &mut Canvas<Window>,
+    cx: i32,
+    cy: i32,
+    length: i32,
+    angle_deg: f32,
+    night: bool,
+) {
+    with_face(|face| {
+        hand::draw_hand_sprite(
+            canvas,
+            &face.minute_hand,
+            cx,
+            cy,
+            length,
+            angle_deg,
+            hand::ivory_tint(night),
+        );
+    });
+}
+
+pub fn draw_hub(canvas: &mut Canvas<Window>, cx: i32, cy: i32, night: bool) {
+    let mut cache = cache().lock().expect("face cache");
+    let id = cache.active;
+    ensure_loaded(&mut cache, id);
+    let layout = id.layout();
+    let Some(face) = cache.faces.get(&id) else {
+        return;
+    };
+    if let Some(hub) = &face.hub {
+        hand::draw_hand_sprite(
+            canvas,
+            hub,
+            cx,
+            cy,
+            layout.hub_screen_diameter,
+            0.0,
+            hand::ivory_tint(night),
+        );
+    }
+}
+
 pub fn draw_second_hand(
     canvas: &mut Canvas<Window>,
     cx: i32,
@@ -135,5 +236,15 @@ pub fn draw_second_hand(
     angle_deg: f32,
     night: bool,
 ) {
-    hand::draw_second_hand(canvas, cx, cy, length, angle_deg, night);
+    with_face(|face| {
+        hand::draw_hand_sprite(
+            canvas,
+            &face.second_hand,
+            cx,
+            cy,
+            length,
+            angle_deg,
+            hand::second_tint(night),
+        );
+    });
 }

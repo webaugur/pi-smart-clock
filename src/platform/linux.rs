@@ -186,6 +186,46 @@ impl Platform for SdlPlatform {
         crate::modules::faces::draw_face(&mut self.canvas, cx, cy, diameter);
     }
 
+    async fn draw_clock_hour_hand(
+        &mut self,
+        cx: i32,
+        cy: i32,
+        length: i32,
+        angle_deg: f32,
+        night: bool,
+    ) {
+        crate::modules::faces::draw_hour_hand(
+            &mut self.canvas,
+            cx,
+            cy,
+            length,
+            angle_deg,
+            night,
+        );
+    }
+
+    async fn draw_clock_minute_hand(
+        &mut self,
+        cx: i32,
+        cy: i32,
+        length: i32,
+        angle_deg: f32,
+        night: bool,
+    ) {
+        crate::modules::faces::draw_minute_hand(
+            &mut self.canvas,
+            cx,
+            cy,
+            length,
+            angle_deg,
+            night,
+        );
+    }
+
+    async fn draw_clock_hub(&mut self, cx: i32, cy: i32, night: bool) {
+        crate::modules::faces::draw_hub(&mut self.canvas, cx, cy, night);
+    }
+
     async fn draw_clock_second_hand(
         &mut self,
         cx: i32,

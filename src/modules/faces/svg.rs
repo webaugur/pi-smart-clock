@@ -66,6 +66,47 @@ pub fn rasterize_tree_node(tree: &usvg::Tree, id: &str, pad: u32) -> Option<Rast
     })
 }
 
+/// Rasterize a clock hand group (`id="hand"`) into a square RGBA buffer.
+/// Pivot must lie at the viewBox centre (typically 256,256 in a 512×512 file).
+pub fn rasterize_hand(tree: &usvg::Tree, size: u32) -> Option<Vec<u8>> {
+    rasterize_hand_node(tree, "hand", size)
+}
+
+pub fn rasterize_hand_from_path(path: &Path, size: u32) -> Option<Vec<u8>> {
+    let tree = parse_face_svg(path)?;
+    rasterize_hand(&tree, size)
+}
+
+fn rasterize_hand_node(tree: &usvg::Tree, node_id: &str, size: u32) -> Option<Vec<u8>> {
+    // Require the hand group so invalid assets fail fast; render the full tree so
+    // viewBox coordinates keep the pivot at the raster centre (group-only rendering
+    // would anchor to the hand bbox instead of 256,256).
+    let _ = tree.node_by_id(node_id)?;
+    let tree_size = tree.size();
+    let scale = size as f32 / tree_size.width().max(tree_size.height());
+    let w = (tree_size.width() * scale).ceil() as u32;
+    let h = (tree_size.height() * scale).ceil() as u32;
+    let mut pixmap = tiny_skia::Pixmap::new(w, h)?;
+    let transform = tiny_skia::Transform::from_scale(scale, scale);
+    resvg::render(tree, transform, &mut pixmap.as_mut());
+    let mut out = vec![0u8; (size * size * 4) as usize];
+    let x_off = ((size.saturating_sub(w)) / 2) as usize;
+    let y_off = ((size.saturating_sub(h)) / 2) as usize;
+    for row in 0..h as usize {
+        let src = &pixmap.data()[row * w as usize * 4..(row + 1) * w as usize * 4];
+        let dst_row = y_off + row;
+        if dst_row >= size as usize {
+            continue;
+        }
+        let dst_start = (dst_row * size as usize + x_off) * 4;
+        let dst_end = dst_start + src.len();
+        if dst_end <= out.len() {
+            out[dst_start..dst_end].copy_from_slice(src);
+        }
+    }
+    Some(out)
+}
+
 pub fn rasterize_dial(tree: &usvg::Tree, size: u32) -> Option<Vec<u8>> {
     let node = tree.node_by_id("dial")?;
     let tree_size = tree.size();
@@ -173,6 +214,26 @@ mod tests {
     use super::*;
 
     #[test]
+    fn retro_roman_hand_svgs_rasterize() {
+        for name in [
+            "retro-roman/hour-hand.svg",
+            "retro-roman/minute-hand.svg",
+            "retro-roman/second-hand.svg",
+            "retro-roman/hub.svg",
+        ] {
+            let path = resolve_face_path(name);
+            let pixels = rasterize_hand_from_path(&path, 512).expect(name);
+            let opaque = count_opaque_pixels(&pixels, 512);
+            assert!(opaque > 40, "{name} should rasterize visible pixels, got {opaque}");
+            let near_pivot = count_opaque_pixels_sized(&pixels, 512, 220, 292, 220, 292);
+            assert!(
+                near_pivot > 4,
+                "{name} should have opaque pixels near pivot, got {near_pivot}"
+            );
+        }
+    }
+
+    #[test]
     fn retro_roman_dial_and_numerals_extract() {
         let path = resolve_face_path("retro-roman/face.svg");
         let tree = parse_face_svg(&path).expect("parse face");
@@ -209,6 +270,31 @@ mod tests {
             for x in x0..x1.min(width) {
                 let i = ((y * width + x) * 4) as usize;
                 if pixels[i + 3] > 0 && pixels[i] > 200 {
+                    n += 1;
+                }
+            }
+        }
+        n
+    }
+
+    fn count_opaque_pixels(pixels: &[u8], width: u32) -> u32 {
+        let height = pixels.len() as u32 / (width * 4);
+        count_opaque_pixels_sized(pixels, width, 0, width, 0, height)
+    }
+
+    fn count_opaque_pixels_sized(
+        pixels: &[u8],
+        width: u32,
+        x0: u32,
+        x1: u32,
+        y0: u32,
+        y1: u32,
+    ) -> u32 {
+        let mut n = 0;
+        for y in y0..y1.min(pixels.len() as u32 / (width * 4)) {
+            for x in x0..x1.min(width) {
+                let i = ((y * width + x) * 4) as usize;
+                if pixels[i + 3] > 0 {
                     n += 1;
                 }
             }

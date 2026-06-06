@@ -84,14 +84,27 @@ Unknown values fall back to `retro-roman`.
 ### Clock faces (SVG assets)
 
 ```
-    assets/faces/<face-name>/face.svg
-    assets/fonts/DejaVuSerif-Bold.ttf    Roman numeral glyphs (shared)
+    assets/faces/<face-name>/face.svg           Dial + numeral glyphs
+    assets/faces/<face-name>/hour-hand.svg      Hour hand (points to 12 o'clock)
+    assets/faces/<face-name>/minute-hand.svg    Minute hand
+    assets/faces/<face-name>/second-hand.svg    Second hand
+    assets/faces/<face-name>/hub.svg            Centre cap (optional)
+    assets/fonts/DejaVuSerif-Bold.ttf           Roman numeral glyphs (shared)
 ```
 
-**Adding a new face** requires two steps:
+**Hand SVG rules**
 
-1. Create `assets/faces/my-face/face.svg` (dial artwork; see existing SVG for scale).
-2. Register the id in code (`src/modules/faces/mod.rs` — `FaceId` enum and `parse()`), then set `face=my-face` in `faces.conf`.
+- Use a **512×512** `viewBox` with pivot at the centre **(256, 256)**.
+- Wrap artwork in `<g id="hand">…</g>`.
+- Draw the hand pointing **up** (toward 12 o'clock) — rotation is applied at runtime.
+- Set `design_length` in `FaceLayout` (`src/modules/faces/layout.rs`) to the SVG
+  distance from pivot to tip (see `retro-roman` for reference).
+
+**Adding a new face** requires:
+
+1. Create the SVG set under `assets/faces/my-face/`.
+2. Register `FaceId` in `src/modules/faces/mod.rs` (`parse()`, `asset_path()`, `layout()` with hand files and `design_length` values).
+3. Set `face=my-face` in `faces.conf`.
 
 Linux renders faces with **resvg** at runtime. Embedded face SVG support follows the Linux module set as it lands on Pico.
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Pivot at (256,256). Tip at y≈40 → length 216. Colour tinted at runtime for night mode. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <g id="hand">
+    <line x1="256" y1="256" x2="256" y2="40" stroke="#FF2222" stroke-width="4" stroke-linecap="round"/>
+    <line x1="256" y1="256" x2="256" y2="295" stroke="#FF2222" stroke-width="3" stroke-linecap="round"/>
+    <polygon points="256,28 248,48 264,48" fill="#FF2222"/>
+  </g>
+</svg>
