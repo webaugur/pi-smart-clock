@@ -1,5 +1,6 @@
 use crate::core::alarm::AlarmManager;
 use crate::platform::linux_audio::resolve_media_path;
+use crate::storage::logical;
 use chrono::Local;
 
 fn csv_escape(field: &str) -> String {
@@ -58,15 +59,12 @@ pub async fn save_alarms(platform: &mut impl crate::drivers::platform::Platform,
     }
 
     platform
-        .write_file("/sd/config/alarms.csv", csv.as_bytes())
+        .write_file(logical::ALARMS_CSV, csv.as_bytes())
         .await;
     platform
         .copy_file(
-            "/sd/config/alarms.csv",
-            &format!(
-                "/sd/config/alarms_{}.csv.bak",
-                Local::now().format("%Y%m%d_%H%M%S")
-            ),
+            logical::ALARMS_CSV,
+            &logical::alarms_backup(&Local::now().format("%Y%m%d_%H%M%S").to_string()),
         )
         .await;
 }
@@ -75,10 +73,7 @@ pub async fn load_alarms(
     platform: &mut impl crate::drivers::platform::Platform,
     alarms: &mut AlarmManager,
 ) {
-    let data = platform
-        .read_file("/sd/config/alarms.csv")
-        .await
-        .or(platform.read_file("config/alarms.csv").await);
+    let data = platform.read_file(logical::ALARMS_CSV).await;
 
     let Some(data) = data else {
         return;

@@ -50,17 +50,64 @@ its live name before editing.
     Copy alarm schedule                cp config/alarms.csv.example config/alarms.csv
 ```
 
-**FILE SEARCH ORDER**
+**FILE SEARCH ORDER (LINUX)**
 
-The program looks for each configuration type in this order:
+User-editable `*.conf` files are resolved in this order:
 
 ```
-    1.  config/<name>.conf     (user file — preferred)
-    2.  config/<name>.conf.example
+    1.  ~/.config/pi-smart-clock/<name>.conf
+    2.  config/<name>.conf          (repo / working directory)
+    3.  config/<name>.conf.example
 ```
 
-If neither file exists, built-in defaults are used and a message is printed
-to the console (stderr).
+If no file exists, built-in defaults are used and a message is printed to
+the console (stderr).
+
+**PERSISTENCE LAYOUT (LINUX)**
+
+Runtime data uses XDG Base Directory paths under `~/.local` and `~/.cache`:
+
+```
+    ~/.config/pi-smart-clock/     User settings (weather, panels, faces, esp8266)
+    ~/.local/share/pi-smart-clock/ Application data (alarms, alert photos)
+    ~/.local/state/pi-smart-clock/ History (alarm backups)
+    ~/.cache/pi-smart-clock/      Regenerable cache (weather JSON)
+```
+
+**DEPLOYMENT, BRANDING, AND RECOVERY**
+
+The search order above is deliberate: you can ship a **default or branded**
+configuration in the repo `config/` directory (or in your install package)
+and it will run correctly on first launch — even before the end user has
+touched anything.  When the user later saves settings, copies land in
+`~/.config/pi-smart-clock/` and take precedence over the shipped defaults.
+
+This split is useful for:
+
+```
+    • Factory / kiosk images with your city, panels, and face pre-set
+    • OEM branding (default weather location, labels, module layout)
+    • Support hand-off: repo defaults always remain as a known-good fallback
+```
+
+If a user's `~/.config/pi-smart-clock/` files become corrupted, syntactically
+invalid, or otherwise unusable, **erase the entire directory** and restart the
+program.  Settings will fall back to repo `config/` and `*.example` files
+(or built-in defaults where no file exists):
+
+```
+    rm -rf ~/.config/pi-smart-clock
+```
+
+Alarm data, alert photos, and backups under `~/.local/share/` and
+`~/.local/state/` are **not** removed by this command.  Delete
+`~/.cache/pi-smart-clock/` separately if you also want to clear weather
+cache and force a fresh network fetch.
+
+**PERSISTENCE LAYOUT (EMBEDDED)**
+
+All virtual `/sd/...` paths map to the removable SD card, accessed over
+**I2C** by default.  Faster **SPI** and **SDIO** modes are planned.
 
 **LINUX SERIAL PERMISSIONS (ESP8266)**
 
@@ -337,10 +384,10 @@ picked up automatically without restarting the program.
 
 ## CHAPTER 7 — ALARM SCHEDULE
 
-**FILE:** `config/alarms.csv`
+**FILE:** `config/alarms.csv` (template / example only on Linux)
 **FORMAT:** Comma-separated values (CSV), one alarm per row.
-**STORAGE PATH (Linux):** `config/alarms.csv`
-**STORAGE PATH (embedded):** `/sd/config/alarms.csv`
+**STORAGE PATH (Linux):** `~/.local/share/pi-smart-clock/config/alarms.csv`
+**STORAGE PATH (embedded):** `/sd/config/alarms.csv` (SD card via I2C)
 
 ### 7.1  FILE STRUCTURE
 
@@ -400,14 +447,19 @@ id,hour,minute,enabled,repeat,label,sound_file,snooze_minutes
 
 ### 7.7  PERSISTENCE
 
-When alarms are saved from the menu (embedded path), the program writes:
+When alarms are saved from the menu, the program writes:
 
 ```
-    /sd/config/alarms.csv
-    /sd/config/alarms_YYYYMMDD_HHMMSS.csv.bak
+    Linux:    ~/.local/share/pi-smart-clock/config/alarms.csv
+              ~/.local/state/pi-smart-clock/backups/alarms_YYYYMMDD_HHMMSS.csv.bak
+
+    Embedded: /sd/config/alarms.csv
+              /sd/config/alarms_YYYYMMDD_HHMMSS.csv.bak
 ```
 
-On Linux, in-memory file storage is used until full persistence is wired.
+On first launch, alarms are loaded from the Linux persistence path if
+present; otherwise from `config/alarms.csv` or `config/alarms.csv.example`
+in the repo.
 
 
 ---
@@ -457,10 +509,12 @@ Icons are selected automatically from WMO weather codes.
 These files are **written by the program**, not edited by the user.  Listed
 here for completeness.
 
-| File | Purpose | Invalidation |
-|------|---------|--------------|
-| `cache/weather_city.json` | Cached reverse-geocode city name | Coordinate change, config mtime change, or age > 1 hour |
-| `cache/weather_data.json` | Cached forecast snapshot | Coordinate/units/interval change, or age > `update_interval_minutes` |
+| Virtual path | Linux location | Purpose | Invalidation |
+|--------------|----------------|---------|--------------|
+| `cache/weather_city.json` | `~/.cache/pi-smart-clock/weather_city.json` | Cached reverse-geocode city name | Coordinate change, config mtime change, or age > 1 hour |
+| `cache/weather_data.json` | `~/.cache/pi-smart-clock/weather_data.json` | Cached forecast snapshot | Coordinate/units/interval change, or age > `update_interval_minutes` |
+
+On embedded, the same virtual paths live under `/sd/cache/` on the SD card.
 
 Delete cache files to force a fresh network fetch.
 
@@ -576,6 +630,10 @@ Maximum HTTP body size on bridge: **8192 bytes**.
 ├────────────────────────────────────────────┼──────────────────────────────────┤
 │ [weather] bad latitude/longitude/units     │ Correct numeric format in        │
 │                                            │ weather.conf.                    │
+├────────────────────────────────────────────┼──────────────────────────────────┤
+│ Config parse errors / garbled settings     │ Remove broken user overrides:    │
+│ after editing ~/.config/pi-smart-clock/    │ rm -rf ~/.config/pi-smart-clock │
+│                                            │ then restart (repo defaults apply)│
 ├────────────────────────────────────────────┼──────────────────────────────────┤
 │ [faces] no config found, using default     │ Copy faces.conf.example or add   │
 │                                            │ face= to faces.conf.             │

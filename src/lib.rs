@@ -3,6 +3,7 @@
 pub mod config;
 pub mod core;
 pub mod drivers;
+pub mod storage;
 pub mod ota;
 pub mod platform;
 pub mod runtime;

@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
@@ -7,10 +7,10 @@ use serde::{Deserialize, Serialize};
 use super::api::{fetch_weather_data, WeatherSnapshot};
 use super::config::{ConfigMeta, WeatherConfig};
 use super::icons::WeatherIcon;
-use crate::platform::linux_audio::resolve_media_path;
+use crate::storage::logical;
 
-const CITY_CACHE: &str = "cache/weather_city.json";
-const DATA_CACHE: &str = "cache/weather_data.json";
+const CITY_CACHE: &str = logical::WEATHER_CITY_CACHE;
+const DATA_CACHE: &str = logical::WEATHER_DATA_CACHE;
 const CITY_MAX_AGE: Duration = Duration::from_secs(60 * 60);
 const DEFAULT_UPDATE_MINUTES: u64 = 30;
 
@@ -207,14 +207,16 @@ fn write_json<T: Serialize>(name: &str, value: &T) -> Result<(), String> {
 }
 
 fn resolve_cache_path(name: &str) -> Option<PathBuf> {
-    if let Some(resolved) = resolve_media_path(name) {
-        return Some(resolved);
+    #[cfg(feature = "linux-full")]
+    {
+        let path = crate::storage::linux::resolve_logical_path(name);
+        return Some(path);
     }
-    let p = Path::new(name);
-    if p.exists() {
-        return Some(p.to_path_buf());
+    #[cfg(not(feature = "linux-full"))]
+    {
+        let _ = name;
+        None
     }
-    Some(PathBuf::from(name))
 }
 
 fn cache_file_mtime(name: &str) -> Option<u64> {

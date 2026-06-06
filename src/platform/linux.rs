@@ -5,11 +5,10 @@ use sdl2::rect::Rect;
 use sdl2::render::Canvas;
 use sdl2::ttf::Font;
 use sdl2::video::Window;
-use std::collections::HashMap;
 use std::io::Read;
-use std::path::Path;
 
 use crate::drivers::esp8266::{load_esp8266_config, Esp8266Client};
+use crate::storage::linux as xdg_storage;
 use crate::drivers::platform::Platform;
 use crate::layout::{l, Layout};
 use crate::platform::linux_audio::{LinuxAudioEngine, resolve_media_path};
@@ -31,7 +30,6 @@ pub struct SdlPlatform {
     esp8266: Option<Esp8266Client>,
     rotary_delta: i32,
     button_down: bool,
-    files: HashMap<String, Vec<u8>>,
 }
 
 impl SdlPlatform {
@@ -44,7 +42,6 @@ impl SdlPlatform {
             esp8266: None,
             rotary_delta: 0,
             button_down: false,
-            files: HashMap::new(),
         })
     }
 
@@ -125,6 +122,14 @@ impl SdlPlatformExt for SdlPlatform {
 
 impl Platform for SdlPlatform {
     async fn init(&mut self) -> Result<(), String> {
+        eprintln!(
+            "[storage] Linux XDG → config {}, data {}, state {}, cache {}",
+            xdg_storage::xdg_config_dir().display(),
+            xdg_storage::xdg_data_dir().display(),
+            xdg_storage::xdg_state_dir().display(),
+            xdg_storage::xdg_cache_dir().display(),
+        );
+
         let cfg = load_esp8266_config();
         if !cfg.enabled {
             return Ok(());
@@ -262,38 +267,21 @@ impl Platform for SdlPlatform {
     }
 
     async fn write_file(&mut self, path: &str, data: &[u8]) {
-        self.files.insert(path.to_string(), data.to_vec());
+        if let Err(e) = xdg_storage::write_file(path, data) {
+            eprintln!("[storage] write failed ({path}): {e}");
+        }
     }
 
     async fn read_file(&mut self, path: &str) -> Option<Vec<u8>> {
-        if let Some(data) = self.files.get(path) {
-            return Some(data.clone());
-        }
-        let linux_aliases = [
-            ("/sd/config/alarms.csv", "config/alarms.csv"),
-            ("/sd/config/alarms.csv.example", "config/alarms.csv.example"),
-            ("/sd/config/weather.conf", "config/weather.conf"),
-            ("/sd/config/weather.conf.example", "config/weather.conf.example"),
-        ];
-        for (sd, local) in linux_aliases {
-            if path == sd {
-                if let Some(p) = resolve_media_path(local) {
-                    return std::fs::read(p).ok();
-                }
-            }
-        }
-        if let Some(p) = resolve_media_path(path) {
-            return std::fs::read(p).ok();
-        }
-        if Path::new(path).exists() {
-            return std::fs::read(path).ok();
-        }
-        None
+        xdg_storage::read_file(path).or_else(|| {
+            resolve_media_path(path)
+                .and_then(|p| std::fs::read(p).ok())
+        })
     }
 
     async fn copy_file(&mut self, from: &str, to: &str) {
-        if let Some(data) = self.read_file(from).await {
-            self.write_file(to, &data).await;
+        if let Err(e) = xdg_storage::copy_file(from, to) {
+            eprintln!("[storage] copy failed ({from} → {to}): {e}");
         }
     }
 

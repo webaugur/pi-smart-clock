@@ -2,17 +2,37 @@ use std::path::Path;
 
 use super::FaceId;
 
-const CONFIG_PATHS: [&str; 2] = ["config/faces.conf", "config/faces.conf.example"];
+#[cfg(feature = "linux-full")]
+use crate::storage::linux as xdg_storage;
 
 pub fn load_face_id() -> FaceId {
-    for path in CONFIG_PATHS {
-        if let Ok(id) = parse_faces_config(Path::new(path)) {
-            eprintln!("[faces] loaded {path} → {}", id.as_str());
+    if let Some(path) = resolve_faces_config_path() {
+        if let Ok(id) = parse_faces_config(&path) {
+            eprintln!("[faces] loaded {} → {}", path.display(), id.as_str());
             return id;
         }
     }
     eprintln!("[faces] no config found, using default ({})", FaceId::default().as_str());
     FaceId::default()
+}
+
+fn resolve_faces_config_path() -> Option<std::path::PathBuf> {
+    #[cfg(feature = "linux-full")]
+    {
+        return xdg_storage::find_config("faces.conf", "faces.conf.example");
+    }
+    #[cfg(not(feature = "linux-full"))]
+    {
+        let path = Path::new("config/faces.conf");
+        if path.is_file() {
+            return Some(path.to_path_buf());
+        }
+        let example = Path::new("config/faces.conf.example");
+        if example.is_file() {
+            return Some(example.to_path_buf());
+        }
+        None
+    }
 }
 
 fn parse_faces_config(path: &Path) -> Result<FaceId, String> {
@@ -42,7 +62,7 @@ mod tests {
 
     #[test]
     fn parses_example_config() {
-        let id = parse_faces_config(Path::new("config/faces.conf.example")).unwrap();
+        let id = parse_faces_config(&resolve_faces_config_path().expect("faces example")).unwrap();
         assert_eq!(id, FaceId::RetroRoman);
     }
 }

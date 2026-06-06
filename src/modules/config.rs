@@ -4,9 +4,8 @@ use std::path::Path;
 
 use crate::modules::module_id::ModuleId;
 use crate::modules::slot::BottomSlot;
-use crate::platform::linux_audio::resolve_media_path;
-
-const CONFIG_PATHS: [&str; 2] = ["config/panels.conf", "config/panels.conf.example"];
+#[cfg(feature = "linux-full")]
+use crate::storage::linux as xdg_storage;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct BottomSlotConfig {
@@ -58,16 +57,22 @@ pub fn load_bottom_slots() -> BottomSlotConfig {
 }
 
 fn resolve_panel_config() -> Option<std::path::PathBuf> {
-    for path in CONFIG_PATHS {
-        if let Some(resolved) = resolve_media_path(path) {
-            return Some(resolved);
-        }
-        let p = Path::new(path);
-        if p.exists() {
-            return Some(p.to_path_buf());
-        }
+    #[cfg(feature = "linux-full")]
+    {
+        return xdg_storage::find_config("panels.conf", "panels.conf.example");
     }
-    None
+    #[cfg(not(feature = "linux-full"))]
+    {
+        let path = Path::new("config/panels.conf");
+        if path.is_file() {
+            return Some(path.to_path_buf());
+        }
+        let example = Path::new("config/panels.conf.example");
+        if example.is_file() {
+            return Some(example.to_path_buf());
+        }
+        None
+    }
 }
 
 fn parse_panel_config(path: &Path) -> Result<BottomSlotConfig, String> {

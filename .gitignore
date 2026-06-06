@@ -6,6 +6,9 @@ Cargo.lock
 # Audio files (add your own)
 sounds/*.wav
 
+# Runtime weather cache
+cache/
+
 # Editor
 .vscode/
 .idea/
