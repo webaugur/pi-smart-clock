@@ -20,6 +20,7 @@ Detects your display orientation at startup: **portrait** screens use a 768×128
 | [docs/SHARED_CODE.md](docs/SHARED_CODE.md) | Shared Rust architecture |
 | [docs/TODO.md](docs/TODO.md) | Open work tracker |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Milestones and platform status |
+| [AGENTS.md](AGENTS.md) | Contributor/agent workflow (update TODO when fixing) |
 
 ## Linux quickstart
 

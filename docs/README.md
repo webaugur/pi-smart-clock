@@ -22,7 +22,7 @@
 | Run on Linux (dev, kiosk, Raspberry Pi OS) | [LINUX.md](LINUX.md) |
 | Build and flash Pico firmware | [EMBEDDED.md](EMBEDDED.md) |
 | Understand `clock_core`, `Platform`, features | [SHARED_CODE.md](SHARED_CODE.md) |
-| See what's left / track fixes | [TODO.md](TODO.md) · [ROADMAP.md](ROADMAP.md) |
+| See what's left / track fixes | [TODO.md](TODO.md) · [ROADMAP.md](ROADMAP.md) · [AGENTS.md](../AGENTS.md) |
 
 ## Build commands (cheat sheet)
 

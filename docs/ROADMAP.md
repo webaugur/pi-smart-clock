@@ -83,6 +83,8 @@ Driver detail: [DRIVERS.md](DRIVERS.md). Item-level tracking: [TODO.md](TODO.md)
 
 ## Maintenance
 
-When all items in a milestone are `done` in [TODO.md](TODO.md), mark that milestone **complete** here and set a completion date in the milestone table.
+Same change as the code — see [AGENTS.md](../AGENTS.md).
 
-When adding large new work, add a row to [TODO.md](TODO.md) first, then reference its ID from this file if it affects a milestone.
+When all IDs for a milestone checkpoint are `done` in [TODO.md](TODO.md), set that checkpoint to **done** here with a date.
+
+When adding large new work, add a row to [TODO.md](TODO.md) first, tag `// TODO(ID):` in code, then reference the ID from this file. Run `./scripts/audit-todos.sh` before closing the task.

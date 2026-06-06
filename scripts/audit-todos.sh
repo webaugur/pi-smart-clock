@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Compare inline // TODO(ID): comments in src/ and firmware/ against docs/TODO.md.
+# Run after every change that closes or adds tracked work (see AGENTS.md).
 # Read-only — always exits 0; prints a human-readable drift report.
 set -euo pipefail
 
@@ -109,4 +110,5 @@ if [[ $UNTAGGED -eq 0 ]]; then
 fi
 
 echo ""
-echo "Done. Update docs/TODO.md when closing items."
+echo "Done. If you closed or added work, confirm docs/TODO.md and docs/ROADMAP.md"
+echo "      were updated in the same change (see AGENTS.md)."

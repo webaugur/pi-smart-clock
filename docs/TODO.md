@@ -8,12 +8,24 @@ Run `./scripts/audit-todos.sh` before releases to compare inline `// TODO(ID):` 
 
 ## How to maintain
 
-1. Pick an open item (start with **P0** on Pico).
-2. Implement the fix in code.
-3. Remove or resolve matching `// TODO(ID):` comments in `src/` or `firmware/`.
-4. Set **Status** to `done`, add **Completed** date, move the row to [Completed](#completed).
-5. If a [ROADMAP.md](ROADMAP.md) milestone is fully satisfied, check off that phase.
-6. Run `./scripts/audit-todos.sh` and fix any drift it reports.
+**Agents and contributors:** follow [AGENTS.md](../AGENTS.md) — tracker updates are **required in the same PR/change** as the code fix, not afterwards.
+
+### Closing an item (checklist)
+
+| Step | Action |
+|------|--------|
+| 1 | Implement the fix (or mark `in-progress` if partial). |
+| 2 | Remove all `// TODO(ID):` comments for that ID in `src/` / `firmware/`. |
+| 3 | In this file: set **Status** → `done`, add date, move row to [Completed](#completed), refresh [Summary](#summary) counts. |
+| 4 | In [ROADMAP.md](ROADMAP.md): mark milestone checkpoints `done` when all their IDs are closed. |
+| 5 | Run `./scripts/audit-todos.sh` — resolve any **warn** lines before finishing. |
+| 6 | Update [DRIVERS.md](DRIVERS.md) status one-liners if driver behavior changed. |
+
+### Opening new work
+
+1. Add a row here with a new ID before or with the stub code.
+2. Tag code with `// TODO(ID): description`.
+3. Link the ID from [ROADMAP.md](ROADMAP.md) if it affects a milestone.
 
 **Status legend:** `open` · `in-progress` · `done` · `wontfix`
 
