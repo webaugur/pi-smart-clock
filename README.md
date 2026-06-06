@@ -4,6 +4,13 @@ Roman numeral smart clock — **Linux/SDL2 dev build** with autoscaling first, P
 
 Detects your display orientation at startup: **portrait** screens use a 768×1280 logical layout; **landscape** screens use 1280×768. SDL letterboxes/scales to fit the window (95% of display size, resizable).
 
+## Preview
+
+<video controls playsinline width="100%" style="max-width: 480px;">
+  <source src="docs/images/default_clock.mp4" type="video/mp4">
+  <a href="docs/images/default_clock.mp4">Download demo video</a>
+</video>
+
 ## Documentation
 
 | Guide | Description |
