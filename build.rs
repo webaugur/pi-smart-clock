@@ -1,5 +1,7 @@
 use std::env;
-use std::path::Path;
+use std::fmt::Write as _;
+use std::fs;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn main() {
@@ -15,6 +17,7 @@ fn main() {
 
     if pico {
         check_embedded_toolchain();
+        embed_boot_splash();
     }
     // Short hash for status bar
     let short = Command::new("git")
@@ -35,6 +38,57 @@ fn main() {
 
     println!("cargo:rerun-if-changed=.git/HEAD");
     println!("cargo:rerun-if-changed=.git/index");
+    for name in ["boot.png", "boot.jpg", "boot.jpeg"] {
+        println!("cargo:rerun-if-changed=assets/splash/{name}");
+    }
+}
+
+/// Rasterize `assets/splash/boot.{png,jpg,jpeg}` for Pico DVI (640×465 RGB + status bar).
+fn embed_boot_splash() {
+    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
+    let splash_dir = manifest_dir.join("assets/splash");
+    let source = ["boot.png", "boot.jpg", "boot.jpeg"]
+        .into_iter()
+        .map(|name| splash_dir.join(name))
+        .find(|path| path.exists());
+    let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
+    let dest = out_dir.join("boot_splash_embedded.rs");
+
+    let Some(source) = source else {
+        fs::write(
+            &dest,
+            "pub const SPLASH_W: u32 = 0;\npub const SPLASH_H: u32 = 0;\npub const SPLASH_RGB: &[u8] = &[];\n",
+        )
+        .expect("write empty boot splash");
+        return;
+    };
+
+    let img = image::open(&source).unwrap_or_else(|e| panic!("{}: {e}", source.display()));
+    const W: u32 = 640;
+    const H: u32 = 465; // DISPLAY_HEIGHT (480) − FONT_HEIGHT (15)
+    let rgb = image::imageops::resize(
+        &img.to_rgb8(),
+        W,
+        H,
+        image::imageops::FilterType::Triangle,
+    )
+    .into_raw();
+
+    let mut rust = String::from("pub const SPLASH_W: u32 = 640;\npub const SPLASH_H: u32 = 465;\npub const SPLASH_RGB: &[u8] = &[\n");
+    for (i, byte) in rgb.iter().enumerate() {
+        if i % 16 == 0 {
+            rust.push_str("    ");
+        }
+        write!(rust, "0x{byte:02x}, ").unwrap();
+        if i % 16 == 15 {
+            rust.push('\n');
+        }
+    }
+    if rgb.len() % 16 != 0 {
+        rust.push('\n');
+    }
+    rust.push_str("];\n");
+    fs::write(&dest, rust).expect("write boot_splash_embedded.rs");
 }
 
 fn check_embedded_toolchain() {

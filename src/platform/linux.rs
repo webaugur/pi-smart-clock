@@ -118,6 +118,7 @@ impl SdlPlatformExt for SdlPlatform {
             _ => {}
         }
     }
+
 }
 
 impl Platform for SdlPlatform {

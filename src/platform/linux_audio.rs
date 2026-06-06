@@ -38,12 +38,14 @@ pub fn resolve_media_path(name: &str) -> Option<PathBuf> {
 
     let mut candidates = vec![
         p.to_path_buf(),
+        PathBuf::from("assets/splash").join(p.file_name().unwrap_or(p.as_os_str())),
         PathBuf::from("sounds").join(p.file_name().unwrap_or(p.as_os_str())),
         PathBuf::from("videos").join(p.file_name().unwrap_or(p.as_os_str())),
     ];
     if !name.contains('/') && !name.contains('\\') {
-        candidates.insert(0, PathBuf::from("sounds").join(name));
-        candidates.insert(1, PathBuf::from("videos").join(name));
+        candidates.insert(0, PathBuf::from("assets/splash").join(name));
+        candidates.insert(1, PathBuf::from("sounds").join(name));
+        candidates.insert(2, PathBuf::from("videos").join(name));
     }
 
     let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));

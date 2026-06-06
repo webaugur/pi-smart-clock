@@ -50,6 +50,9 @@ pub trait Platform {
     async fn clear(&mut self);
     async fn clear_center_area(&mut self);
     async fn present(&mut self);
+    /// Static boot splash (PNG/JPEG on embedded; no-op on Linux — see `boot_splash`).
+    async fn show_boot_splash(&mut self, _status: &str) {}
+    async fn finish_boot(&mut self) {}
 
     // Audio
     async fn play_sound(&mut self, name: &str, volume: f32);

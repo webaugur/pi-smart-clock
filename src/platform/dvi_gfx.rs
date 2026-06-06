@@ -14,6 +14,10 @@ use pico_dvi_rs::{
 
 use crate::layout::l;
 
+mod boot_splash_embedded {
+    include!(concat!(env!("OUT_DIR"), "/boot_splash_embedded.rs"));
+}
+
 type TmdsRgb = [pico_dvi_rs::dvi::tmds::TmdsPair; 3];
 
 fn color24(c: u32) -> TmdsRgb {
@@ -114,6 +118,41 @@ impl DviGfx {
         sb.begin_stripe(FONT_HEIGHT);
         sb.pal_1bpp(text_w, &BW_PALETTE);
         sb.solid(DISPLAY_WIDTH - text_w, bg);
+        sb.end_stripe();
+
+        end_display_list(rb, sb);
+    }
+
+    /// Full-screen PNG splash (compile-time raster) with optional status line.
+    pub async fn present_splash_frame(&mut self, status: &str) {
+        use boot_splash_embedded::{SPLASH_H, SPLASH_RGB, SPLASH_W};
+
+        let (mut rb, mut sb) = start_display_list();
+        let bg = color24(self.bg);
+
+        if SPLASH_W > 0 && SPLASH_H > 0 && SPLASH_RGB.len() == (SPLASH_W * SPLASH_H * 3) as usize {
+            for y in 0..SPLASH_H {
+                let row = &SPLASH_RGB[(y * SPLASH_W * 3) as usize..][..(SPLASH_W * 3) as usize];
+                stripe_row((&mut rb, &mut sb), y as i32, |sb| {
+                    emit_scanline_rgb(sb, row, SPLASH_W, bg);
+                });
+            }
+        } else {
+            let canvas_h = DISPLAY_HEIGHT / VERTICAL_REPEAT as u32 - FONT_HEIGHT;
+            rb.begin_stripe(canvas_h);
+            rb.end_stripe();
+            sb.begin_stripe(canvas_h);
+            sb.solid(DISPLAY_WIDTH, color24(0x000814));
+            sb.end_stripe();
+        }
+
+        rb.begin_stripe(FONT_HEIGHT);
+        let s_w = rb.text(status);
+        let s_w = s_w + s_w % 2;
+        rb.end_stripe();
+        sb.begin_stripe(FONT_HEIGHT);
+        sb.pal_1bpp(s_w, &BW_PALETTE);
+        sb.solid(DISPLAY_WIDTH - s_w, bg);
         sb.end_stripe();
 
         end_display_list(rb, sb);
@@ -251,6 +290,31 @@ fn scale_y(y: i32) -> i32 {
 
 fn scale_len(v: i32) -> i32 {
     v * DISPLAY_WIDTH as i32 / l().screen_w
+}
+
+fn emit_scanline_rgb(sb: &mut ScanlistBuilder, row: &[u8], width: u32, bg: TmdsRgb) {
+    if row.len() < (width * 3) as usize {
+        sb.solid(DISPLAY_WIDTH, bg);
+        return;
+    }
+    let mut x = 0u32;
+    while x < width {
+        let i = (x * 3) as usize;
+        let color = rgb(row[i], row[i + 1], row[i + 2]);
+        let mut run = 1u32;
+        while x + run < width {
+            let j = ((x + run) * 3) as usize;
+            if row[j] != row[i] || row[j + 1] != row[i + 1] || row[j + 2] != row[i + 2] {
+                break;
+            }
+            run += 1;
+        }
+        sb.solid(run, color);
+        x += run;
+    }
+    if x < DISPLAY_WIDTH {
+        sb.solid(DISPLAY_WIDTH - x, bg);
+    }
 }
 
 fn isqrt(n: i32) -> i32 {

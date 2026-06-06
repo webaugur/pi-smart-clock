@@ -35,13 +35,14 @@ impl Platform for PicoDviPlatform {
         self.sd.mount()
     }
 
-    async fn draw_text(&mut self, text: &str, _x: i32, _y: i32, _size: u8, _color: u32) {
-        if self.boot_frame {
-            self.gfx
-                .present_boot_frame("Smart Clock", text)
-                .await;
-        }
-        let _ = text;
+    async fn draw_text(&mut self, _text: &str, _x: i32, _y: i32, _size: u8, _color: u32) {}
+
+    async fn show_boot_splash(&mut self, status: &str) {
+        self.gfx.present_splash_frame(status).await;
+    }
+
+    async fn finish_boot(&mut self) {
+        self.boot_frame = false;
     }
 
     async fn draw_line(&mut self, _x1: i32, _y1: i32, _x2: i32, _y2: i32, _color: u32, _thickness: u8) {}
@@ -69,11 +70,13 @@ impl Platform for PicoDviPlatform {
     }
 
     async fn present(&mut self) {
+        if self.boot_frame {
+            return;
+        }
         let now = self.get_current_time();
         self.gfx
             .present_clock_frame(now.hour, now.minute, now.second)
             .await;
-        self.boot_frame = false;
     }
 
     async fn play_sound(&mut self, _name: &str, _volume: f32) {}
