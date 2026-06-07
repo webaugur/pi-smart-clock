@@ -98,4 +98,10 @@ cargo run --features linux-full
 
 ## License
 
-See repository for license terms.
+This project is dual-licensed under the MIT License **or** the GNU General Public License, version 2 or later (GPL-2.0-or-later), at your option.
+
+You may choose which license to use.
+
+See the `LICENSE` file in the repository root for the full terms of both licenses.
+
+Note: Third-party assets (e.g. NASA imagery which is public domain, etc.) retain their original licenses. See `debian/copyright` and any `CREDITS`/`ASSETS` files for details. The project uses its own vivid icon set.

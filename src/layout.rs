@@ -35,6 +35,10 @@ pub struct Layout {
     pub center_h: u32,
     pub bottom_y: i32,
     pub bottom_h: i32,
+    // New upper row (second layer) above the traditional bottom row.
+    // Same visual style and module format. Allocated by shrinking/splitting the old bottom area.
+    pub upper_y: i32,
+    pub upper_h: i32,
     pub panel_w: i32,
     pub weather_x: i32,
     pub weather_y: i32,
@@ -58,8 +62,11 @@ impl Layout {
     /// 4:3 vertical (portrait): 960×1280 logical pixels (width:height = 3:4).
     pub const fn portrait() -> Self {
         let panel_w = 320;
-        let bottom_h = 300;
-        let bottom_y = 920;
+        // Allocate a second "upper" row (new layer) by splitting the previous bottom area.
+        // Upper row sits directly above the traditional bottom row. Same module format.
+        let band_h = 150;
+        let upper_y = 920;
+        let bottom_y = upper_y + band_h;
         Self {
             orientation: Orientation::Portrait,
             screen_w: 960,
@@ -78,20 +85,22 @@ impl Layout {
             center_w: 426,
             center_h: 240,
             bottom_y,
-            bottom_h,
+            bottom_h: band_h,
+            upper_y,
+            upper_h: band_h,
             panel_w,
             weather_x: 0,
             weather_y: bottom_y,
             weather_w: panel_w,
-            weather_h: bottom_h,
+            weather_h: band_h,
             cal_x: panel_w,
             cal_y: bottom_y,
             cal_w: panel_w,
-            cal_h: bottom_h,
+            cal_h: band_h,
             hol_x: panel_w * 2,
             hol_y: bottom_y,
             hol_w: panel_w,
-            hol_h: bottom_h,
+            hol_h: band_h,
             status_y: 1256,
             bottom_title_pt: 30,
             bottom_body_pt: 26,
@@ -123,6 +132,8 @@ impl Layout {
             center_h: 120,
             bottom_y,
             bottom_h,
+            upper_y: bottom_y, // no separate upper band in this legacy DVI layout; reuse bottom for compatibility
+            upper_h: 0,
             panel_w,
             weather_x: 0,
             weather_y: bottom_y,
@@ -163,6 +174,8 @@ impl Layout {
             center_h: 256,
             bottom_y: 512,
             bottom_h: 256,
+            upper_y: 512,
+            upper_h: 0, // upper row geometry added for the new second layer (primarily used in portrait)
             cal_x: 0,
             cal_y: 512,
             cal_w: 384,
@@ -250,6 +263,14 @@ impl Layout {
     pub fn bottom_slot(&self, slot: crate::modules::slot::BottomSlot) -> (i32, i32, i32, i32) {
         let x = self.panel_w * slot.index() as i32;
         (x, self.bottom_y, self.panel_w, self.bottom_h)
+    }
+
+    /// Upper row slot rect (new second layer above the traditional bottom row).
+    /// Uses the exact same visual style and module format as bottom slots.
+    #[cfg(feature = "linux-full")]
+    pub fn upper_slot(&self, slot: crate::modules::slot::BottomSlot) -> (i32, i32, i32, i32) {
+        let x = self.panel_w * slot.index() as i32;
+        (x, self.upper_y, self.panel_w, self.upper_h)
     }
 }
 

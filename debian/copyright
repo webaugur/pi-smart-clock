@@ -5,7 +5,18 @@ Source: https://github.com/webaugur/pi-smart-clock
 
 Files: *
 Copyright: 2025-2026 Pi Smart Clock contributors
-License: MIT
+License: MIT or GPL-2+
+ This software is dual-licensed under the terms of the MIT License
+ or the GNU General Public License, version 2 or later (GPL-2.0-or-later),
+ at your option.
+ .
+ You may choose to use this software under the terms of either license.
+ .
+ On Debian systems, the complete text of the GNU General Public License
+ version 2 can be found in "/usr/share/common-licenses/GPL-2".
+ .
+ The MIT license text is:
+ .
  Permission is hereby granted, free of charge, to any person obtaining a
  copy of this software and associated documentation files (the "Software"),
  to deal in the Software without restriction, including without limitation

@@ -161,6 +161,7 @@ fn normalize_country(s: &str) -> String {
         "FRANCE" => "FR".to_string(),
         "AUSTRALIA" => "AU".to_string(),
         "JAPAN" => "JP".to_string(),
+        "CHINA" | "PRC" | "CN" => "CN".to_string(),
         other => other.to_string(),
     }
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Detailed colorful sun - more rays, inner glow, face for personality and visibility -->
+  <!-- Outer glow ring -->
+  <circle cx="12" cy="12" r="8" fill="#FFCC00" opacity="0.3"/>
+  <!-- Main sun body with gradient-like layers -->
+  <circle cx="12" cy="12" r="6" fill="#FFD700"/>
+  <circle cx="12" cy="12" r="4.5" fill="#FFEB3B"/>
+  <!-- Sun "face" for extra detail and fun -->
+  <circle cx="9.5" cy="10" r="0.8" fill="#FF8F00"/>
+  <circle cx="14.5" cy="10" r="0.8" fill="#FF8F00"/>
+  <path d="M9.5 14 Q12 15.5 14.5 14" fill="none" stroke="#FF8F00" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Many detailed rays - alternating lengths for depth -->
+  <g fill="#FF9800" stroke="#FF6F00" stroke-width="1.5" stroke-linecap="round">
+    <!-- Long rays -->
+    <line x1="12" y1="3" x2="12" y2="6.5"/>
+    <line x1="12" y1="17.5" x2="12" y2="21"/>
+    <line x1="3" y1="12" x2="6.5" y2="12"/>
+    <line x1="17.5" y1="12" x2="21" y2="12"/>
+    <!-- Diagonal long -->
+    <line x1="4.5" y1="4.5" x2="7.5" y2="7.5"/>
+    <line x1="16.5" y1="16.5" x2="19.5" y2="19.5"/>
+    <line x1="4.5" y1="19.5" x2="7.5" y2="16.5"/>
+    <line x1="16.5" y1="7.5" x2="19.5" y2="4.5"/>
+    <!-- Short rays between -->
+    <line x1="8" y1="2" x2="9.5" y2="5"/>
+    <line x1="14.5" y1="5" x2="16" y2="2"/>
+    <line x1="2" y1="8" x2="5" y2="9.5"/>
+    <line x1="19" y1="9.5" x2="22" y2="8"/>
+    <line x1="2" y1="16" x2="5" y2="14.5"/>
+    <line x1="19" y1="14.5" x2="22" y2="16"/>
+    <line x1="8" y1="22" x2="9.5" y2="19"/>
+    <line x1="14.5" y1="19" x2="16" y2="22"/>
+  </g>
+</svg>

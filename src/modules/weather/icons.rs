@@ -33,17 +33,20 @@ impl WeatherIcon {
     }
 
     fn asset_path(self, night: bool) -> &'static str {
+        // Using Tabler Icons (MIT licensed) - place the corresponding .svg files
+        // (e.g. sun.svg, moon.svg, cloud.svg, cloud-rain.svg, etc.) in
+        // assets/icons/vivid/status/
         match self {
-            Self::Clear if night => "status/weather-clear-night-symbolic.svg",
-            Self::Clear => "status/weather-clear-symbolic.svg",
-            Self::PartlyCloudy => "status/weather-few-clouds-symbolic.svg",
-            Self::Cloudy => "status/weather-overcast-symbolic.svg",
-            Self::Fog => "status/weather-fog-symbolic.svg",
-            Self::Drizzle => "status/weather-showers-scattered-symbolic.svg",
-            Self::Rain => "status/weather-showers-symbolic.svg",
-            Self::Snow => "status/weather-snow-symbolic.svg",
-            Self::Thunderstorm => "status/weather-storm-symbolic.svg",
-            Self::Unknown => "status/adw-tab-icon-missing-symbolic.svg",
+            Self::Clear if night => "status/moon.svg",
+            Self::Clear => "status/sun.svg",
+            Self::PartlyCloudy => "status/cloud-sun.svg",  // or cloud if not exact
+            Self::Cloudy => "status/cloud.svg",
+            Self::Fog => "status/fog.svg",
+            Self::Drizzle => "status/cloud-rain.svg",
+            Self::Rain => "status/cloud-rain.svg",
+            Self::Snow => "status/cloud-snow.svg",
+            Self::Thunderstorm => "status/cloud-storm.svg",
+            Self::Unknown => "status/help.svg",  // or question-mark, or use a generic
         }
     }
 }
@@ -91,20 +94,6 @@ pub fn draw_weather_icon(
 ) {
     let hour = chrono::Local::now().hour();
     let night = hour >= 20 || hour < 6;
-    let tint = weather_tint(icon);
-    draw_symbolic_icon(canvas, icon.asset_path(night), x, y, size, tint);
-}
-
-fn weather_tint(icon: WeatherIcon) -> Color {
-    match icon {
-        WeatherIcon::Clear => Color::RGB(255, 210, 72),
-        WeatherIcon::PartlyCloudy => Color::RGB(255, 210, 72),
-        WeatherIcon::Cloudy => Color::RGB(175, 188, 205),
-        WeatherIcon::Fog => Color::RGB(155, 165, 180),
-        WeatherIcon::Drizzle => Color::RGB(110, 175, 255),
-        WeatherIcon::Rain => Color::RGB(72, 145, 255),
-        WeatherIcon::Snow => Color::RGB(220, 238, 255),
-        WeatherIcon::Thunderstorm => Color::RGB(255, 220, 48),
-        WeatherIcon::Unknown => Color::RGB(160, 170, 190),
-    }
+    // Use new colorful vivid icons (no tinting - colors are baked into the SVGs for better visibility)
+    crate::icons::draw_icon(canvas, icon.asset_path(night), x, y, size);
 }

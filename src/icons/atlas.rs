@@ -11,7 +11,7 @@ const RASTER_SIZE: u32 = 128;
 
 static ATLAS: OnceLock<IconAtlas> = OnceLock::new();
 
-/// Warm the Yaru icon atlas during boot.
+/// Warm the icon atlas during boot (vivid colorful icon set).
 pub fn preload() {
     let _ = ATLAS.get_or_init(IconAtlas::load);
 }
@@ -26,6 +26,19 @@ pub fn draw_symbolic_icon(
 ) {
     let atlas = ATLAS.get_or_init(IconAtlas::load);
     atlas.draw(canvas, rel_path, x, y, size, tint);
+}
+
+/// Draw a colorful (non-symbolic) icon, preserving the colors defined in the SVG.
+/// Use this for the new vivid icon set instead of draw_symbolic_icon.
+pub fn draw_icon(
+    canvas: &mut Canvas<Window>,
+    rel_path: &str,
+    x: i32,
+    y: i32,
+    size: u32,
+) {
+    let atlas = ATLAS.get_or_init(IconAtlas::load);
+    atlas.draw_color(canvas, rel_path, x, y, size);
 }
 
 struct IconAtlas {
@@ -77,6 +90,38 @@ impl IconAtlas {
         let _ = texture.set_blend_mode(sdl2::render::BlendMode::Blend);
         let _ = canvas.copy(&texture, None, Rect::new(x, y, size, size));
     }
+
+    fn draw_color(
+        &self,
+        canvas: &mut Canvas<Window>,
+        rel_path: &str,
+        x: i32,
+        y: i32,
+        size: u32,
+    ) {
+        let Some(base) = self.icons.get(rel_path) else {
+            return;
+        };
+        // Use the rasterized pixels directly (preserves SVG's intrinsic colors)
+        let mut pixels = base.clone();
+        let surface = match Surface::from_data(
+            &mut pixels,
+            RASTER_SIZE,
+            RASTER_SIZE,
+            RASTER_SIZE * 4,
+            PixelFormatEnum::RGBA32,
+        ) {
+            Ok(s) => s,
+            Err(_) => return,
+        };
+        let creator = canvas.texture_creator();
+        let mut texture = match creator.create_texture_from_surface(&surface) {
+            Ok(t) => t,
+            Err(_) => return,
+        };
+        let _ = texture.set_blend_mode(sdl2::render::BlendMode::Blend);
+        let _ = canvas.copy(&texture, None, Rect::new(x, y, size, size));
+    }
 }
 
 const ICON_PATHS: &[&str] = &[
@@ -92,18 +137,29 @@ const ICON_PATHS: &[&str] = &[
     "status/adw-tab-icon-missing-symbolic.svg",
     "status/starred-symbolic.svg",
     "apps/calendar-symbolic.svg",
+    // Zodiac icons - for the Zodiac upper panel
+    "zodiac/zodiac-aries-symbolic.svg",
+    "zodiac/zodiac-taurus-symbolic.svg",
+    "zodiac/zodiac-gemini-symbolic.svg",
+    "zodiac/zodiac-cancer-symbolic.svg",
+    "zodiac/zodiac-leo-symbolic.svg",
+    "zodiac/zodiac-virgo-symbolic.svg",
+    "zodiac/zodiac-libra-symbolic.svg",
+    "zodiac/zodiac-scorpio-symbolic.svg",
+    "zodiac/zodiac-sagittarius-symbolic.svg",
+    "zodiac/zodiac-capricorn-symbolic.svg",
+    "zodiac/zodiac-aquarius-symbolic.svg",
+    "zodiac/zodiac-pisces-symbolic.svg",
 ];
 
 fn resolve_icon_path(rel: &str) -> PathBuf {
     let bundled = crate::storage::linux::data_root()
-        .join("assets/icons/yaru")
+        .join("assets/icons/vivid")
         .join(rel);
     if bundled.is_file() {
         return bundled;
     }
-    let mut system = PathBuf::from("/usr/share/icons/Yaru/scalable");
-    system.push(rel);
-    system
+    PathBuf::new()
 }
 
 fn rasterize_svg(path: &Path) -> Option<Vec<u8>> {

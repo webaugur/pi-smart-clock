@@ -58,13 +58,12 @@ impl Panel for CalendarPanel {
         let icon_size = ((h - 20).max(80) as u32).min(112);
         let icon_x = x + w - icon_size as i32 - 6;
         let icon_y = y + (h - icon_size as i32) / 2;
-        draw_symbolic_icon(
+        crate::icons::draw_icon(
             canvas,
             "apps/calendar-symbolic.svg",
             icon_x,
             icon_y,
             icon_size,
-            Color::RGB(136, 170, 255),
         );
     }
 

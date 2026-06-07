@@ -11,7 +11,7 @@ Build-Depends: debhelper-compat (= 13),
                git,
                libsdl2-dev,
                libsdl2-ttf-dev,
-               libsdl2-mixer-dev,
+               libsdl2-mixer-dev
 Standards-Version: 4.7.0
 Homepage: https://github.com/webaugur/pi-smart-clock
 Vcs-Browser: https://github.com/webaugur/pi-smart-clock
@@ -23,8 +23,8 @@ Architecture: any
 Depends: ${misc:Depends},
          ${shlibs:Depends},
          fonts-dejavu-core,
-         ffmpeg,
-Recommends: yaru-icon-theme
+         ffmpeg
+
 Description: Roman numeral smart clock for Raspberry Pi and Linux desktops
  Pi Smart Clock is a full-screen SDL2 clock with weather panels, alarms,
  NWS-style alerts, and configurable clock faces. The Linux build targets

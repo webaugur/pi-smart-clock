@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Detailed Virgo maiden with wheat -->
+  <circle cx="12" cy="12" r="10.5" fill="#8E24AA"/>
+  <circle cx="12" cy="12" r="9" fill="none" stroke="#E1BEE7" stroke-width="1.2"/>
+  <!-- Head and body -->
+  <circle cx="12" cy="8" r="2" fill="#CE93D8"/>
+  <path d="M10 10 Q12 15 14 10" fill="none" stroke="#CE93D8" stroke-width="2.5"/>
+  <!-- Arms holding wheat -->
+  <path d="M9 11 Q6 13 7 16" fill="none" stroke="#CE93D8" stroke-width="1.8"/>
+  <path d="M15 11 Q18 13 17 16" fill="none" stroke="#CE93D8" stroke-width="1.8"/>
+  <!-- Wheat detail -->
+  <g stroke="#FFF59D" stroke-width="1.2">
+    <line x1="7" y1="16" x2="5" y2="13"/>
+    <line x1="7" y1="16" x2="6" y2="13.5"/>
+    <line x1="17" y1="16" x2="19" y2="13"/>
+    <line x1="17" y1="16" x2="18" y2="13.5"/>
+  </g>
+</svg>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Detailed Capricorn sea-goat -->
+  <circle cx="12" cy="12" r="10.5" fill="#FFA726"/>
+  <circle cx="12" cy="12" r="9" fill="none" stroke="#FFE0B2" stroke-width="1.2"/>
+  <!-- Goat head and body -->
+  <ellipse cx="10" cy="9" rx="2.2" ry="2.5" fill="#FFB74D"/>
+  <!-- Horns -->
+  <path d="M8 7 Q6 4 8 3" fill="none" stroke="#FFCC80" stroke-width="2"/>
+  <path d="M12 7 Q14 4 12 3" fill="none" stroke="#FFCC80" stroke-width="2"/>
+  <!-- Fish tail -->
+  <path d="M11 12 Q13 16 10 20 Q14 18 15 20" fill="none" stroke="#FFB74D" stroke-width="3" stroke-linecap="round"/>
+  <path d="M11 12 Q14 15 12 19" fill="none" stroke="#FFCC80" stroke-width="1.5"/>
+  <!-- Legs and detail -->
+  <path d="M9 11 L7 14" fill="none" stroke="#FFB74D" stroke-width="1.8"/>
+  <path d="M8 14 L6 16" fill="none" stroke="#FFB74D" stroke-width="1.5"/>
+</svg>

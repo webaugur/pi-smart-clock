@@ -164,6 +164,7 @@ The `holidays` bottom panel now computes **real upcoming public holidays** based
 - `FR` (France) — Fête du Travail, Bastille Day, Toussaint, ...
 - `AU` (Australia) — Australia Day, Anzac Day, King's Birthday, ...
 - `JP` (Japan) — National Foundation, Shōwa Day, Children's Day, Emperor's Birthday, ...
+- `CN` (Chinese culture) — Spring Festival (春节), Lantern (元宵), Dragon Boat (端午), Mid-Autumn (中秋), ... (table-driven cultural dates powered by the lunar engine; hanzi names)
 
 **Example `config/holidays.conf`:**
 
@@ -176,7 +177,14 @@ country = GB
 
 The computation includes fixed-date holidays, nth-weekday rules (e.g. "4th Thursday of November"), and Easter-derived dates. It automatically shows only dates from "today" onward.
 
-**Non-Latin scripts (Japanese, etc.):** The default font (DejaVu) has no CJK glyphs. Japanese holiday names (e.g. when `country = JP`) will not render unless you install a CJK-capable font such as `fonts-noto-cjk` or `fonts-ipafont-gothic`. The clock automatically prefers such a font when present (see `src/main.rs` font loading and `scripts/linux-deps.sh`).
+**Non-Latin scripts (Japanese, etc.):** The default font (DejaVu) has no CJK glyphs. Japanese/Chinese holiday names (e.g. when `country = JP` or `CN`) will not render unless you install a CJK-capable font such as `fonts-noto-cjk` or `fonts-ipafont-gothic`. The clock automatically prefers such a font when present (see `src/main.rs` font loading and `scripts/linux-deps.sh`).
+
+**New upper row (second layer):** A second row of 3 modules now appears above the classic bottom row (weather/calendar/holidays). It hosts three new modules using the exact same module format:
+- `lunar` — lunar dates + NASA HD lunar phase photos (powered by the full lunar calendar engine).
+- `zodiac` — modern zodiac symbols + Venus/synodic planetary cycle info.
+- `pentagram` (or `venus`) — live visualization of the current Venus-Moon pentagram cycle.
+
+Assign them in `panels.conf` with upper-row keys (implementation reuses the same slot config style for the new band).
 
 See also: [TODO.md](../docs/TODO.md#ui-002) for related calendar work.
 
@@ -204,10 +212,10 @@ Open-Meteo — no API key. [https://open-meteo.com/](https://open-meteo.com/)
 ### Weather icons (SVG)
 
 ```
-    assets/icons/yaru/<icon-name>.svg
+    assets/icons/vivid/<icon-name>.svg
 ```
 
-Icons are chosen automatically from WMO weather codes. Add Yaru-style symbolic SVGs under that tree to extend the set; filenames must match the resolver in `src/icons/`.
+Icons are chosen automatically from WMO weather codes. Add colorful vivid-style SVGs under `assets/icons/vivid/` to extend the set. Filenames should match the ones in `status/` and `apps/`. The icons are designed to be bold, high-contrast and visible from across the room.
 
 ---
 

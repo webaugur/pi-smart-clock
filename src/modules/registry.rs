@@ -3,14 +3,21 @@ use sdl2::video::Window;
 
 use super::bottom_module::{BottomModule, PanelLine};
 use super::calendar::CalendarPanel;
-use super::module_id::ModuleId;
 use super::holidays::HolidaysPanel;
+use super::lunar::LunarPanel;
+use super::module_id::ModuleId;
+use super::venus_pentagram::VenusMoonPentagramPanel;
 use super::weather::WeatherPanel;
+use super::zodiac::ZodiacPanel;
 
 pub struct ModuleRegistry {
     weather: WeatherPanel,
     calendar: CalendarPanel,
     holidays: HolidaysPanel,
+    // New upper-row modules (same BottomModule format)
+    lunar: LunarPanel,
+    zodiac: ZodiacPanel,
+    pentagram: VenusMoonPentagramPanel,
 }
 
 impl ModuleRegistry {
@@ -19,6 +26,9 @@ impl ModuleRegistry {
             weather: WeatherPanel::new(),
             calendar: CalendarPanel::new(),
             holidays: HolidaysPanel::new(),
+            lunar: LunarPanel::new(),
+            zodiac: ZodiacPanel::new(),
+            pentagram: VenusMoonPentagramPanel::new(),
         }
     }
 
@@ -56,6 +66,9 @@ impl ModuleRegistry {
             ModuleId::Weather => &self.weather,
             ModuleId::Calendar => &self.calendar,
             ModuleId::Holidays => &self.holidays,
+            ModuleId::Lunar => &self.lunar,
+            ModuleId::Zodiac => &self.zodiac,
+            ModuleId::Pentagram => &self.pentagram,
         }
     }
 
@@ -64,6 +77,9 @@ impl ModuleRegistry {
             ModuleId::Weather => &mut self.weather,
             ModuleId::Calendar => &mut self.calendar,
             ModuleId::Holidays => &mut self.holidays,
+            ModuleId::Lunar => &mut self.lunar,
+            ModuleId::Zodiac => &mut self.zodiac,
+            ModuleId::Pentagram => &mut self.pentagram,
         }
     }
 }

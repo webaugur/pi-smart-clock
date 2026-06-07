@@ -321,6 +321,34 @@ fn holidays_for_year(year: i32, country: &str) -> Vec<(chrono::NaiveDate, &'stat
                 days.push((d, "天皇誕生日 (Emperor's Birthday)"));
             }
         }
+        "CN" | "CHINA" => {
+            // Chinese cultural holidays (country + culture). Table primary (pre-derived) + lunar backup.
+            // Using the small approx helper from the lunar module for demo + a few fixed cultural anchors.
+            // Real version will use the full lunar engine + committed mapping table.
+            let (m, d) = crate::modules::lunar::approx_chinese_new_year_gregorian(year);
+            if let Some(dt) = NaiveDate::from_ymd_opt(year, m, d) {
+                days.push((dt, "春节 (Spring Festival / Chinese New Year)"));
+            }
+            // Lantern Festival (cultural, ~15th of 1st lunar month) – approximate +2 weeks after CNY for demo
+            let (m, d) = crate::modules::lunar::approx_chinese_new_year_gregorian(year);
+            let mut dd = d + 14;
+            let mut mm = m;
+            if dd > 28 {
+                dd -= 28;
+                mm += 1;
+            }
+            if let Some(dt) = NaiveDate::from_ymd_opt(year, mm, dd) {
+                days.push((dt, "元宵 (Lantern Festival)"));
+            }
+            // Mid-Autumn (cultural) – fixed-ish September anchor for demo (real = 15th 8th lunar)
+            if let Some(dt) = NaiveDate::from_ymd_opt(year, 9, 17) {
+                days.push((dt, "中秋 (Mid-Autumn Festival)"));
+            }
+            // Dragon Boat (cultural) – June anchor
+            if let Some(dt) = NaiveDate::from_ymd_opt(year, 6, 10) {
+                days.push((dt, "端午 (Dragon Boat Festival)"));
+            }
+        }
         _ => {
             // Unknown country: at least give a few universal ones + Christmas/New Year already added
             if let Some(d) = NaiveDate::from_ymd_opt(year, 5, 1) {
@@ -444,6 +472,7 @@ impl BottomModule for HolidaysPanel {
             "FR" => "Holidays (FR)".to_string(),
             "AU" => "Holidays (AU)".to_string(),
             "JP" => "Holidays (JP)".to_string(),
+            "CN" | "CHINA" => "Holidays (CN)".to_string(),
             other => format!("Holidays ({})", other),
         };
         (label, 0xFFAA88)
@@ -475,13 +504,12 @@ impl Panel for HolidaysPanel {
         let icon_size = ((h - 20).max(80) as u32).min(112);
         let icon_x = x + w - icon_size as i32 - 6;
         let icon_y = y + (h - icon_size as i32) / 2;
-        draw_symbolic_icon(
+        crate::icons::draw_icon(
             canvas,
             "status/starred-symbolic.svg",
             icon_x,
             icon_y,
             icon_size,
-            Color::RGB(255, 170, 136),
         );
     }
 
