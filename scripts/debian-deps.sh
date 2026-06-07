@@ -26,4 +26,8 @@ fi
   fonts-dejavu-core \
   ffmpeg
 
+# For CJK/Japanese text in the UI (holidays with country=JP etc.) also consider:
+#   fonts-noto-cjk  or  fonts-ipafont-gothic
+# (The runtime font loader will pick them up automatically if installed.)
+
 echo "==> Debian packaging build dependencies installed."

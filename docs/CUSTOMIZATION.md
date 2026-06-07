@@ -146,6 +146,42 @@ b_right=holidays
 
 ---
 
+## `config/holidays.conf` — Global holiday region
+
+The `holidays` bottom panel now computes **real upcoming public holidays** based on the current date (Linux) instead of static samples.
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `country` | `US` | Country/region code. Determines the holiday set. |
+| `max_upcoming` | `6` | How many future holidays to consider internally (panel shows next 3). |
+
+**Supported countries/regions** (more can be added in `src/modules/holidays/mod.rs`):
+
+- `US` (United States) — MLK Day, Presidents' Day, Memorial Day, Juneteenth, Independence, Labor Day, Thanksgiving, etc.
+- `GB` / `UK` — Good Friday, Easter Monday, Bank Holidays, Boxing Day, ...
+- `CA` (Canada) — Canada Day, Victoria Day, Thanksgiving (CA), Remembrance Day, ...
+- `DE` (Germany) — German Unity, Karfreitag, Labour Day, Christmas Eve, ...
+- `FR` (France) — Fête du Travail, Bastille Day, Toussaint, ...
+- `AU` (Australia) — Australia Day, Anzac Day, King's Birthday, ...
+- `JP` (Japan) — National Foundation, Shōwa Day, Children's Day, Emperor's Birthday, ...
+
+**Example `config/holidays.conf`:**
+
+```
+country = GB
+# max_upcoming = 8
+```
+
+**Hot reload:** Changing the file on Linux updates the displayed holidays without restart (similar to weather.conf).
+
+The computation includes fixed-date holidays, nth-weekday rules (e.g. "4th Thursday of November"), and Easter-derived dates. It automatically shows only dates from "today" onward.
+
+**Non-Latin scripts (Japanese, etc.):** The default font (DejaVu) has no CJK glyphs. Japanese holiday names (e.g. when `country = JP`) will not render unless you install a CJK-capable font such as `fonts-noto-cjk` or `fonts-ipafont-gothic`. The clock automatically prefers such a font when present (see `src/main.rs` font loading and `scripts/linux-deps.sh`).
+
+See also: [TODO.md](../docs/TODO.md#ui-002) for related calendar work.
+
+---
+
 ## `config/weather.conf` — Weather source
 
 Open-Meteo — no API key. [https://open-meteo.com/](https://open-meteo.com/)

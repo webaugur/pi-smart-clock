@@ -149,7 +149,24 @@ impl Platform for SdlPlatform {
         };
         let surface = match font.render(text).blended(Self::rgb(color)) {
             Ok(s) => s,
-            Err(_) => return,
+            Err(e) => {
+                // Common cause: the loaded font (currently DejaVu by default) lacks glyphs
+                // for the characters (e.g. Japanese/Chinese/Korean in holiday names).
+                // See font loading in main.rs and install a CJK font (fonts-noto-cjk etc.).
+                if text.chars().any(|c| !c.is_ascii()) {
+                    static mut WARNED: bool = false;
+                    // SAFETY: single-threaded rendering loop; one-time diagnostic only.
+                    if unsafe { !WARNED } {
+                        eprintln!(
+                            "[text] render failed for non-ASCII text (font missing glyphs?): {:?} ... (error: {})",
+                            &text[..text.len().min(40)],
+                            e
+                        );
+                        unsafe { WARNED = true; }
+                    }
+                }
+                return;
+            }
         };
         let creator = self.canvas.texture_creator();
         let texture = match creator.create_texture_from_surface(&surface) {

@@ -30,4 +30,12 @@ fi
   fonts-dejavu-core \
   ffmpeg
 
+# For full Unicode / Japanese / CJK support in the UI (bottom panels, menus, etc.),
+# including holiday names when country=JP etc., install a CJK font package:
+#   sudo apt install fonts-noto-cjk
+# or the lighter
+#   sudo apt install fonts-ipafont-gothic
+# The clock will automatically prefer a capable font if one is present on the system
+# (see font loading in src/main.rs). DejaVu alone has no CJK glyphs.
+
 echo "==> Trixie Linux dependencies installed."

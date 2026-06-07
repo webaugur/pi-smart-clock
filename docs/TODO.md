@@ -41,7 +41,7 @@ Run `./scripts/audit-todos.sh` before releases to compare inline `// TODO(ID):` 
 |----------|------|-------|
 | P0 | 4 | Pico SD, wall time (DVI done) |
 | P1 | 11 | Network, voice, OTA, GPIO, sensors, RTC |
-| P2 | 7 | Linux panels, alerts, web UI |
+| P2 | 6 | Linux panels, alerts, web UI |
 | P3 | 4 | Pico 2, buses, embedded faces, Pico W WiFi |
 
 *Last full audit: 2026-06-06*
@@ -133,7 +133,6 @@ Crude string→path heuristic; no SD-backed WAV catalog. `Platform::speak` is a 
 | ID | Status | Platform | Title | Key files |
 |----|--------|----------|-------|-----------|
 | UI-001 | open | linux-full | Live calendar data (not samples) | `src/modules/calendar.rs` |
-| UI-002 | open | linux-full | Live holiday data (not samples) | `src/modules/holidays.rs` |
 | UI-003 | open | both | NWS alert fetch | `src/clock_core/alerts.rs` |
 | UI-004 | open | both | Weather radar imagery | `src/clock_core/panels/weather.rs`, `src/clock_core/weather.rs` |
 | UI-005 | open | both | Alert photo download + BMP save | `src/clock_core/alert_photos.rs` |
@@ -142,7 +141,7 @@ Crude string→path heuristic; no SD-backed WAV catalog. `Platform::speak` is a 
 
 ### UI-001 / UI-002 — Bottom panels
 
-`CalendarPanel` and `HolidaysPanel` ship hardcoded sample events. `Platform::fetch_calendar` / `fetch_holidays` return `Ok(())` without network I/O.
+`HolidaysPanel` now computes live upcoming public holidays (multiple countries via `config/holidays.conf`, date-aware using chrono on Linux). `CalendarPanel` still ships hardcoded sample events. The `Platform::fetch_*` hooks remain no-ops (panels are self-updating where implemented).
 
 ### UI-003 — NWS alerts
 
@@ -206,6 +205,7 @@ Modules implemented but **not called** from `src/runtime/tick.rs` or `src/runtim
 | ID | Completed | Notes |
 |----|-----------|-------|
 | PICO-001 | 2026-06-06 | DVI via `pico-dvi-rs` (640×480 VGA), `dvi_gfx` display lists, Pico DVI Sock pinout |
+| UI-002 | 2026-06-10 | Live global holidays panel (computed, multi-country via config/holidays.conf; replaced all samples). Calendar (UI-001) still pending. |
 
 ---
 

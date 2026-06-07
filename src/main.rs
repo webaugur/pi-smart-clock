@@ -32,18 +32,41 @@ async fn main() -> Result<(), String> {
         win_h
     );
 
-    let font = ttf
-        .load_font(
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-            layout.font_size,
-        )
-        .or_else(|_| {
-            ttf.load_font(
-                "/usr/share/fonts/TTF/DejaVuSans.ttf",
-                layout.font_size,
-            )
-        })
-        .map_err(|e| format!("need DejaVu font: {e}"))?;
+    // Font loading for all UI text (bottom panels, menus, status, alarms, etc.).
+    // DejaVu is the baseline (excellent Latin/Greek/Cyrillic coverage).
+    // For Japanese, Chinese, Korean, and other scripts we try common CJK-capable
+    // system fonts first (Noto Sans CJK, IPA fonts, etc.). These are optional but
+    // strongly recommended if you use non-Latin holiday regions (e.g. country=JP).
+    //
+    // Install examples on Debian Trixie:
+    //   sudo apt install fonts-noto-cjk
+    //   sudo apt install fonts-ipafont-gothic
+    let font_candidates: [&str; 8] = [
+        // CJK-capable (preferred when present for full Unicode coverage)
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",
+        "/usr/share/fonts/truetype/ipafont-gothic/ipag.ttf",
+        "/usr/share/fonts/truetype/fonts-japanese-gothic.ttf",
+        // Baseline (always present after linux-deps.sh)
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/TTF/DejaVuSans.ttf",
+        // Asset-bundled fallback (may not be on system font path)
+        "assets/fonts/DejaVuSans.ttf", // unlikely to exist, but harmless
+    ];
+
+    let mut loaded_font = None;
+    for path in font_candidates {
+        if let Ok(f) = ttf.load_font(path, layout.font_size) {
+            eprintln!("[font] loaded UI font: {}", path);
+            loaded_font = Some(f);
+            break;
+        }
+    }
+
+    let font = loaded_font.ok_or_else(|| {
+        "No UI font found. Install fonts-dejavu-core (or a CJK font such as fonts-noto-cjk)".to_string()
+    })?;
     let font: &'static sdl2::ttf::Font<'static, 'static> = Box::leak(Box::new(font));
     let _ttf = ttf;
 

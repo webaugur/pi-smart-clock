@@ -1,0 +1,20 @@
+# Holidays panel configuration
+# Controls which country's public holidays are shown in the "holidays" bottom module.
+
+# Primary country/region for holidays. Case-insensitive.
+# Supported values (extendable in src/modules/holidays.rs):
+#   US, United States, USA
+#   GB, UK, United Kingdom, Britain
+#   CA, Canada
+#   DE, Germany, Deutschland
+#   FR, France
+#   AU, Australia
+#   JP, Japan
+#
+# Default: US
+country = US
+
+# Optional: maximum number of upcoming holidays to compute (panel displays the next 3).
+# max_upcoming = 8
+
+# Future: could support multiple countries, "observed" rules, religious holidays, etc.
