@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::storage::linux as xdg_storage;
 const DEFAULT_UPDATE_MINUTES: u64 = 30;
 
@@ -132,11 +132,11 @@ fn load_weather_config_from(path: Option<PathBuf>, log: bool) -> LoadedWeatherCo
 }
 
 fn resolve_weather_config() -> Option<std::path::PathBuf> {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         return xdg_storage::find_config("weather.conf", "weather.conf.example");
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         let path = Path::new("config/weather.conf");
         if path.is_file() {

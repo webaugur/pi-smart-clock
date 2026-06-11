@@ -1,9 +1,7 @@
-//! Imports for embedded (`pico-dvi`) builds.
+//! Re-exports and common items for the desktop build (std always available).
+//! Pico/embedded support has been removed.
 
-#[cfg(not(feature = "linux-full"))]
-pub use alloc::string::{String, ToString};
-#[cfg(not(feature = "linux-full"))]
-pub use alloc::vec::Vec;
+pub use std::string::{String, ToString};
+pub use std::vec::Vec;
 
-#[cfg(not(feature = "linux-full"))]
 pub use crate::timing::{Duration, Instant};

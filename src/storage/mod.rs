@@ -1,9 +1,5 @@
-//! Platform storage layout: XDG directories on Linux, `/sd/` on embedded.
+//! Desktop (XDG-style) storage layout for Unix targets (Debian Trixie, OpenIndiana 2025, etc.).
+//! The "linux" module name is legacy from the dual-target era but provides the desktop paths.
 
-#[cfg(feature = "linux-full")]
 pub mod linux;
-
-#[cfg(feature = "pico-dvi")]
-pub mod embedded;
-
 pub mod logical;

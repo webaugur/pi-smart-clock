@@ -55,13 +55,13 @@ pub async fn update<P: Platform>(platform: &mut P) {
 }
 
 fn current_hms<P: Platform>(platform: &P) -> (u32, u32, f32) {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         use chrono::Timelike;
         let now = platform.get_current_time();
         return (now.hour(), now.minute(), now.second() as f32);
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         let now = platform.get_current_time();
         (now.hour, now.minute, now.second as f32)

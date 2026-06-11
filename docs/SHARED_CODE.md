@@ -1,6 +1,6 @@
 # Shared Code Architecture
 
-Rust library used by **both** Linux (`linux-full`) and Pico (`pico-dvi`) binaries. Platform-specific code is gated by Cargo features.
+Rust library for the **desktop** build (single "full" feature) on Unix targets (Debian Trixie and OpenIndiana 2025). Pico/embedded support has been removed.
 
 | Doc | Topic |
 |-----|-------|

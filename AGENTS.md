@@ -40,35 +40,35 @@ If you add a stub, placeholder, or `// TODO` for non-trivial missing behavior:
 
 **Branch:** `full-project`
 
-**Last significant work (c8a9157):** New boot experience + Debian packaging for Trixie.
-- Refactored boot into `src/clock_core/boot/` (loader.rs, mod.rs, reveal.rs, status.rs) + updated `boot_splash.rs`.
-- Multi-phase boot: splash (video/image) → background loader steps → reveal transition (Linux) or direct to clock (Pico).
-- Added full Debian packaging (`debian/`, scripts/debian-*.sh, desktop file, manpage).
-- Updated Linux scripts and docs for Debian 13 (Trixie) target.
+**Last significant work:** Pico target removal + retarget to OpenIndiana 2025 and Debian Trixie (desktop-only).
+- Removed all Pi Pico / RP2040 / DVI / embedded support: `pico-dvi` feature, `firmware/`, `third_party/pico-dvi-rs/`, `vendor-pico-dvi-src/`, `memory.x`, pico scripts, `src/platform/{dvi_gfx.rs,rp2040.rs}`, all `pico-dvi` / old `linux-full` cfgs, no_std paths, etc.
+- Simplified to a single desktop "full" feature / build (SDL2 on Unix).
+- Updated Cargo, build system, scripts (generalized for OI + Trixie), and all docs.
+- Tracker: all PICO-* and pico-specific items set to `wontfix`; inline TODOs removed; Summary and sections updated (same change + audit).
+- AGENTS, ROADMAP, TODO, README, LINUX.md, etc. rewritten for the new desktop focus on **Debian Trixie** and **OpenIndiana 2025**.
+- Playful icon set (from prior work) and other desktop features (holidays, upper modules, boot) preserved.
 
 **Where we left off / active goal:**
-- Linux (`linux-full`) is the primary dev target and is quite usable (SDL clock, SVG faces, weather, alarms, menu, new boot flow).
-- Pico DVI graphics is working (PICO-001 complete).
-- We are still in **Milestone 1**: "Pico boots as a real clock".
-- The P0 blockers (see [docs/TODO.md](docs/TODO.md)) are the immediate focus:
-  - **PICO-002** (SD card mount + FAT r/w over I2C) — biggest enabler; blocks config, alarms, sounds, etc.
-  - **PICO-003** (alarm persistence on SD)
-  - **PICO-004 + HW-003** (real wall time from DS3231 RTC instead of boot counter in `rp2040.rs`)
-  - **PICO-005** (boot screen lies about "RTC Synced")
+- Desktop SDL2 clock on two reference Unix platforms: Debian 13 Trixie (apt + debian/ packaging) and OpenIndiana 2025 (pkgsrc notes + portable build).
+- No embedded/Pico target remains. Linux (`full` / desktop) is the *only* target.
+- Focus on portability (fonts, serial, persistence, deps), polish of P2 items, and clean docs/tracker reflecting the removal.
+- See updated [docs/ROADMAP.md](docs/ROADMAP.md) for new milestones and [docs/TODO.md](docs/TODO.md) (P0/P3 cleared, P1/P2 desktop-focused).
 
 **Fast re-orientation checklist (run these first):**
-1. Read [docs/TODO.md](docs/TODO.md) — pay special attention to the P0 section and the "Orphan integrations" table.
-2. Read the current [docs/ROADMAP.md](docs/ROADMAP.md) milestone table.
-3. `./scripts/audit-todos.sh` — confirms tracker vs. inline `// TODO(ID):` comments.
-4. `cargo run --features linux-full` — exercise the current Linux experience (Esc quit, M menu, arrows = encoder).
-5. For Pico context: look at `src/platform/rp2040.rs`, `src/drivers/sd_storage.rs`, `src/drivers/ds3231.rs`, and `src/clock_core/boot/mod.rs`.
+1. Read [docs/TODO.md](docs/TODO.md) — note the reduced P0/P3, wontfix Pico items, and current P2 desktop work.
+2. Read the current [docs/ROADMAP.md](docs/ROADMAP.md) (new platform matrix and milestones; Pico columns/milestones removed).
+3. `./scripts/audit-todos.sh` — confirms tracker vs. inline comments (Pico TODOs cleaned).
+4. `cargo run --features full` (or just `cargo run`) — exercise the desktop clock (Esc quit, M menu, arrows = encoder). Works on Trixie; follow LINUX.md for OI 2025.
+5. Review current docs: [docs/LINUX.md](docs/LINUX.md) (now covers both Trixie and OI), README, AGENTS (this section).
 
 **Recent architecture notes:**
-- Boot flow was previously a single `boot_screen.rs`; now split for proper splash + progressive loading + nice reveal on Linux.
-- `BootController` + `tick_boot()` live in `clock_core/boot/mod.rs` and drive loader steps while the splash runs.
-- Platform trait has `show_boot_splash`, `finish_boot`, etc.
-- Many higher-level modules (NtpClient, MqttClient, VoiceInput, WebServer, etc.) exist but are not yet wired into `runtime/tick.rs` or `state.rs::init` on all platforms.
+- Single desktop build. No more feature splits or no_std.
+- Boot flow (in `clock_core/boot/`) is Linux/desktop-oriented (splash, reveal, loader).
+- Platform is `src/platform/linux*` only (SDL).
+- Storage uses XDG-style paths (works on both Trixie and OI).
+- Many higher-level modules (NtpClient, MqttClient, VoiceInput, WebServer, etc.) exist but wiring is desktop-focused.
+- Icon set is the playful cartoony one under `assets/icons/playful/` with hi/lo SVG support.
 
 **Rules reminder (from top of this file):** Any change that touches tracked IDs must also update the trackers + run the audit **in the same change**. Do not leave that for "later".
 
-**Canonical state lives in:** `docs/TODO.md` and `docs/ROADMAP.md`. This section is only for fast agent restart context and should be lightly maintained.
+**Canonical state lives in:** `docs/TODO.md` and `docs/ROADMAP.md`. This section is only for fast agent restart context and should be lightly maintained. (Pico context from prior sessions has been replaced.)

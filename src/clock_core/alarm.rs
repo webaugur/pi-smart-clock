@@ -1,5 +1,5 @@
 use crate::drivers::platform::Platform;
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 use crate::prelude::*;
 
 #[derive(Clone)]
@@ -58,13 +58,13 @@ impl AlarmManager {
 }
 
 fn current_hms<P: Platform>(platform: &P) -> (u32, u32, u32) {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         use chrono::Timelike;
         let now = platform.get_current_time();
         return (now.hour(), now.minute(), now.second());
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         let now = platform.get_current_time();
         (now.hour, now.minute, now.second)

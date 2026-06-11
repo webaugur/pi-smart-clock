@@ -212,10 +212,17 @@ Open-Meteo — no API key. [https://open-meteo.com/](https://open-meteo.com/)
 ### Weather icons (SVG)
 
 ```
-    assets/icons/vivid/<icon-name>.svg
+    assets/icons/playful/status/<name>.svg
+    assets/icons/playful/zodiac/zodiac-*.svg
+    assets/icons/playful/apps/*.svg
 ```
 
-Icons are chosen automatically from WMO weather codes. Add colorful vivid-style SVGs under `assets/icons/vivid/` to extend the set. Filenames should match the ones in `status/` and `apps/`. The icons are designed to be bold, high-contrast and visible from across the room.
+Icons are chosen automatically from WMO weather codes (see `src/modules/weather/icons.rs`). The set is a cartoony/playful high-saturation collection adapted from Meteocons (MIT, Fill style - "hand-crafted icons that feel alive") and Tabler Icons (MIT), with project tuning for thick lines, bold colors, and across-the-room legibility on dark panels.
+
+- Standard versions are chunky/simple for small/medium sizes.
+- Optional `*.hires.svg` siblings (e.g. `sun.hires.svg`) are automatically selected by the icon atlas for large decorative uses (>= ~60px target size in panels). This provides native high-res and low-res SVG variants.
+
+Place new icons under `assets/icons/playful/` (status/ for weather, zodiac/ for signs, apps/ for misc) using the same relative names referenced by the panels. The atlas (src/icons/atlas.rs) resolves from the playful/ tree.
 
 ---
 

@@ -5,14 +5,13 @@ use sdl2::rect::Rect;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 
-use crate::icons::draw_symbolic_icon;
 use crate::modules::bottom_module::{BottomModule, PanelLine};
 use crate::modules::module_id::ModuleId;
 use crate::panel::Panel;
 
 pub use config::{load_holidays_config_loaded, ConfigMeta, HolidaysConfig, LoadedHolidaysConfig};
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use chrono::{Datelike, Local};
 
 /// A bottom panel showing upcoming public holidays for a configured country/region.
@@ -53,7 +52,7 @@ impl HolidaysPanel {
     fn refresh_if_needed(&mut self) {
         self.reload_config_if_changed();
 
-        #[cfg(feature = "linux-full")]
+        #[cfg(feature = "full")]
         {
             let today = Local::now().date_naive();
             let key = format!("{}", today);
@@ -64,7 +63,7 @@ impl HolidaysPanel {
             self.last_computed_date = Some(key);
         }
 
-        #[cfg(not(feature = "linux-full"))]
+        #[cfg(not(feature = "full"))]
         {
             if self.last_computed_date.is_none() {
                 // Embedded: date not yet reliable (see PICO-004). Keep samples or minimal list.
@@ -75,17 +74,17 @@ impl HolidaysPanel {
     }
 
     fn compute_upcoming(cfg: &HolidaysConfig) -> Vec<String> {
-        #[cfg(feature = "linux-full")]
+        #[cfg(feature = "full")]
         {
             Self::compute_upcoming_for_date(cfg, Local::now().date_naive())
         }
-        #[cfg(not(feature = "linux-full"))]
+        #[cfg(not(feature = "full"))]
         {
             Self::fallback_samples()
         }
     }
 
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     fn compute_upcoming_for_date(cfg: &HolidaysConfig, today: chrono::NaiveDate) -> Vec<String> {
         let year = today.year();
         let all = holidays_for_year(year, &cfg.country);
@@ -101,7 +100,7 @@ impl HolidaysPanel {
             .collect()
     }
 
-    #[cfg_attr(feature = "linux-full", allow(dead_code))]
+    #[cfg_attr(feature = "full", allow(dead_code))]
     fn fallback_samples() -> Vec<String> {
         vec![
             "Jun 19 - Juneteenth".to_string(),
@@ -133,7 +132,7 @@ fn format_holiday(date: chrono::NaiveDate, name: &str) -> String {
 
 /// Returns (date, name) pairs for public holidays in the given year for the country.
 /// This is the core that makes the module "work globally".
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 fn holidays_for_year(year: i32, country: &str) -> Vec<(chrono::NaiveDate, &'static str)> {
     use chrono::{NaiveDate, Weekday};
 
@@ -364,7 +363,7 @@ fn holidays_for_year(year: i32, country: &str) -> Vec<(chrono::NaiveDate, &'stat
 }
 
 /// nth occurrence of a weekday in a month (1-based n).
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 fn nth_weekday(year: i32, month: u32, n: i32, wd: chrono::Weekday) -> Option<chrono::NaiveDate> {
     use chrono::NaiveDate;
     let first = NaiveDate::from_ymd_opt(year, month, 1)?;
@@ -375,7 +374,7 @@ fn nth_weekday(year: i32, month: u32, n: i32, wd: chrono::Weekday) -> Option<chr
 }
 
 /// Last occurrence of a weekday in the month.
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 fn last_weekday(year: i32, month: u32, wd: chrono::Weekday) -> Option<chrono::NaiveDate> {
     use chrono::NaiveDate;
     let (y, m) = if month == 12 { (year + 1, 1) } else { (year, month + 1) };
@@ -387,7 +386,7 @@ fn last_weekday(year: i32, month: u32, wd: chrono::Weekday) -> Option<chrono::Na
 }
 
 /// Victoria Day (Canada): Monday preceding May 25.
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 fn victoria_day(year: i32) -> Option<chrono::NaiveDate> {
     use chrono::NaiveDate;
     let may25 = NaiveDate::from_ymd_opt(year, 5, 25)?;
@@ -402,7 +401,7 @@ mod tests {
 
     #[test]
     fn holidays_panel_computes_real_data() {
-        // On linux-full this exercises date-aware computation + formatting.
+        // On full this exercises date-aware computation + formatting.
         let panel = HolidaysPanel::new();
         let (title, _) = panel.title();
         assert!(title.to_lowercase().contains("holiday"), "title should mention holidays: {}", title);
@@ -419,7 +418,7 @@ mod tests {
         }
     }
 
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     #[test]
     fn us_holidays_include_key_dates() {
         // Spot check a known year.
@@ -434,7 +433,7 @@ mod tests {
 }
 
 /// Compute Easter Sunday (Gregorian) for the year.
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 fn easter_sunday(year: i32) -> chrono::NaiveDate {
     // Anonymous Gregorian algorithm (widely used, good for 1900-2200+)
     let a = year % 19;

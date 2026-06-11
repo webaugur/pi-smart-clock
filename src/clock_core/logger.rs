@@ -12,9 +12,9 @@ impl Logger {
     pub async fn log<P: Platform>(&self, platform: &mut P, level: &str, message: &str) {
         if !self.enabled { return; }
         let timestamp = platform.get_current_time();
-        #[cfg(feature = "linux-full")]
+        #[cfg(feature = "full")]
         println!("[{}] {}: {}", timestamp.format("%H:%M:%S"), level, message);
-        #[cfg(not(feature = "linux-full"))]
+        #[cfg(not(feature = "full"))]
         let _ = (timestamp, level, message);
     }
 }

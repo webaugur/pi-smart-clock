@@ -2,7 +2,7 @@ use std::path::Path;
 
 use super::FaceId;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::storage::linux as xdg_storage;
 
 pub fn load_face_id() -> FaceId {
@@ -17,11 +17,11 @@ pub fn load_face_id() -> FaceId {
 }
 
 fn resolve_faces_config_path() -> Option<std::path::PathBuf> {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         return xdg_storage::find_config("faces.conf", "faces.conf.example");
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         let path = Path::new("config/faces.conf");
         if path.is_file() {

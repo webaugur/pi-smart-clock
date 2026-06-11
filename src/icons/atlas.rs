@@ -7,11 +7,11 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
-const RASTER_SIZE: u32 = 128;
+const RASTER_SIZE: u32 = 192;
 
 static ATLAS: OnceLock<IconAtlas> = OnceLock::new();
 
-/// Warm the icon atlas during boot (vivid colorful icon set).
+/// Warm the icon atlas during boot (playful cartoony high-sat icon set with optional hi-res variants).
 pub fn preload() {
     let _ = ATLAS.get_or_init(IconAtlas::load);
 }
@@ -29,7 +29,8 @@ pub fn draw_symbolic_icon(
 }
 
 /// Draw a colorful (non-symbolic) icon, preserving the colors defined in the SVG.
-/// Use this for the new vivid icon set instead of draw_symbolic_icon.
+/// Use this for the playful cartoony icon set (high-sat, chunky, room-visible).
+/// Supports optional high-res variants (e.g. status/sun.hires.svg) chosen automatically for large sizes.
 pub fn draw_icon(
     canvas: &mut Canvas<Window>,
     rel_path: &str,
@@ -67,7 +68,8 @@ impl IconAtlas {
         size: u32,
         tint: Color,
     ) {
-        let Some(base) = self.icons.get(rel_path) else {
+        let effective = self.effective_rel(rel_path, size);
+        let Some(base) = self.icons.get(&effective) else {
             return;
         };
         let mut tinted = tint_pixels(base, tint);
@@ -99,7 +101,8 @@ impl IconAtlas {
         y: i32,
         size: u32,
     ) {
-        let Some(base) = self.icons.get(rel_path) else {
+        let effective = self.effective_rel(rel_path, size);
+        let Some(base) = self.icons.get(&effective) else {
             return;
         };
         // Use the rasterized pixels directly (preserves SVG's intrinsic colors)
@@ -122,22 +125,39 @@ impl IconAtlas {
         let _ = texture.set_blend_mode(sdl2::render::BlendMode::Blend);
         let _ = canvas.copy(&texture, None, Rect::new(x, y, size, size));
     }
+
+    /// Choose standard or .hires variant based on target size for better legibility
+    /// at small vs large panel icon uses (hi/lo SVG versions).
+    fn effective_rel(&self, rel: &str, size: u32) -> String {
+        if size >= 60 {
+            let hi = rel.replace(".svg", ".hires.svg");
+            if self.icons.contains_key(&hi) {
+                return hi;
+            }
+        }
+        rel.to_string()
+    }
 }
 
 const ICON_PATHS: &[&str] = &[
-    "status/weather-clear-symbolic.svg",
-    "status/weather-clear-night-symbolic.svg",
-    "status/weather-few-clouds-symbolic.svg",
-    "status/weather-overcast-symbolic.svg",
-    "status/weather-fog-symbolic.svg",
-    "status/weather-showers-scattered-symbolic.svg",
-    "status/weather-showers-symbolic.svg",
-    "status/weather-snow-symbolic.svg",
-    "status/weather-storm-symbolic.svg",
-    "status/adw-tab-icon-missing-symbolic.svg",
+    // Playful cartoony weather/status set (clean names, high-sat chunky SVGs)
+    "status/sun.svg",
+    "status/moon.svg",
+    "status/cloud-sun.svg",
+    "status/cloud.svg",
+    "status/fog.svg",
+    "status/cloud-rain.svg",
+    "status/cloud-snow.svg",
+    "status/cloud-storm.svg",
+    "status/help.svg",
     "status/starred-symbolic.svg",
     "apps/calendar-symbolic.svg",
-    // Zodiac icons - for the Zodiac upper panel
+    // Hi-res variants (loaded for large icon_size >= 60; demonstrates hi/lo SVG support)
+    "status/sun.hires.svg",
+    "status/starred-symbolic.hires.svg",
+    "apps/calendar-symbolic.hires.svg",
+    "zodiac/zodiac-aries-symbolic.hires.svg",
+    // Zodiac icons - for the Zodiac upper panel (playful colored discs + bold glyphs)
     "zodiac/zodiac-aries-symbolic.svg",
     "zodiac/zodiac-taurus-symbolic.svg",
     "zodiac/zodiac-gemini-symbolic.svg",
@@ -154,7 +174,7 @@ const ICON_PATHS: &[&str] = &[
 
 fn resolve_icon_path(rel: &str) -> PathBuf {
     let bundled = crate::storage::linux::data_root()
-        .join("assets/icons/vivid")
+        .join("assets/icons/playful")
         .join(rel);
     if bundled.is_file() {
         return bundled;

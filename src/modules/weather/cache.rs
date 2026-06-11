@@ -207,12 +207,12 @@ fn write_json<T: Serialize>(name: &str, value: &T) -> Result<(), String> {
 }
 
 fn resolve_cache_path(name: &str) -> Option<PathBuf> {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         let path = crate::storage::linux::resolve_logical_path(name);
         return Some(path);
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         let _ = name;
         None

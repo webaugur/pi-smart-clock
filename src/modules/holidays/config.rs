@@ -2,7 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::storage::linux as xdg_storage;
 
 /// Configuration for the holidays bottom panel.
@@ -50,11 +50,11 @@ pub fn reload_holidays_config_if_changed(meta: &ConfigMeta) -> Option<LoadedHoli
 }
 
 fn resolve_holidays_config() -> Option<PathBuf> {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         return xdg_storage::find_config("holidays.conf", "holidays.conf.example");
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         let path = Path::new("config/holidays.conf");
         if path.is_file() {

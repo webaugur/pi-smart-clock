@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Playful unknown / help - rounded question in bold circle -->
+  <circle cx="12" cy="12" r="9" fill="#CE93D8" stroke="#6A1B9A" stroke-width="2"/>
+  <text x="12" y="16" font-size="11" font-family="DejaVu Sans, sans-serif" font-weight="bold" fill="#4A148C" text-anchor="middle">?</text>
+</svg>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Playful rain cloud - puffy + bold blue drops -->
+  <ellipse cx="8" cy="10" rx="4" ry="3" fill="#4FC3F7" stroke="#0277BD" stroke-width="1.6"/>
+  <ellipse cx="14" cy="9" rx="5" ry="3.8" fill="#4FC3F7" stroke="#0277BD" stroke-width="1.6"/>
+  <ellipse cx="18" cy="11" rx="3" ry="2.2" fill="#4FC3F7" stroke="#0277BD" stroke-width="1.4"/>
+  <!-- Rain drops -->
+  <path d="M8 16 L7 20" fill="none" stroke="#0288D1" stroke-width="2" stroke-linecap="round"/>
+  <path d="M11 17 L10 21" fill="none" stroke="#0288D1" stroke-width="2" stroke-linecap="round"/>
+  <path d="M14 16.5 L13.5 21" fill="none" stroke="#0288D1" stroke-width="2" stroke-linecap="round"/>
+  <path d="M17 17.5 L16.5 21" fill="none" stroke="#0288D1" stroke-width="1.8" stroke-linecap="round"/>
+</svg>

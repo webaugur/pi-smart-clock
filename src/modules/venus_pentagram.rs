@@ -1,4 +1,3 @@
-use crate::icons::draw_symbolic_icon;
 use crate::modules::bottom_module::{BottomModule, PanelLine};
 use crate::modules::module_id::ModuleId;
 use crate::panel::Panel;

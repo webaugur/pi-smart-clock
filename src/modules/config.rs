@@ -4,7 +4,7 @@ use std::path::Path;
 
 use crate::modules::module_id::ModuleId;
 use crate::modules::slot::BottomSlot;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::storage::linux as xdg_storage;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -57,11 +57,11 @@ pub fn load_bottom_slots() -> BottomSlotConfig {
 }
 
 fn resolve_panel_config() -> Option<std::path::PathBuf> {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         return xdg_storage::find_config("panels.conf", "panels.conf.example");
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         let path = Path::new("config/panels.conf");
         if path.is_file() {

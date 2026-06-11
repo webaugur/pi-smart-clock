@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Playful snow cloud + chunky 6-arm flake -->
+  <ellipse cx="8" cy="10" rx="4" ry="3" fill="#90CAF9" stroke="#1565C0" stroke-width="1.6"/>
+  <ellipse cx="14" cy="9" rx="5" ry="3.8" fill="#90CAF9" stroke="#1565C0" stroke-width="1.6"/>
+  <ellipse cx="18" cy="11" rx="3" ry="2.2" fill="#90CAF9" stroke="#1565C0" stroke-width="1.4"/>
+  <!-- Simple cartoony snowflake -->
+  <g fill="none" stroke="#E3F2FD" stroke-width="1.6" stroke-linecap="round">
+    <line x1="11" y1="16" x2="11" y2="21"/>
+    <line x1="8.5" y1="17.5" x2="13.5" y2="19.5"/>
+    <line x1="8.5" y1="19.5" x2="13.5" y2="17.5"/>
+    <!-- dots at tips for playful -->
+    <circle cx="11" cy="21" r="0.9" fill="#BBDEFB"/>
+    <circle cx="8.5" cy="17.5" r="0.7" fill="#BBDEFB"/>
+    <circle cx="13.5" cy="19.5" r="0.7" fill="#BBDEFB"/>
+  </g>
+</svg>

@@ -5,9 +5,9 @@ use crate::clock_core::persistence;
 use crate::drivers::ds3231::DS3231;
 use crate::drivers::platform::Platform;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::icons;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::modules::faces;
 
 pub const STEP_COUNT: u8 = 4;
@@ -20,7 +20,7 @@ pub struct BootLoaderProgress {
     pub total: u8,
 }
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub fn short_label_for_step(step: u8) -> &'static str {
     match step {
         0 => "RTC",
@@ -49,11 +49,11 @@ pub async fn run_step<P: Platform>(
     match step {
         0 => DS3231::synchronize(platform).await,
         1 => {
-            #[cfg(feature = "linux-full")]
+            #[cfg(feature = "full")]
             faces::preload_active_face();
         }
         2 => {
-            #[cfg(feature = "linux-full")]
+            #[cfg(feature = "full")]
             icons::preload();
         }
         3 => persistence::load_alarms(platform, alarms).await,

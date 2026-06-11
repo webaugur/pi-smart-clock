@@ -9,9 +9,9 @@ use crate::drivers::platform::Platform;
 use crate::runtime::SmartClockState;
 use crate::runtime::UiMode;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::clock_core::boot_splash::BootSplash;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::platform::linux::SdlPlatformExt;
 
 pub use loader::{status_for_step, BootLoaderProgress};
@@ -30,9 +30,9 @@ pub struct BootController {
     splash_frames: u32,
     pub reveal_frame: u32,
     pub status: &'static str,
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     splash: BootSplash,
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     splash_ready: bool,
 }
 
@@ -45,9 +45,9 @@ impl BootController {
             splash_frames: 0,
             reveal_frame: 0,
             status: "Smart Clock",
-            #[cfg(feature = "linux-full")]
+            #[cfg(feature = "full")]
             splash: BootSplash::new(),
-            #[cfg(feature = "linux-full")]
+            #[cfg(feature = "full")]
             splash_ready: false,
         }
     }
@@ -80,12 +80,12 @@ impl BootController {
         self.splash_frames
     }
 
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub fn splash_mut(&mut self) -> &mut BootSplash {
         &mut self.splash
     }
 
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub(crate) fn ensure_splash(&mut self) {
         if self.splash_ready {
             return;
@@ -96,7 +96,7 @@ impl BootController {
         self.splash_ready = true;
     }
 
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub async fn render_splash_frame<P: Platform + SdlPlatformExt>(
         &mut self,
         platform: &mut P,
@@ -115,7 +115,7 @@ impl BootController {
         platform.present().await;
     }
 
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     pub async fn render_splash_frame<P: Platform>(&mut self, platform: &mut P) {
         platform.show_boot_splash(self.status).await;
         platform.present().await;
@@ -125,7 +125,7 @@ impl BootController {
 pub async fn tick_boot<P: Platform>(state: &mut SmartClockState, platform: &mut P) {
     match state.boot.phase {
         BootPhase::Splash => {
-            #[cfg(feature = "linux-full")]
+            #[cfg(feature = "full")]
             state.boot.ensure_splash();
 
             state.boot.splash_frames = state.boot.splash_frames.saturating_add(1);
@@ -148,14 +148,14 @@ pub async fn tick_boot<P: Platform>(state: &mut SmartClockState, platform: &mut 
 
             let min_frames = SPLASH_MIN_MS.div_ceil(SPLASH_FRAME_MS).max(1) as u32;
             if state.boot.loader_done && state.boot.splash_frames >= min_frames {
-                #[cfg(feature = "linux-full")]
+                #[cfg(feature = "full")]
                 {
                     state.boot.phase = BootPhase::Reveal;
                     state.boot.reveal_frame = 0;
                     state.boot.status = "Ready";
                     state.boot.splash.freeze_if_video();
                 }
-                #[cfg(not(feature = "linux-full"))]
+                #[cfg(not(feature = "full"))]
                 {
                     state.boot_done = true;
                     state.ui_mode = UiMode::Clock;
@@ -165,7 +165,7 @@ pub async fn tick_boot<P: Platform>(state: &mut SmartClockState, platform: &mut 
 
             platform.delay(SPLASH_FRAME_MS).await;
         }
-        #[cfg(feature = "linux-full")]
+        #[cfg(feature = "full")]
         BootPhase::Reveal => {
             state.boot.reveal_frame = state.boot.reveal_frame.saturating_add(1);
             if state.boot.reveal_frame >= reveal::REVEAL_FRAMES {
@@ -175,7 +175,7 @@ pub async fn tick_boot<P: Platform>(state: &mut SmartClockState, platform: &mut 
             }
             platform.delay(16).await;
         }
-        #[cfg(not(feature = "linux-full"))]
+        #[cfg(not(feature = "full"))]
         BootPhase::Reveal => {
             state.boot_done = true;
             state.ui_mode = UiMode::Clock;

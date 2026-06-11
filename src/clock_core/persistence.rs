@@ -1,11 +1,11 @@
 use crate::clock_core::alarm::AlarmManager;
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 use crate::prelude::*;
 use crate::storage::logical;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::platform::linux_audio::resolve_media_path;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use chrono::Local;
 
 fn csv_escape(field: &str) -> String {
@@ -23,13 +23,13 @@ fn normalize_media_path(field: &str, default_sounds_prefix: bool) -> String {
         return String::new();
     }
 
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         let _ = default_sounds_prefix;
         return trimmed.to_string();
     }
 
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         if resolve_media_path(trimmed).is_some() {
             return trimmed.to_string();
@@ -53,12 +53,12 @@ fn normalize_media_path(field: &str, default_sounds_prefix: bool) -> String {
 }
 
 fn alarm_backup_stamp<P: crate::drivers::platform::Platform>(platform: &P) -> String {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         let _ = platform;
         return Local::now().format("%Y%m%d_%H%M%S").to_string();
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         let t = platform.get_current_time();
         return format!(

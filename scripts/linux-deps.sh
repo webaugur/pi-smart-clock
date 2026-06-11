@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-# Native build dependencies for Debian 13 (Trixie) / Raspberry Pi OS Trixie.
+# Native build dependencies for the desktop target on:
+# - Debian 13 (Trixie) / Raspberry Pi OS Trixie (apt)
+# - OpenIndiana 2025 (pkgsrc / pkgin)
+#
+# Run the appropriate commands for your OS. The project no longer has a separate
+# embedded/Pico target.
+#
+# Architectures: Debian Trixie arm64 + amd64 (packages are the same);
+# OpenIndiana 2025 amd64 primary (arm64 when OI pkgsrc supports it).
 set -euo pipefail
 
 if [[ -f /etc/debian_version ]]; then

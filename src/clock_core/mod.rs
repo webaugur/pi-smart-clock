@@ -16,7 +16,7 @@ pub mod energy_monitor;
 pub mod logger;
 pub mod about;
 pub mod alarm_ui;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub mod alarm_video;
 pub mod alert_photos;
 pub mod weather;

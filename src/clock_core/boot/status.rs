@@ -1,8 +1,8 @@
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::clock_core::boot::loader::{self, BootLoaderProgress};
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::drivers::platform::Platform;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::layout::{l, Layout};
 
 /// Segmented boot loader bar; set `false` for quieter release builds.
@@ -11,7 +11,7 @@ pub const SHOW_BOOT_PROGRESS: bool = true;
 /// Status line and module labels share one readable size.
 pub const BOOT_FONT_SIZE: u8 = 44;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub async fn draw_boot_footer<P: Platform>(
     platform: &mut P,
     status: &str,
@@ -24,7 +24,7 @@ pub async fn draw_boot_footer<P: Platform>(
     draw_boot_status(platform, status, BOOT_FONT_SIZE, 0x00FFAA).await;
 }
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 async fn draw_boot_progress_bar<P: Platform>(
     platform: &mut P,
     progress: BootLoaderProgress,
@@ -59,7 +59,7 @@ async fn draw_boot_progress_bar<P: Platform>(
     }
 }
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 fn segment_color(i: u8, progress: BootLoaderProgress, anim_frame: u32) -> u32 {
     if i < progress.completed {
         return 0x00AA66;
@@ -75,7 +75,7 @@ fn segment_color(i: u8, progress: BootLoaderProgress, anim_frame: u32) -> u32 {
     }
 }
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub async fn draw_boot_status<P: Platform>(platform: &mut P, text: &str, size: u8, color: u32) {
     let layout = l();
     let x = boot_status_x(text, size, &layout);
@@ -84,7 +84,7 @@ pub async fn draw_boot_status<P: Platform>(platform: &mut P, text: &str, size: u
 }
 
 /// Status line sits above the progress bar block.
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 fn boot_status_y(_text: &str, size: u8, layout: &Layout) -> i32 {
     let bar_h = 10i32;
     let gap = 8i32;
@@ -93,7 +93,7 @@ fn boot_status_y(_text: &str, size: u8, layout: &Layout) -> i32 {
     bar_y - i32::from(size) - gap
 }
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 fn boot_status_x(text: &str, size: u8, layout: &Layout) -> i32 {
     let approx_w = (text.len() as i32).saturating_mul(i32::from(size) / 2 + 4);
     (layout.screen_w - approx_w) / 2

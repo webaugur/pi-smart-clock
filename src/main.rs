@@ -38,21 +38,24 @@ async fn main() -> Result<(), String> {
     // system fonts first (Noto Sans CJK, IPA fonts, etc.). These are optional but
     // strongly recommended if you use non-Latin holiday regions (e.g. country=JP).
     //
-    // Install examples on Debian Trixie:
-    //   sudo apt install fonts-noto-cjk
-    //   sudo apt install fonts-ipafont-gothic
-    let font_candidates: [&str; 8] = [
-        // CJK-capable (preferred when present for full Unicode coverage)
+    // Install examples:
+    //   Debian Trixie: sudo apt install fonts-noto-cjk fonts-ipafont-gothic fonts-dejavu-core
+    //   OpenIndiana 2025 (pkgsrc): pkgin install noto-ttf ipafont dejavu-ttf (or equivalent); adjust paths below if under /opt/local or /usr/pkg
+    let font_candidates: [&str; 10] = [
+        // CJK-capable (preferred)
         "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
         "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
         "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",
         "/usr/share/fonts/truetype/ipafont-gothic/ipag.ttf",
         "/usr/share/fonts/truetype/fonts-japanese-gothic.ttf",
-        // Baseline (always present after linux-deps.sh)
+        // OI / pkgsrc common locations
+        "/opt/local/share/fonts/TTF/DejaVuSans.ttf",
+        "/usr/pkg/share/fonts/TTF/DejaVuSans.ttf",
+        // Baseline DejaVu
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
         "/usr/share/fonts/TTF/DejaVuSans.ttf",
-        // Asset-bundled fallback (may not be on system font path)
-        "assets/fonts/DejaVuSans.ttf", // unlikely to exist, but harmless
+        // Bundled fallback
+        "assets/fonts/DejaVuSans.ttf",
     ];
 
     let mut loaded_font = None;
@@ -65,7 +68,7 @@ async fn main() -> Result<(), String> {
     }
 
     let font = loaded_font.ok_or_else(|| {
-        "No UI font found. Install fonts-dejavu-core (or a CJK font such as fonts-noto-cjk)".to_string()
+        "No UI font found. On Debian Trixie: apt install fonts-dejavu-core (or fonts-noto-cjk). On OpenIndiana 2025: use pkgsrc for dejavu-ttf / noto-ttf. See docs/LINUX.md.".to_string()
     })?;
     let font: &'static sdl2::ttf::Font<'static, 'static> = Box::leak(Box::new(font));
     let _ttf = ttf;

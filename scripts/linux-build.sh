@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Linux desktop build (Debian 13 Trixie / Raspberry Pi OS Trixie).
+# Desktop build for Debian Trixie and OpenIndiana 2025 (and other Unix with SDL2).
+# Uses the "full" feature (the only desktop target after Pico removal).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -24,4 +25,7 @@ if [[ "$(command -v cargo)" == /usr/bin/cargo ]]; then
   exit 1
 fi
 
-exec cargo build --features linux-full "$@"
+ARCH=$(dpkg --print-architecture 2>/dev/null || uname -m)
+echo "==> Building for architecture: ${ARCH} (Debian Trixie arm64/amd64 and OI 2025 amd64 supported)"
+
+exec cargo build --features full "$@"

@@ -11,7 +11,9 @@ export RUSTFLAGS := -C link-arg=-Wl,-z,relro -C link-arg=-Wl,-z,now
 	dh $@
 
 override_dh_auto_build:
-	cargo build --release --features linux-full --verbose
+	# Use the single "full" desktop feature. The resulting .deb will be
+	# architecture-specific (amd64 or arm64) based on the build host.
+	cargo build --release --features full --verbose
 
 override_dh_auto_install:
 	install -d debian/pi-smart-clock/usr/bin

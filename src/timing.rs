@@ -1,7 +1,7 @@
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub use std::time::{Duration, Instant};
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 mod embedded {
     #[derive(Clone, Copy, Debug, PartialEq, Eq)]
     pub struct Duration(u64);
@@ -62,5 +62,5 @@ mod embedded {
     }
 }
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 pub use embedded::{advance_ms, Duration, Instant};

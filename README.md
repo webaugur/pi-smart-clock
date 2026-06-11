@@ -1,6 +1,6 @@
 # Pi Smart Clock
 
-Roman numeral smart clock — **Linux/SDL2 dev build** with autoscaling first, Pico DVI firmware on RP2040.
+Roman numeral smart clock — desktop build for **Debian Trixie** and **OpenIndiana 2025** (SDL2).
 
 Detects your display orientation at startup: **portrait** screens use a 768×1280 logical layout; **landscape** screens use 1280×768. SDL letterboxes/scales to fit the window (95% of display size, resizable).
 
@@ -15,8 +15,7 @@ Detects your display orientation at startup: **portrait** screens use a 768×128
 | [docs/README.md](docs/README.md) | Index |
 | [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md) | Config files, SVG faces, fonts, modules, sounds |
 | [docs/DRIVERS.md](docs/DRIVERS.md) | Hardware drivers (ESP8266, RTC, SD, sensors) |
-| [docs/LINUX.md](docs/LINUX.md) | Linux / Unix install and persistence |
-| [docs/EMBEDDED.md](docs/EMBEDDED.md) | Pico 1 & 2 firmware, hardware, SD card |
+| [docs/LINUX.md](docs/LINUX.md) | Desktop / Unix (Debian Trixie + OpenIndiana 2025) install and persistence |
 | [docs/SHARED_CODE.md](docs/SHARED_CODE.md) | Shared Rust architecture |
 | [docs/TODO.md](docs/TODO.md) | Open work tracker |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Milestones and platform status |
@@ -24,7 +23,11 @@ Detects your display orientation at startup: **portrait** screens use a 768×128
 
 ## Linux quickstart
 
-**Target OS:** [Debian 13 (Trixie)](https://www.debian.org/releases/trixie/) / **Raspberry Pi OS Trixie** for native and kiosk builds. Dev hosts on other distros may work; Trixie is what we build and test against.
+**Target OSes & architectures:** 
+- Debian 13 (Trixie) / Raspberry Pi OS Trixie: amd64 and arm64 (both first-class via apt).
+- OpenIndiana 2025: amd64 primary (pkgsrc/pkgin); arm64 when available in OI/illumos (native or cross).
+
+Dev hosts on other Unix-like systems with SDL2 may work. Trixie and OI 2025 are the tested targets. See docs/LINUX.md for Docker multi-arch (`buildx`) instructions.
 
 ### Rust toolchain (rustup)
 
@@ -78,23 +81,13 @@ cargo run --features linux-full
 
 ---
 
-## Embedded (Pico 1)
-
-- **Pico 1 (RP2040)** + Pico DVI Sock (800×480), ESP8266, DS3231, SD, rotary encoder
-- **Pico 2 (RP2350)** — planned; see [docs/EMBEDDED.md](docs/EMBEDDED.md)
-
-```bash
-./scripts/setup-embedded.sh          # once
-./scripts/pico-build.sh --release
-```
-
 ## Features
 
 - Roman numeral clock with bounce second hand + night mode (amber)
 - Weather / calendar / holiday panels
 - Alarms, menu, time set, about screen
-- NWS radar overlay during alerts (device)
-- MQTT, OTA, voice (Pico build — in progress)
+- NWS radar overlay during alerts
+- MQTT, OTA, voice (in progress / desktop)
 
 ## License
 
@@ -104,4 +97,4 @@ You may choose which license to use.
 
 See the `LICENSE` file in the repository root for the full terms of both licenses.
 
-Note: Third-party assets (e.g. NASA imagery which is public domain, etc.) retain their original licenses. See `debian/copyright` and any `CREDITS`/`ASSETS` files for details. The project uses its own vivid icon set.
+Note: Third-party assets (e.g. NASA imagery which is public domain, etc.) retain their original licenses. See `debian/copyright` and any `CREDITS`/`ASSETS` files for details. Weather/status icons are adapted from Meteocons (MIT) and Tabler Icons (MIT) with cartoony/playful high-sat styling for visibility; see assets/icons/playful/ and the playful/README.txt for provenance. Hi/lo SVG variants are supported.

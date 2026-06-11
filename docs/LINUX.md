@@ -1,8 +1,14 @@
-# Linux / Unix Guide
+# Desktop / Unix Guide
 
-SDL2 desktop build for development, kiosk images, and **Raspberry Pi OS Trixie** (Debian 13). Default Cargo feature: `linux-full`.
+SDL2 desktop build for development, kiosk images, **Debian 13 Trixie**, **Raspberry Pi OS Trixie**, and **OpenIndiana 2025**.
 
-We target **Debian Trixie** for native Linux builds — same base as current Pi OS. Older releases (Bookworm, Ubuntu LTS, etc.) may work but are not the reference environment.
+The project no longer has an embedded/Pico target. The single "full" desktop build (SDL2 + supporting crates) is the only supported configuration and targets modern Unix desktops on the two reference OSes.
+
+We treat **Debian Trixie** and **OpenIndiana 2025** as the primary tested platforms. Other Linux or illumos systems may work with appropriate dependencies.
+
+**Supported architectures**
+- Debian 13 (Trixie) / Raspberry Pi OS Trixie: **amd64 (x64) and arm64 (ARM64/aarch64)**. Both are first-class; the same `libsdl2-dev` etc. packages work on either.
+- OpenIndiana 2025: **amd64 (x64) primary**. arm64 support in OI/illumos is limited/experimental as of 2025 — build natively on an arm64 OI system (when pkgsrc is available for it) or cross-compile from amd64. The desktop code itself is portable.
 
 For config files and assets see [CUSTOMIZATION.md](CUSTOMIZATION.md).  
 For shared Rust layout see [SHARED_CODE.md](SHARED_CODE.md).
@@ -11,7 +17,7 @@ For shared Rust layout see [SHARED_CODE.md](SHARED_CODE.md).
 
 ## Quick start
 
-On **Debian 13 Trixie** or **Raspberry Pi OS Trixie**:
+**Debian Trixie / Pi OS Trixie (apt):**
 
 ```bash
 git clone https://github.com/webaugur/pi-smart-clock.git
@@ -20,19 +26,42 @@ git checkout full-project
 
 ./scripts/linux-deps.sh
 ./scripts/linux-build.sh
-cargo run --features linux-full
-# or: cargo run   (linux-full is default)
+cargo run --features full
+# or simply: cargo run  (full is the default)
 ```
+
+**OpenIndiana 2025 (pkgsrc / pkgin example):**
+
+```bash
+# Ensure pkgsrc is bootstrapped and in PATH
+pkgin install sdl2 sdl2-ttf sdl2-mixer ffmpeg git rust
+# (adjust package names for your OI 2025 pkgsrc collection; noto fonts for CJK)
+git clone https://github.com/webaugur/pi-smart-clock.git
+cd pi-smart-clock
+git checkout full-project
+
+# No special -deps script yet — the above + system equivalents for build-essential/pkg-config
+cargo build --features full
+cargo run
+```
+
+See also font notes below for CJK on OI.
 
 ### Docker / CI
 
-Reproducible Trixie build (no local SDL packages needed):
+Reproducible Trixie build (no local SDL packages needed). The image supports both amd64 and arm64:
 
 ```bash
+# Multi-arch (recommended)
+docker buildx build --platform linux/amd64,linux/arm64 -t pi-smart-clock --push .
+
+# Single-arch (current host)
 docker build -t pi-smart-clock .
 ```
 
-GitHub Actions uses `debian:trixie-slim` — see `.github/workflows/linux-trixie.yml`.
+See the updated `Dockerfile` for buildx examples.
+
+GitHub Actions (amd64 by default) uses `debian:trixie-slim` — see `.github/workflows/linux-trixie.yml`. Arm64 package builds are best done natively on an arm64 Debian host or via QEMU/binfmt in CI. The workflow now uses dynamic architecture for .deb names.
 
 **Controls**
 
@@ -141,14 +170,13 @@ cargo run --features linux-full
 
 Binary: `target/debug/pi-smart-clock` (or `release/`).
 
-**Do not** enable `pico-dvi` alongside `linux-full` — features are mutually exclusive ([SHARED_CODE.md](SHARED_CODE.md#cargo-features)).
+**(The project is now a single desktop target; there is no separate `pico-dvi` feature.)
 
 ---
 
 ## Rust toolchain note
 
-Linux builds work with **rustup** or distro `cargo`/`rustc`.  
-Pico cross-builds need rustup only — see [EMBEDDED.md](EMBEDDED.md#development-host-toolchain).
+Desktop builds work with **rustup** or distro `cargo`/`rustc` on the supported Unix platforms. No cross-compilation for embedded targets is required (Pico support has been removed).
 
 If both apt and rustup are installed, prefer `~/.cargo/bin` for consistency:
 

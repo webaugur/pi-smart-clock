@@ -1,11 +1,11 @@
 //! Splash → clock transition (checkerboard dissolve).
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use sdl2::render::Canvas;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use sdl2::video::Window;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::clock_core::boot_splash::BootSplash;
 
 pub const REVEAL_FRAMES: u32 = 48;
@@ -21,7 +21,7 @@ pub fn cell_shows_splash(cx: i32, cy: i32, progress: f32) -> bool {
     progress < threshold
 }
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub fn draw_checkerboard_splash(canvas: &mut Canvas<Window>, splash: &BootSplash, progress: f32) {
     let progress = progress.clamp(0.0, 1.0);
     if progress >= 1.0 {

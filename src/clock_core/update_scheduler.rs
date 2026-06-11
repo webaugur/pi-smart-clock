@@ -1,5 +1,5 @@
 use crate::timing::{Duration, Instant};
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 use crate::prelude::*;
 
 use crate::clock_core::alerts::AlertManager;
@@ -58,12 +58,12 @@ impl UpdateScheduler {
 }
 
 async fn weather_fetch<P: Platform>(platform: &mut P) -> Option<(i32, String)> {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         let _ = platform;
         None
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         platform.fetch_weather().await.ok()
     }

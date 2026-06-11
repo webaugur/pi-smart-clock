@@ -1,12 +1,12 @@
 #![allow(async_fn_in_trait)]
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 use crate::prelude::*;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use chrono::{DateTime, Local};
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 use crate::time_util::WallTime;
 
 /// Hardware abstraction for Pico (Embassy) and Linux (SDL2) builds.
@@ -52,7 +52,7 @@ pub trait Platform {
     async fn present(&mut self);
     /// Static boot splash (PNG/JPEG on embedded; no-op on Linux — see `boot_splash`).
     async fn show_boot_splash(&mut self, _status: &str) {}
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     async fn show_boot_reveal(
         &mut self,
         _status: &str,
@@ -71,9 +71,9 @@ pub trait Platform {
     async fn stop_alarm_sound(&mut self) {}
 
     // Time
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     fn get_current_time(&self) -> DateTime<Local>;
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     fn get_current_time(&self) -> WallTime;
     fn delay_ms(&self, ms: u64);
     async fn delay(&self, ms: u64);

@@ -39,60 +39,47 @@ Run `./scripts/audit-todos.sh` before releases to compare inline `// TODO(ID):` 
 
 | Priority | Open | Focus |
 |----------|------|-------|
-| P0 | 4 | Pico SD, wall time (DVI done) |
-| P1 | 11 | Network, voice, OTA, GPIO, sensors, RTC |
-| P2 | 6 | Linux panels, alerts, web UI |
-| P3 | 4 | Pico 2, buses, embedded faces, Pico W WiFi |
+| P0 | 0 | (Pico target removed — all items wontfix) |
+| P1 | 7 | Network, voice, OTA, sensors, shared (Pico items wontfix) |
+| P2 | 5 | Desktop panels, alerts, web UI (Debian Trixie + OpenIndiana 2025) |
+| P3 | 0 | (Pico 2 / embedded expansion removed with the target) |
 
-*Last full audit: 2026-06-06*
+*Last full audit: 2026-06-11* (Pico target removal — see Completed / Abandoned sections)
 
 ---
 
-## P0 — Pico cannot run as a real clock yet
+## P0 — (Abandoned with Pico target removal)
+
+All original P0 items were Pico-specific (SD, RTC, boot honesty on embedded DVI). The Pi Pico / RP2040 / DVI target has been removed entirely in favor of desktop focus on Debian Trixie and OpenIndiana 2025.
 
 | ID | Status | Platform | Title | Key files |
 |----|--------|----------|-------|-----------|
+| PICO-002 | wontfix | (removed) | SD card mount + FAT read/write | (Pico target dropped) |
+| PICO-003 | wontfix | (removed) | Load/save alarms from `/sd/config/` | (Pico target dropped) |
+| PICO-004 | wontfix | (removed) | Real wall time (not boot counter) | (Pico target dropped) |
+| PICO-005 | wontfix | (removed) | Boot screen claims RTC sync while DS3231 is empty | (Pico target dropped) |
 
-| PICO-002 | open | pico-dvi | SD card mount + FAT read/write | `src/drivers/sd_storage.rs` |
-| PICO-003 | open | pico-dvi | Load/save alarms from `/sd/config/` | `src/clock_core/persistence.rs` (blocked by PICO-002) |
-| PICO-004 | open | pico-dvi | Real wall time (not boot counter) | `src/platform/rp2040.rs`, `src/drivers/ds3231.rs` |
-| PICO-005 | open | pico-dvi | Boot screen claims RTC sync while DS3231 is empty | `src/clock_core/boot_screen.rs` (blocked by HW-003) |
-
-### PICO-002 — SD storage
-
-`SdStorage::mount` sets `mounted = true` without probing card. `read_file` / `write_file` return "not yet implemented". Default bus: I2C (`StorageBusMode::I2c`).
-
-**Blocks:** PICO-003, config load, sounds, videos, cache on device.
-
-### PICO-003 — Alarm persistence on SD
-
-`persistence::load_alarms` / `save_alarms` call `platform.read_file` / `write_file` → SD stub on Pico.
-
-### PICO-004 — Wall time
-
-`WALL_SECONDS` in `rp2040.rs` increments from a fixed 07:00:00 seed. No DS3231 or NTP integration on embedded.
-
-### PICO-005 — Misleading boot text
-
-`boot_screen::show` prints "RTC Synced" after `DS3231::synchronize` which is an empty stub.
+See "Completed" and notes in ROADMAP for the removal.
 
 ---
 
 ## P1 — Core device features (README in progress)
 
+Pico-specific items (NET-001, NET-002, VOICE-003, HW-001, and Pico parts of others) are wontfix due to Pico target removal. Desktop/shared items remain open.
+
 | ID | Status | Platform | Title | Key files |
 |----|--------|----------|-------|-----------|
-| NET-001 | open | pico-dvi | Build ESP8266 driver on Pico | `src/drivers/mod.rs` |
-| NET-002 | open | pico-dvi | MQTT / NTP Platform hooks on Pico | `src/drivers/platform.rs`, `src/drivers/mqtt.rs`, `src/drivers/ntp.rs` |
-| NET-003 | open | both | Wire NtpClient / MqttClient into runtime | `src/runtime/tick.rs`, `src/runtime/state.rs` |
-| VOICE-001 | open | both | Map voice messages to SD WAV files | `src/clock_core/voice_feedback.rs` |
-| VOICE-002 | open | both | Wire `voice_commands::process` into tick loop | `src/clock_core/voice_commands.rs` |
-| VOICE-003 | open | pico-dvi | I2S microphone / energy threshold | `src/drivers/microphone.rs` |
-| OTA-001 | open | both | OTA download, flash, rollback | `src/ota/updater.rs`, `src/ota/rollback.rs` |
-| HW-001 | open | pico-dvi | GPIO rotary encoder + push button | `src/drivers/rotary_encoder.rs`, `src/platform/rp2040.rs` |
-| HW-002 | open | both | AHT20 + env sensor read path | `src/drivers/aht20.rs`, `src/clock_core/sensors.rs` |
-| HW-003 | open | both | DS3231 I2C read/write | `src/drivers/ds3231.rs` |
-| HW-004 | open | both | Time-set UI persists to RTC | `src/clock_core/time_set_ui.rs` |
+| NET-001 | wontfix | (removed) | Build ESP8266 driver on Pico | (Pico target dropped) |
+| NET-002 | wontfix | (removed) | MQTT / NTP Platform hooks on Pico | (Pico target dropped) |
+| NET-003 | open | desktop | Wire NtpClient / MqttClient into runtime | `src/runtime/tick.rs`, `src/runtime/state.rs` |
+| VOICE-001 | open | desktop | Map voice messages to SD WAV files | `src/clock_core/voice_feedback.rs` |
+| VOICE-002 | open | desktop | Wire `voice_commands::process` into tick loop | `src/clock_core/voice_commands.rs` |
+| VOICE-003 | wontfix | (removed) | I2S microphone / energy threshold | (Pico target dropped) |
+| OTA-001 | open | desktop | OTA download, flash, rollback | `src/ota/updater.rs`, `src/ota/rollback.rs` |
+| HW-001 | wontfix | (removed) | GPIO rotary encoder + push button | (Pico target dropped) |
+| HW-002 | open | desktop | AHT20 + env sensor read path | `src/drivers/aht20.rs`, `src/clock_core/sensors.rs` |
+| HW-003 | open | desktop | DS3231 I2C read/write | `src/drivers/ds3231.rs` |
+| HW-004 | open | desktop | Time-set UI persists to RTC | `src/clock_core/time_set_ui.rs` |
 
 ### NET-001 — ESP8266 on Pico
 
@@ -165,14 +152,16 @@ Placeholder rectangle + text; no live radar tiles.
 
 ---
 
-## P3 — Future / platform expansion
+## P3 — (Abandoned with Pico target removal)
+
+All P3 platform expansion items were Pico 2 / embedded specific. The entire Pico target (Pico 1 and planned Pico 2) has been removed.
 
 | ID | Status | Platform | Title | Key files |
 |----|--------|----------|-------|-----------|
-| PLAT-001 | open | pico-dvi | Pico 2 (RP2350) firmware profile | `Cargo.toml`, `docs/EMBEDDED.md` |
-| PLAT-002 | open | pico-dvi | SD SPI / SDIO bus modes | `src/drivers/sd_storage.rs` |
-| PLAT-003 | open | pico-dvi | SVG face rendering on embedded | `src/modules/faces/` |
-| PLAT-004 | open | pico-dvi | Pico W on-chip WiFi (replace ESP8266) | `docs/EMBEDDED.md` |
+| PLAT-001 | wontfix | (removed) | Pico 2 (RP2350) firmware profile | (Pico target dropped) |
+| PLAT-002 | wontfix | (removed) | SD SPI / SDIO bus modes | (Pico target dropped) |
+| PLAT-003 | wontfix | (removed) | SVG face rendering on embedded | (Pico target dropped) |
+| PLAT-004 | wontfix | (removed) | Pico W on-chip WiFi (replace ESP8266) | (Pico target dropped) |
 
 ---
 
@@ -194,9 +183,10 @@ Modules implemented but **not called** from `src/runtime/tick.rs` or `src/runtim
 
 | ID | File | Line (approx.) |
 |----|------|----------------|
-| PICO-002 | `src/drivers/sd_storage.rs` | mount, read, write |
 | HW-002 | `src/clock_core/sensors.rs` | AHT20 / DS3231 read |
 | VOICE-001 | `src/clock_core/voice_feedback.rs` | WAV mapping |
+
+(PICO-00x TODOs removed along with the Pico target.)
 
 ---
 
@@ -206,6 +196,12 @@ Modules implemented but **not called** from `src/runtime/tick.rs` or `src/runtim
 |----|-----------|-------|
 | PICO-001 | 2026-06-06 | DVI via `pico-dvi-rs` (640×480 VGA), `dvi_gfx` display lists, Pico DVI Sock pinout |
 | UI-002 | 2026-06-10 | Live global holidays panel (computed, multi-country via config/holidays.conf; replaced all samples). Calendar (UI-001) still pending. |
+| UI-006 | 2026-06-11 | License-compatible cartoony/playful SVG icon set (Meteocons Fill + Tabler MIT primary) with native hi/lo-res SVG variant support in atlas. Full rip-replace of old custom vivid garbage under assets/icons/playful/. Updated weather mapping, docs, debian/copyright + credits. |
+| PICO-REMOVAL | 2026-06-11 | Entire Pi Pico / RP2040 / DVI / embedded target removed (firmware, third_party/pico-dvi-rs, all pico-dvi features/cfgs, scripts, docs/EMBEDDED.md, etc.). Project now targets desktop on Debian Trixie + OpenIndiana 2025 only. All PICO-* and pico-tagged items set to wontfix. |
+
+## Abandoned (Pico target removal)
+
+All remaining PICO-*, pico-specific PLAT-*, and embedded-only items from P0/P1/P3 were marked `wontfix` as part of dropping the Pi Pico target. See ROADMAP for updated milestones focused on the two desktop OSes. Inline `// TODO(PICO-*)` comments were removed from `src/`.
 
 ---
 
@@ -215,5 +211,4 @@ Modules implemented but **not called** from `src/runtime/tick.rs` or `src/runtim
 |-----|------|
 | [ROADMAP.md](ROADMAP.md) | Milestone phases |
 | [DRIVERS.md](DRIVERS.md) | Wiring and protocol reference |
-| [EMBEDDED.md](EMBEDDED.md) | Pico build, flash, hardware |
-| [SHARED_CODE.md](SHARED_CODE.md) | Architecture and feature flags |
+| [SHARED_CODE.md](SHARED_CODE.md) | Architecture and feature flags (now desktop-only) |

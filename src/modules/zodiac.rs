@@ -1,4 +1,3 @@
-use crate::icons::draw_icon;
 use crate::modules::bottom_module::{BottomModule, PanelLine};
 use crate::modules::module_id::ModuleId;
 use crate::panel::Panel;
@@ -44,7 +43,7 @@ fn current_zodiac_sign() -> &'static ZodiacSign {
 }
 
 /// Zodiac module (upper row).
-/// Modern zodiac symbols (using vivid colorful icons) + Venus and synodic cycle information for the planets.
+/// Modern zodiac symbols (using playful cartoony icons) + Venus and synodic cycle information for the planets.
 /// Same BottomModule / Panel format as all other modules.
 pub struct ZodiacPanel {
     lines: Vec<String>,
@@ -115,7 +114,7 @@ impl Panel for ZodiacPanel {
         canvas.set_draw_color(Color::RGB(0xCC, 0x88, 0xFF));
         let _ = canvas.fill_rect(Rect::new(x + 4, y + 4, (w - 8) as u32, 3));
 
-        // Draw the current zodiac sign as a nice vivid colorful icon
+        // Draw the current zodiac sign as a nice playful cartoony icon (hi/lo supported)
         let icon_size = ((h - 24).max(64) as u32).min(96);
         let icon_x = x + 12;
         let icon_y = y + (h - icon_size as i32) / 2;

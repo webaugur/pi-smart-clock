@@ -1,7 +1,7 @@
 //! Virtual paths used across Linux and embedded builds.
 //! Platform code maps these to real locations.
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 use crate::prelude::*;
 
 pub const ALARMS_CSV: &str = "/sd/config/alarms.csv";

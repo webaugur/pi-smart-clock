@@ -1,6 +1,6 @@
 use crate::clock_core::alarm::AlarmManager;
 use crate::clock_core::boot::BootController;
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 use crate::prelude::*;
 use crate::clock_core::alarm_ui::AlarmUI;
 use crate::clock_core::alert_photos::AlertPhotoManager;
@@ -18,19 +18,19 @@ use crate::drivers::rotary_encoder::RotaryEncoder;
 use crate::runtime::mode::UiMode;
 use crate::runtime::tick;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::chimes::ChimeEngine;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::clock_core::alarm_video::AlarmVideoPlayer;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::modules::bar::BottomPanelBar;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::ota::updater::OtaUpdater;
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 pub struct OtaUpdater;
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 impl OtaUpdater {
     pub fn new() -> Self {
         Self
@@ -56,11 +56,11 @@ pub struct SmartClockState {
     pub logger: Logger,
     pub ota: OtaUpdater,
     pub ringing_alarm: Option<usize>,
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub chimes: ChimeEngine,
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub bottom_panels: BottomPanelBar,
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub alarm_video: AlarmVideoPlayer,
 }
 
@@ -85,16 +85,16 @@ impl SmartClockState {
             logger: Logger::new(),
             ota: OtaUpdater::new(),
             ringing_alarm: None,
-            #[cfg(feature = "linux-full")]
+            #[cfg(feature = "full")]
             chimes: ChimeEngine::new(),
-            #[cfg(feature = "linux-full")]
+            #[cfg(feature = "full")]
             bottom_panels: BottomPanelBar::new(),
-            #[cfg(feature = "linux-full")]
+            #[cfg(feature = "full")]
             alarm_video: AlarmVideoPlayer::new(),
         }
     }
 
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub async fn init<P: Platform + crate::platform::linux::SdlPlatformExt>(
         &mut self,
         _platform: &mut P,
@@ -102,12 +102,12 @@ impl SmartClockState {
         Ok(())
     }
 
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     pub async fn init<P: Platform>(&mut self, _platform: &mut P) -> Result<(), String> {
         Ok(())
     }
 
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub async fn tick<P: Platform + crate::platform::linux::SdlPlatformExt>(
         &mut self,
         platform: &mut P,
@@ -115,12 +115,12 @@ impl SmartClockState {
         tick::tick(self, platform).await;
     }
 
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     pub async fn tick<P: Platform>(&mut self, platform: &mut P) {
         tick::tick(self, platform).await;
     }
 
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub async fn render_linux<P: Platform + crate::platform::linux::SdlPlatformExt>(
         &mut self,
         platform: &mut P,

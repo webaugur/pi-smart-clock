@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Partly cloudy / cloud with sun peek - cartoony -->
+  <circle cx="8" cy="8" r="3" fill="#FFEB3B" stroke="#F9A825" stroke-width="1.6"/>
+  <g stroke="#FF9800" stroke-width="1.8" stroke-linecap="round">
+    <line x1="8" y1="2.5" x2="8" y2="4.5"/>
+    <line x1="3" y1="8" x2="5" y2="8"/>
+    <line x1="11" y1="8" x2="13" y2="8"/>
+    <line x1="5.5" y1="5.5" x2="6.8" y2="6.8"/>
+  </g>
+  <ellipse cx="15" cy="14" rx="4.5" ry="3.5" fill="#64B5F6" stroke="#1565C0" stroke-width="1.6"/>
+  <ellipse cx="10" cy="15" rx="3.5" ry="2.8" fill="#64B5F6" stroke="#1565C0" stroke-width="1.6"/>
+  <ellipse cx="18" cy="16" rx="2.8" ry="2" fill="#64B5F6" stroke="#1565C0" stroke-width="1.4"/>
+</svg>

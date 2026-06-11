@@ -1,5 +1,5 @@
 use crate::drivers::platform::Platform;
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 use crate::prelude::*;
 
 pub const DEFAULT_ALARM_SOUNDS: [&str; 4] = [

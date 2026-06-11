@@ -1,5 +1,5 @@
 use crate::drivers::platform::Platform;
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 use crate::prelude::*;
 
 pub struct NtpClient;
@@ -7,12 +7,12 @@ pub struct NtpClient;
 impl NtpClient {
     pub async fn sync<P: Platform>(platform: &mut P) -> Result<(), String> {
         if let Some(time_str) = platform.esp8266_get_ntp("pool.ntp.org").await {
-            #[cfg(feature = "linux-full")]
+            #[cfg(feature = "full")]
             if chrono::DateTime::parse_from_rfc3339(&time_str).is_ok() {
                 println!("🌍 NTP Sync successful: {time_str}");
                 return Ok(());
             }
-            #[cfg(not(feature = "linux-full"))]
+            #[cfg(not(feature = "full"))]
             if !time_str.is_empty() {
                 let _ = time_str;
                 return Ok(());

@@ -10,7 +10,7 @@ pub const SPLASH_IMAGES: &[&str] = &[
 pub const SPLASH_MIN_MS: u64 = 2500;
 pub const SPLASH_FRAME_MS: u64 = 33;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 mod linux {
     use sdl2::pixels::PixelFormatEnum;
     use sdl2::rect::Rect;
@@ -293,5 +293,5 @@ mod linux {
 
 }
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub use linux::BootSplash;

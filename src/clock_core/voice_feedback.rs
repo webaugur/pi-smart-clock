@@ -4,7 +4,7 @@ pub struct VoiceFeedback;
 
 impl VoiceFeedback {
     pub async fn speak<P: Platform>(platform: &mut P, message: &str) {
-        #[cfg(feature = "linux-full")]
+        #[cfg(feature = "full")]
         println!("🔊 Speaking: {}", message);
         
         // TODO(VOICE-001): Map message to WAV file on SD card

@@ -1,10 +1,10 @@
 //! Wall-clock helpers. Linux uses chrono Local; Pico uses UTC via chrono or
 //! a lightweight counter until RTC/DS3231 is wired.
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub use chrono::{DateTime, Local};
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 #[derive(Clone, Copy, Debug)]
 pub struct WallTime {
     pub hour: u32,
@@ -12,7 +12,7 @@ pub struct WallTime {
     pub second: u32,
 }
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 impl WallTime {
     pub const fn new(hour: u32, minute: u32, second: u32) -> Self {
         Self {

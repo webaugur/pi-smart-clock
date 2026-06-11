@@ -3,18 +3,18 @@ use crate::drivers::platform::Platform;
 use crate::runtime::mode::UiMode;
 use crate::runtime::state::SmartClockState;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::clock as layout;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::clock_core::{boot, clock, status_bar};
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::clock_core::boot::{reveal, status};
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::layout::l;
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::platform::linux::SdlPlatformExt;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 async fn render_clock_scene<P: Platform + SdlPlatformExt>(
     state: &mut SmartClockState,
     platform: &mut P,
@@ -33,7 +33,7 @@ async fn render_clock_scene<P: Platform + SdlPlatformExt>(
     status_bar::draw(platform, state.sensors.temp_c, env!("GIT_HASH")).await;
 }
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub async fn render_boot<P: Platform + SdlPlatformExt>(
     state: &mut SmartClockState,
     platform: &mut P,
@@ -64,7 +64,7 @@ pub async fn render_boot<P: Platform + SdlPlatformExt>(
     }
 }
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub async fn tick<P: Platform + SdlPlatformExt>(
     state: &mut SmartClockState,
     platform: &mut P,
@@ -145,10 +145,10 @@ pub async fn tick<P: Platform + SdlPlatformExt>(
     state.core_weather.update(platform, &state.alerts).await;
 }
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 use crate::clock_core::boot;
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 pub async fn tick<P: Platform>(state: &mut SmartClockState, platform: &mut P) {
     if !state.boot_done {
         boot::tick_boot(state, platform).await;
@@ -218,7 +218,7 @@ pub async fn tick<P: Platform>(state: &mut SmartClockState, platform: &mut P) {
     state.core_weather.update(platform, &state.alerts).await;
 }
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 pub async fn render_linux<P: Platform + SdlPlatformExt>(
     state: &mut SmartClockState,
     platform: &mut P,

@@ -1,4 +1,10 @@
-# Linux desktop build — Debian 13 (Trixie), same base as Raspberry Pi OS Trixie.
+# Desktop build for Debian 13 (Trixie) — supports amd64 and arm64 (aarch64).
+# Raspberry Pi OS Trixie (64-bit) is a common arm64 target.
+#
+# Multi-arch usage (recommended):
+#   docker buildx build --platform linux/amd64,linux/arm64 -t pi-smart-clock --push .
+# Plain build (current host arch):
+#   docker build -t pi-smart-clock .
 FROM debian:trixie-slim
 
 RUN apt-get update \
@@ -26,4 +32,5 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
 WORKDIR /src
 COPY . .
 
-RUN cargo build --release --features linux-full
+# Use the single "full" desktop feature (the only supported target after Pico removal).
+RUN cargo build --release --features full

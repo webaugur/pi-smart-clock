@@ -1,6 +1,4 @@
-use crate::icons::draw_symbolic_icon;
 use chrono::Timelike;
-use sdl2::pixels::Color;
 use sdl2::render::Canvas;
 use sdl2::video::Window;
 
@@ -33,20 +31,20 @@ impl WeatherIcon {
     }
 
     fn asset_path(self, night: bool) -> &'static str {
-        // Using Tabler Icons (MIT licensed) - place the corresponding .svg files
-        // (e.g. sun.svg, moon.svg, cloud.svg, cloud-rain.svg, etc.) in
-        // assets/icons/vivid/status/
+        // Playful cartoony icons (adapted from Meteocons Fill / Tabler MIT sets + project styling
+        // for high-sat, chunky, room-visible look). Files under assets/icons/playful/status/.
+        // Hi-res variants (e.g. sun.hires.svg) are auto-selected by the atlas for large sizes.
         match self {
             Self::Clear if night => "status/moon.svg",
             Self::Clear => "status/sun.svg",
-            Self::PartlyCloudy => "status/cloud-sun.svg",  // or cloud if not exact
+            Self::PartlyCloudy => "status/cloud-sun.svg",
             Self::Cloudy => "status/cloud.svg",
             Self::Fog => "status/fog.svg",
             Self::Drizzle => "status/cloud-rain.svg",
             Self::Rain => "status/cloud-rain.svg",
             Self::Snow => "status/cloud-snow.svg",
             Self::Thunderstorm => "status/cloud-storm.svg",
-            Self::Unknown => "status/help.svg",  // or question-mark, or use a generic
+            Self::Unknown => "status/help.svg",
         }
     }
 }
@@ -94,6 +92,6 @@ pub fn draw_weather_icon(
 ) {
     let hour = chrono::Local::now().hour();
     let night = hour >= 20 || hour < 6;
-    // Use new colorful vivid icons (no tinting - colors are baked into the SVGs for better visibility)
+    // Use playful cartoony icons (colors baked in; hi/lo variants handled by atlas)
     crate::icons::draw_icon(canvas, icon.asset_path(night), x, y, size);
 }

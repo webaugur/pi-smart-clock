@@ -1,12 +1,12 @@
 //! Runtime layout — fixed 4:3 vertical (3:4 width:height) logical coords, scaled to display height.
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use std::sync::OnceLock;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 static ACTIVE: OnceLock<Layout> = OnceLock::new();
 
-#[cfg(not(feature = "linux-full"))]
+#[cfg(not(feature = "full"))]
 static ACTIVE_LAYOUT: Layout = Layout::dvi_vga();
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -198,30 +198,30 @@ impl Layout {
 
     /// Register the fixed 4:3 vertical layout (always portrait).
     pub fn init(_display_w: u32, _display_h: u32) -> &'static Layout {
-        #[cfg(feature = "linux-full")]
+        #[cfg(feature = "full")]
         {
             let layout = Self::portrait();
             let _ = ACTIVE.set(layout);
             return ACTIVE.get().unwrap();
         }
-        #[cfg(not(feature = "linux-full"))]
+        #[cfg(not(feature = "full"))]
         {
             &ACTIVE_LAYOUT
         }
     }
 
     /// Window size: ~95% of display height; width follows layout aspect ratio.
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub fn window_size(_display_w: u32, display_h: u32) -> (u32, u32) {
         let h = ((display_h as f32) * 0.95).round() as u32;
         Self::size_for_height(h)
     }
 
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     const MIN_WINDOW_H: u32 = 240;
 
     /// Derive width from a target height while preserving layout aspect ratio.
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub fn size_for_height(h: u32) -> (u32, u32) {
         let layout = l();
         let h = h.max(Self::MIN_WINDOW_H);
@@ -232,7 +232,7 @@ impl Layout {
     }
 
     /// Snap arbitrary dimensions to the active layout aspect ratio.
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub fn snap_window_size(w: u32, h: u32) -> (u32, u32) {
         let layout = l();
         let aspect = layout.screen_w as f64 / layout.screen_h as f64;
@@ -253,13 +253,13 @@ impl Layout {
     }
 
     /// Smallest allowed window size, preserving layout aspect ratio.
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub fn minimum_window_size() -> (u32, u32) {
         Self::snap_window_size(1, Self::MIN_WINDOW_H)
     }
 
     /// Bottom panel slot rect (Linux bottom panel bar).
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub fn bottom_slot(&self, slot: crate::modules::slot::BottomSlot) -> (i32, i32, i32, i32) {
         let x = self.panel_w * slot.index() as i32;
         (x, self.bottom_y, self.panel_w, self.bottom_h)
@@ -267,7 +267,7 @@ impl Layout {
 
     /// Upper row slot rect (new second layer above the traditional bottom row).
     /// Uses the exact same visual style and module format as bottom slots.
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     pub fn upper_slot(&self, slot: crate::modules::slot::BottomSlot) -> (i32, i32, i32, i32) {
         let x = self.panel_w * slot.index() as i32;
         (x, self.upper_y, self.panel_w, self.upper_h)
@@ -276,11 +276,11 @@ impl Layout {
 
 /// Active layout (call `Layout::init` from `main` first on Linux).
 pub fn l() -> &'static Layout {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         return ACTIVE.get().expect("layout::Layout::init not called");
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         &ACTIVE_LAYOUT
     }

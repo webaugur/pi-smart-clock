@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <!-- Playful puffy cloud, thick bold, high visibility -->
+  <ellipse cx="8" cy="14" rx="4" ry="3.2" fill="#64B5F6" stroke="#1565C0" stroke-width="1.8"/>
+  <ellipse cx="14" cy="13" rx="5" ry="4" fill="#64B5F6" stroke="#1565C0" stroke-width="1.8"/>
+  <ellipse cx="18" cy="15" rx="3" ry="2.5" fill="#64B5F6" stroke="#1565C0" stroke-width="1.8"/>
+  <!-- Base -->
+  <ellipse cx="12" cy="17" rx="7" ry="2.5" fill="#42A5F5" stroke="#0D47A1" stroke-width="1.6"/>
+</svg>

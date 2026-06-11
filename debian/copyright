@@ -74,3 +74,17 @@ License: GPL-2+
  .
  On Debian systems, the complete text of the GNU General Public License
  version 2 can be found in "/usr/share/common-licenses/GPL-2".
+
+Files: assets/icons/playful/*
+Copyright: Bas Milius and contributors (Meteocons Fill style weather icons, MIT)
+           Tabler Icons authors (supplemental MIT icons)
+           Pi Smart Clock contributors (adaptations, recoloring, zodiac, hi/lo variants, playful/cartoon styling for room visibility)
+License: MIT
+ The icons are from Meteocons (https://github.com/basmilius/meteocons, MIT) and
+ Tabler Icons (https://github.com/tabler/tabler-icons, MIT), adapted with thick
+ strokes, high-saturation colors, and cartoony/playful details while preserving
+ the original permissive terms. Zodiac and decorative icons plus .hires variants
+ are project-authored to match the style.
+ .
+ On Debian systems, the complete text of the MIT license can be found in
+ "/usr/share/common-licenses/MIT". See also assets/icons/playful/README.txt.

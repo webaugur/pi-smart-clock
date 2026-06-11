@@ -1,6 +1,6 @@
 use std::path::Path;
 
-#[cfg(feature = "linux-full")]
+#[cfg(feature = "full")]
 use crate::storage::linux as xdg_storage;
 
 #[derive(Clone, Debug)]
@@ -35,11 +35,11 @@ pub fn load_esp8266_config() -> Esp8266Config {
 }
 
 fn resolve_esp8266_config_path() -> Option<std::path::PathBuf> {
-    #[cfg(feature = "linux-full")]
+    #[cfg(feature = "full")]
     {
         return xdg_storage::find_config("esp8266.conf", "esp8266.conf.example");
     }
-    #[cfg(not(feature = "linux-full"))]
+    #[cfg(not(feature = "full"))]
     {
         let path = Path::new("config/esp8266.conf");
         if path.is_file() {
